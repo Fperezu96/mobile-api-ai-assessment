@@ -142,6 +142,16 @@ Una demostración útil es agregar una unidad, eliminarla y agregar dos nuevamen
 
 La aceptación exige código revisado, aserciones significativas y evidencia de sesión real. Sin dispositivo se informa implementación/descubrimiento pendiente de ejecución. No se promete que cualquier agente o MCP pueda hacerlo sin las capacidades necesarias.
 
+### ¿Qué produjo la comprobación del skill actualizado?
+
+**Trazabilidad.** Skill fortalecido en a22622fa20a862a0b30f7bd4d3dc95620a1d0033, conservado antes de su uso. Un agente separado recibió el pedido y leyó skill/referencias/código sin editar ni abrir sesiones. Propuso el spec; el agente principal revisó oráculos, integró el cambio y lo conservó en b8899401f437e102436fd9285d5771872faae85e. No se atribuye al agente una inspección UI que no realizó.
+
+**Resultado.** CART-03, ejecución 2026-11-10T23-09-28-917Z (10 de noviembre, 18:09 Bogotá): 1 aprobado, 0 fallidos y 0 omitidos; caso 42,374 s y ejecución 47,671 s. Typecheck y descubrimiento por ID aprobados. El reporte y la captura final muestran Backpack, 2 unidades, USD 29,99 unitario y USD 59,98 total, tras comprobar carrito vacío/sin total intermedio. Reutilizó datos, acciones, pantallas y fixture sin agregar capas.
+
+**Cómo reproducir.** Con Appium local listo, seleccionar CART-03 o @interview y abrir report:mobile con ese runId. No se añadió a @smoke/@regression; los totales históricos de 39 Android y 47 conjuntos permanecen sin reinterpretación. La prueba de 60 unidades es un ejemplo de pedido futuro, no una ejecución realizada.
+
+**Revisión.** Se revisaron aserciones, metadatos, resumen y captura final. El formato del skill pasó el validador; skill:prompt se comprobó con entrada válida y un ID rechazado. La revisión humana final de Felipe está pendiente. Registro local: artifacts/ai/skill-interview-invocation.json.
+
 ## 8. ¿Qué otras tres skills se proponen y cuál se construiría primero?
 
 | Propuesta | Propósito y usuario | Entradas → salidas | Verificación y prioridad |

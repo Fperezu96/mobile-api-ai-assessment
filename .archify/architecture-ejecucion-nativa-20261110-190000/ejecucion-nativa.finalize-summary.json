@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-ejecucion-nativa-20261110-190000\\candidate.json",
+    "sha256": "e7b18224d01d1deb9a7373394af9067a062db51f672536376b12d9fac0ecab8c",
+    "bytes": 5133
+  },
+  "artifact": {
+    "path": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-ejecucion-nativa-20261110-190000\\ejecucion-nativa.html",
+    "sha256": "9c6cc759d264c683d1911e43f9abb8d2da1fd6ba4783b2df146b6775121d1303",
+    "bytes": 841989
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "fail"
+  },
+  "failedStage": "browser-check",
+  "diagnostics": [
+    {
+      "code": "viewer/browser-check-runtime",
+      "severity": "error",
+      "message": "browser-check could not complete its Chrome inspection.",
+      "subject": {
+        "artifact": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-ejecucion-nativa-20261110-190000\\ejecucion-nativa.html"
+      },
+      "evidence": {
+        "reason": "Chrome DevTools read pipe failed: stream ended\nChrome process: still running.\nWindows browser startup may have relaunched before connecting to the DevTools pipe. Retry from a non-elevated PowerShell opened normally, outside an elevated or compatibility-mode parent. Archify does not disable browser de-elevation or the sandbox to preserve pipe handles.\nChrome transport: Node v22.18.0, libuv 1.51.0, win32; pid=20012, exitCode=null, signalCode=null.\nChrome read pipe: readable=false, ended=true, destroyed=false, receivedBytes=0, messages=0, bufferedBytes=0.\nChrome write pipe: writable=true, ended=false, destroyed=false, completedWrites=1, writtenBytes=50, bufferedBytes=0."
+      },
+      "supportedFixes": [
+        "resolve the reported Chrome inspection error, then rerun browser-check"
+      ]
+    }
+  ],
+  "diagnosticSummary": {
+    "total": 1,
+    "shown": 1,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-ejecucion-nativa-20261110-190000\\ejecucion-nativa.finalize.json",
+    "summaryReceipt": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-ejecucion-nativa-20261110-190000\\ejecucion-nativa.finalize-summary.json",
+    "browserCheckReceipt": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-ejecucion-nativa-20261110-190000\\ejecucion-nativa.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-10T18:18:24.237Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 11751,
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  }
+}

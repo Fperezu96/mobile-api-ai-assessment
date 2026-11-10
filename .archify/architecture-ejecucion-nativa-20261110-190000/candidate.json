@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Ejecución Android: runner, cliente y servidor",
+    "locale": "es",
+    "output": ".archify/architecture-ejecucion-nativa-20261110-190000/ejecucion-nativa.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Fperezu96/mobile-api-ai-assessment.git",
+      "revision": "e15376bfbe8a4d26a3990cb9a6cf28409309400e",
+      "link_mode": "web"
+    },
+    "legend": {
+      "entries": {
+        "backend": {
+          "label": "Automatización"
+        },
+        "external": {
+          "label": "Dispositivo"
+        }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "spec",
+      "type": "backend",
+      "label": "Playwright Test",
+      "sublabel": "Specs, pasos y aserciones",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        170,
+        78
+      ],
+      "sources": [
+        {
+          "path": "tests/mobile/specs/cart.spec.ts",
+          "line": 1,
+          "end_line": 18
+        },
+        {
+          "path": "config/mobile/playwright.config.ts",
+          "line": 8,
+          "end_line": 29
+        }
+      ]
+    },
+    {
+      "id": "fixture",
+      "type": "backend",
+      "label": "Fixture y pantallas",
+      "sublabel": "Sesión, acciones y evidencia",
+      "pos": [
+        370,
+        40
+      ],
+      "size": [
+        190,
+        78
+      ],
+      "sources": [
+        {
+          "path": "tests/mobile/fixtures/native.fixture.ts",
+          "line": 32,
+          "end_line": 70
+        }
+      ]
+    },
+    {
+      "id": "client",
+      "type": "backend",
+      "label": "WebdriverIO",
+      "sublabel": "Cliente HTTP W3C",
+      "pos": [
+        730,
+        40
+      ],
+      "size": [
+        170,
+        78
+      ],
+      "sources": [
+        {
+          "path": "tests/mobile/fixtures/native.fixture.ts",
+          "line": 43,
+          "end_line": 56
+        },
+        {
+          "path": "src/mobile/screens/android/cart.screen.ts",
+          "line": 29,
+          "end_line": 39
+        }
+      ]
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "Appium",
+      "sublabel": "Servidor 127.0.0.1:4723",
+      "pos": [
+        730,
+        250
+      ],
+      "size": [
+        170,
+        78
+      ],
+      "sources": [
+        {
+          "path": "scripts/mobile/appium.mjs",
+          "line": 1,
+          "end_line": 18
+        },
+        {
+          "path": "docs/arquitectura.md",
+          "line": 64,
+          "end_line": 68
+        }
+      ]
+    },
+    {
+      "id": "driver",
+      "type": "backend",
+      "label": "UiAutomator2",
+      "sublabel": "Driver e instrumentación",
+      "pos": [
+        370,
+        250
+      ],
+      "size": [
+        190,
+        78
+      ],
+      "sources": [
+        {
+          "path": "config/mobile/capabilities.ts",
+          "line": 6,
+          "end_line": 24
+        },
+        {
+          "path": "docs/arquitectura.md",
+          "line": 62,
+          "end_line": 68
+        }
+      ]
+    },
+    {
+      "id": "android",
+      "type": "external",
+      "label": "Android + APK",
+      "sublabel": "Emulador o equipo físico",
+      "pos": [
+        40,
+        250
+      ],
+      "size": [
+        170,
+        78
+      ],
+      "sources": [
+        {
+          "path": "config/mobile/capabilities.ts",
+          "line": 6,
+          "end_line": 24
+        },
+        {
+          "path": "scripts/android-local/start.ps1",
+          "line": 10,
+          "end_line": 32
+        },
+        {
+          "path": "docs/arquitectura.md",
+          "line": 63,
+          "end_line": 68
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "compose",
+      "from": "spec",
+      "to": "fixture",
+      "label": "Usa el fixture",
+      "variant": "emphasis"
+    },
+    {
+      "id": "remote",
+      "from": "fixture",
+      "to": "client",
+      "label": "remote y acciones",
+      "variant": "emphasis"
+    },
+    {
+      "id": "w3c",
+      "from": "client",
+      "to": "server",
+      "label": "HTTP W3C",
+      "variant": "emphasis"
+    },
+    {
+      "id": "dispatch",
+      "from": "server",
+      "to": "driver",
+      "label": "Selecciona driver",
+      "variant": "emphasis"
+    },
+    {
+      "id": "native",
+      "from": "driver",
+      "to": "android",
+      "label": "Instala y opera",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Instalación y arranque",
+      "items": [
+        "npm ci fija cliente, servidor y driver del proyecto.",
+        "Android arranca aparte; ADB identifica el dispositivo.",
+        "appium:start levanta HTTP; no instala dispositivos."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Ciclo de sesión",
+      "items": [
+        "El fixture solicita sesión, compone pantallas y ejecuta acciones.",
+        "La respuesta vuelve al cliente para las aserciones.",
+        "Evidencia y deleteSession cierran cada caso."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Alcance del gráfico",
+      "items": [
+        "Camino Android local implementado; sin navegador web.",
+        "Un dispositivo admite una prueba o Inspector a la vez.",
+        "Nube e iOS son extensiones pendientes, sin pipeline activo."
+      ]
+    }
+  ]
+}

@@ -24,11 +24,11 @@ Los ejemplos usan PowerShell en Windows. En otras terminales usar npm en lugar d
 2. Clonar y entrar al repositorio:
 
 ~~~powershell
-git clone https://github.com/Fperezu96/mobile-api-ai-assessment.git
+git clone --branch docs/separate-product-strategies-and-native-performance https://github.com/Fperezu96/mobile-api-ai-assessment.git
 cd mobile-api-ai-assessment
 npm.cmd ci
 npm.cmd run typecheck
-Copy-Item .env.example .env
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
 ~~~
 
 Si ya existe .env, conservarlo. Completar localmente BOOKER_USERNAME y BOOKER_PASSWORD con las credenciales del servicio de práctica; BOOKER_BASE_URL ya apunta a Restful Booker.
@@ -135,7 +135,7 @@ Los tags están en metadatos de los tests; --grep admite expresiones regulares.
 | Selección | @api, @mobile, @smoke, @regression, @exploratory, @random |
 | API | @crud, @authorization, @isolation |
 | Móvil | @cart, @quantity, @boundary, @color, @catalog, @login, @native, @back, @scroll, @navigation, @review |
-| Clasificación | @negative, @characterization, @known-issue |
+| Clasificación | @negative, @characterization, @known-issue, @interview |
 
 ~~~powershell
 npm.cmd run test:api -- --grep "@authorization"
@@ -165,12 +165,12 @@ El visor imprime su URL local. Método, mediciones y límites están en [resulta
 En Codex, abrir el repositorio y pedir “Usa $mobile-native-tests para…” seguido del comportamiento y resultado esperado. Para preparar un prompt portable:
 
 ~~~powershell
-npm.cmd run skill:prompt -- --id CART-03 --scenario "Agregar una unidad, eliminarla y volver a agregar dos; validar que no queda el estado anterior"
+npm.cmd run skill:prompt -- --id CART-04 --scenario "Validar 60 unidades de Backpack a USD 29,99: total USD 1799,40; comprobar cantidad e importe y después vaciar el carrito"
 ~~~
 
 Copiar la salida al agente. Este comando prepara instrucciones; no genera código ni ejecuta IA por sí solo. Otro agente puede leer directamente [.agents/skills/mobile-native-tests/SKILL.md](.agents/skills/mobile-native-tests/SKILL.md). Ejemplos y criterios están en sus referencias; el MCP utilizado depende de las herramientas disponibles.
 
-Pedir datos y expectativas concretos: “60 unidades de Backpack” es distinto de “60 productos diferentes”. Después de generar el caso, revisar typecheck, descubrimiento por ID y ejecución focalizada antes de incorporarlo a una suite.
+Pedir datos y expectativas concretos: “60 unidades de Backpack” es distinto de “60 productos diferentes”. Después de generar el caso, revisar typecheck, descubrimiento por ID y ejecución focalizada antes de incorporarlo a una suite. CART-03 queda como demostración seleccionable con npm.cmd run test:mobile -- --grep "@interview", fuera de smoke/regression.
 
 ## 8. Ejecutar API y móvil en una misma entrega
 
@@ -181,6 +181,6 @@ npm.cmd run test:all:smoke
 npm.cmd run report:all
 ~~~
 
-Para toda la regresión usar test:all:regression o test:all; para descubrir casos usar test:all:list. Estos comandos gestionan Appium local. El reporte conjunto mantiene cada producto separado por proyecto.
+Para toda la regresión usar test:all:regression o test:all; para descubrir casos usar test:all:list. test:all:catalog y test:all:random seleccionan únicamente catálogo o muestra móvil dentro del reporte conjunto. Estos comandos gestionan Appium local. El reporte conjunto mantiene cada producto separado por proyecto.
 
 No se entrega un workflow activo ni se ejecuta pipeline para este ejercicio. La futura integración con BrowserStack, variables y paralelismo se describe en [resultados](docs/resultados.md); no es necesaria para ejecutar las suites locales.

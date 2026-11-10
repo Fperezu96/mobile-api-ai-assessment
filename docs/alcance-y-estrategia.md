@@ -56,7 +56,7 @@ Carga, capacidad, seguridad ofensiva, recuperación del servidor y mediciones de
 
 ### 4.1 ¿Cuál es el alcance funcional móvil?
 
-**Respuesta.** Android nativo local, con 39 ejecuciones deterministas por dispositivo y una muestra exploratoria predeterminada de tres compras por semilla. Android e iOS no se consideran aprobados por ejecutar el mismo código: iOS aún no se ha ejecutado.
+**Respuesta.** Android nativo local, con 39 ejecuciones deterministas por dispositivo y una muestra exploratoria predeterminada de tres compras por semilla. CART-03 es una demostración adicional seleccionada por @interview; no altera las 39 combinaciones de regresión. Android e iOS no se consideran aprobados por ejecutar el mismo código: iOS aún no se ha ejecutado.
 
 | Código | Escenario y riesgo que justifica su selección | Resultado esperado | Prioridad | Impacto del fallo |
 | --- | --- | --- | --- | --- |
@@ -73,7 +73,10 @@ Carga, capacidad, seguridad ofensiva, recuperación del servidor y mediciones de
 | COLOR-01 Blue/Green | Transferir variante del detalle al carrito | Indicador conserva el color seleccionado, con el mismo producto, cantidad y precio (D) | P2 | Alto: variante distinta de la elegida |
 | COLOR-02 | Pulsar indicador de color dentro del carrito | No cambia la compra: el control se caracteriza como información de solo lectura (C) | P3 | Bajo: comportamiento visual ambiguo |
 | REVIEW-01 con 1/5 estrellas | Valorar y continuar; detectar modal que bloquee el recorrido | Confirmación visible, cierre del modal y regreso al producto sin agregarlo al carrito (C) | P2 | Medio: interrupción del recorrido |
+| CART-03, demostración @interview | Vaciar y volver a agregar con otra cantidad; detectar estado residual | Una unidad inicial, carrito vacío/sin total y después dos unidades por USD 59,98, sin sumar la compra anterior (D) | P2 | Alto: cantidad o importe residual tras eliminar |
 | GEN-01, muestra por semilla | Comprar productos reales con cantidades generadas; ampliar combinaciones | Detalle y carrito coinciden con producto, cantidad y precio de referencia elegidos antes de actuar (D) | P2 | Medio: cobertura restringida a un ejemplo favorable |
+
+**Demostración de recuperación:** [cart-recovery.spec.ts](../tests/mobile/specs/cart-recovery.spec.ts), ejecutada aparte para comprobar el uso del skill.
 
 **Implementación por funcionalidad:** [carrito](../tests/mobile/specs/cart.spec.ts), [cantidades y colores](../tests/mobile/specs/cart-interactions.spec.ts), [login](../tests/mobile/specs/login.spec.ts), [navegación](../tests/mobile/specs/navigation.spec.ts), [catálogo](../tests/mobile/specs/catalog.spec.ts), [reseñas](../tests/mobile/specs/review.spec.ts) y [compras generadas](../tests/mobile/specs/generated-cart.spec.ts).
 

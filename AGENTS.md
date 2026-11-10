@@ -2,7 +2,7 @@
 
 ## Alcance y estado
 
-TypeScript para móvil y API. Playwright Test para API y WebdriverIO con Appium para aplicaciones nativas. Incluir Android local y Android e iOS en BrowserStack. La API y Android local están implementados y ejecutados. La regresión móvil conserva fallos de la demo; BrowserStack sigue bloqueado en la carga y no hay ejecución iOS ni nube aprobada.
+TypeScript para móvil y API. Playwright Test para API y WebdriverIO con Appium para aplicaciones nativas. La entrega se limita a Android local; Android/iOS en BrowserStack quedan como extensión documentada, sin pipeline activo. La API y Android local están implementados y ejecutados. La regresión móvil conserva fallos de la demo; BrowserStack sigue bloqueado en la carga y no hay ejecución iOS ni nube aprobada.
 
 ## Diseño y revisión
 
