@@ -141,3 +141,8 @@ El diagnóstico de rendimiento usa datos nativos y un reporte propio. TTID inici
 Instalador iOS compatible, proveedor/permisos/cuota, localizadores observados, driver XCUITest y sesiones reales. No basta con cambiar platformName o reutilizar IDs Android. Primero validar un smoke de equivalencia y luego decidir qué implementación compartir.
 
 BrowserStack autenticó, pero rechazó la carga Android con 422 antes de crear sesión; no se ha confirmado la causa particular. Su valor sería acceso a dispositivos reales/iOS y evidencia de sesiones; se evaluará después de la revisión final, sin compra ni consumo adicional ahora. AWS personal y cuota gratuita siguen sin verificar; no se toca la cuenta del banco.
+
+
+### Verificación del diagrama de negocio
+
+Archify aprobó la validación del modelo, la generación y la comprobación del HTML. Su comprobación integrada en Chrome quedó bloqueada por la conexión de depuración en la sesión elevada de Windows, incluso tras un reintento. Por tanto, no se declara aprobada la finalización completa de Archify. Como comprobación independiente, Chrome con sandbox habilitado renderizó el archivo sin errores JavaScript ni desbordamiento; se revisó visualmente la separación API/APK y la sesión condicional del checkout. El recibo está en `.archify/workflow-negocio-20261110-173325/revision-independiente.json`.

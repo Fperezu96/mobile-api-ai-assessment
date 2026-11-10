@@ -1,0 +1,383 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Modelo de negocio: tienda móvil y reservas",
+    "locale": "es",
+    "output": ".archify/workflow-negocio-20261110-173325/modelo-negocio.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Fperezu96/mobile-api-ai-assessment.git",
+      "revision": "ed6feb554c2bec69891473000a2ab6a3e97d3480",
+      "provider": "github",
+      "link_mode": "web"
+    }
+  },
+  "lanes": [
+    {
+      "id": "browse",
+      "label": "APK · explorar como invitado"
+    },
+    {
+      "id": "purchase",
+      "label": "APK · carrito y compra"
+    },
+    {
+      "id": "identity",
+      "label": "APK · sesión condicional"
+    },
+    {
+      "id": "booking",
+      "label": "API · reservas independientes"
+    }
+  ],
+  "mainPath": [
+    "catalog",
+    "detail",
+    "cart",
+    "session",
+    "checkout",
+    "order"
+  ],
+  "semanticChecks": {
+    "allowedRoots": [
+      "catalog",
+      "bookingData"
+    ],
+    "allowedTerminals": [
+      "order",
+      "remove"
+    ],
+    "requiredPaths": [
+      {
+        "from": "catalog",
+        "to": "order"
+      },
+      {
+        "from": "bookingData",
+        "to": "remove"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "catalog",
+      "lane": "browse",
+      "col": 0,
+      "type": "frontend",
+      "label": "Catálogo",
+      "sublabel": "Invitado y scroll",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 13,
+          "end_line": 13
+        }
+      ]
+    },
+    {
+      "id": "detail",
+      "lane": "browse",
+      "col": 1,
+      "type": "frontend",
+      "label": "Detalle",
+      "sublabel": "Producto y variante",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 14,
+          "end_line": 14
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "lane": "browse",
+      "col": 2,
+      "type": "frontend",
+      "label": "Valoración",
+      "sublabel": "Confirmación UI",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 16,
+          "end_line": 16
+        }
+      ]
+    },
+    {
+      "id": "cart",
+      "lane": "purchase",
+      "col": 1,
+      "type": "frontend",
+      "label": "Carrito",
+      "sublabel": "Unidades y total",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 15,
+          "end_line": 15
+        }
+      ]
+    },
+    {
+      "id": "session",
+      "lane": "purchase",
+      "col": 2,
+      "type": "security",
+      "label": "¿Hay sesión?",
+      "sublabel": "Al pedir checkout",
+      "icon": "decision",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 17,
+          "end_line": 17
+        }
+      ]
+    },
+    {
+      "id": "checkout",
+      "lane": "purchase",
+      "col": 3,
+      "type": "frontend",
+      "label": "Checkout",
+      "sublabel": "Entrega y pago demo",
+      "tag": "Sin E2E",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 17,
+          "end_line": 19
+        }
+      ]
+    },
+    {
+      "id": "order",
+      "lane": "purchase",
+      "col": 4,
+      "type": "frontend",
+      "label": "Confirmación",
+      "sublabel": "Pedido de la demo",
+      "tag": "Sin E2E",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 19,
+          "end_line": 19
+        }
+      ]
+    },
+    {
+      "id": "login",
+      "lane": "identity",
+      "col": 2,
+      "type": "security",
+      "label": "Login demo",
+      "sublabel": "Habilita sesión",
+      "tag": "Permisivo",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 18,
+          "end_line": 18
+        }
+      ]
+    },
+    {
+      "id": "bookingData",
+      "lane": "booking",
+      "col": 0,
+      "type": "external",
+      "label": "Datos de reserva",
+      "sublabel": "Proyecto separado",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 7,
+          "end_line": 7
+        }
+      ]
+    },
+    {
+      "id": "create",
+      "lane": "booking",
+      "col": 1,
+      "type": "backend",
+      "label": "Crear reserva",
+      "sublabel": "Conservar ID",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 28,
+          "end_line": 28
+        }
+      ]
+    },
+    {
+      "id": "read",
+      "lane": "booking",
+      "col": 2,
+      "type": "backend",
+      "label": "Consultar",
+      "sublabel": "Detalle y búsqueda",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 28,
+          "end_line": 28
+        }
+      ]
+    },
+    {
+      "id": "update",
+      "lane": "booking",
+      "col": 3,
+      "type": "backend",
+      "label": "Modificar",
+      "sublabel": "Autorización",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 28,
+          "end_line": 28
+        }
+      ]
+    },
+    {
+      "id": "remove",
+      "lane": "booking",
+      "col": 4,
+      "type": "backend",
+      "label": "Eliminar",
+      "sublabel": "Registro ausente",
+      "sources": [
+        {
+          "path": "docs/arquitectura.md",
+          "line": 28,
+          "end_line": 28
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "explore",
+      "from": "catalog",
+      "to": "detail",
+      "label": "Elegir",
+      "role": "main"
+    },
+    {
+      "id": "rate",
+      "from": "detail",
+      "to": "review",
+      "label": "Estrellas",
+      "role": "branch"
+    },
+    {
+      "id": "continue",
+      "from": "review",
+      "to": "detail",
+      "label": "Continuar",
+      "role": "return"
+    },
+    {
+      "id": "add",
+      "from": "detail",
+      "to": "cart",
+      "label": "Agregar",
+      "role": "main"
+    },
+    {
+      "id": "requestCheckout",
+      "from": "cart",
+      "to": "session",
+      "label": "Checkout",
+      "role": "main"
+    },
+    {
+      "id": "active",
+      "from": "session",
+      "to": "checkout",
+      "label": "Sí",
+      "variant": "security",
+      "role": "main"
+    },
+    {
+      "id": "guest",
+      "from": "session",
+      "to": "login",
+      "label": "No",
+      "variant": "security",
+      "role": "branch"
+    },
+    {
+      "id": "authenticate",
+      "from": "login",
+      "to": "checkout",
+      "label": "Tras login",
+      "variant": "security",
+      "role": "branch"
+    },
+    {
+      "id": "complete",
+      "from": "checkout",
+      "to": "order",
+      "label": "Confirmar",
+      "role": "main"
+    },
+    {
+      "id": "post",
+      "from": "bookingData",
+      "to": "create",
+      "label": "POST"
+    },
+    {
+      "id": "get",
+      "from": "create",
+      "to": "read",
+      "label": "GET"
+    },
+    {
+      "id": "put",
+      "from": "read",
+      "to": "update",
+      "label": "PUT/PATCH"
+    },
+    {
+      "id": "delete",
+      "from": "update",
+      "to": "remove",
+      "label": "DELETE"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Dos productos independientes",
+      "items": [
+        "Booker no es el backend de la APK.",
+        "La ruta API resume capacidades; no obliga a compartir estado u orden entre tests."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Límites de cobertura",
+      "items": [
+        "El catálogo se explora sin login.",
+        "Checkout, pedido completo y multiproducto aún no tienen ejecución E2E.",
+        "La confirmación de reseña no acredita persistencia en backend."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Defectos conservados",
+      "items": [
+        "El login de la demo acepta contraseña incorrecta.",
+        "19 cierres del catálogo se agrupan en dos causas.",
+        "El modelo funcional no declara la APK aprobada ni una compra real."
+      ]
+    }
+  ]
+}

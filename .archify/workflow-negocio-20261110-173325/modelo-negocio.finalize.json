@@ -1,0 +1,373 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "workflow",
+  "quality": "showcase",
+  "startedAt": "2026-11-10T22:42:47.881Z",
+  "specification": {
+    "path": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\candidate.json",
+    "sha256": "0cd67d99360e312adf71da83c9385fb616d06ccb8dc9cacd053716c917f0aedc",
+    "bytes": 7897
+  },
+  "artifact": {
+    "path": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.html",
+    "sha256": "16306b598cc4ac58f3919fcd59b1b0b2265b8528e0343029221255253e846bc9",
+    "bytes": 858191
+  },
+  "stages": {
+    "validate": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": null,
+      "execution": "embedded-in-deliver",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\FelipePérez\\.codex\\skills\\archify\\bin\\archify.mjs",
+        "deliver",
+        "workflow",
+        "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\candidate.json",
+        "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "C:\\dev\\mobile-api-ai-assessment",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": true,
+        "command": "validate",
+        "specification": {
+          "sha256": "0cd67d99360e312adf71da83c9385fb616d06ccb8dc9cacd053716c917f0aedc",
+          "bytes": 7897
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        }
+      }
+    },
+    "deliver": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 2456,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\FelipePérez\\.codex\\skills\\archify\\bin\\archify.mjs",
+        "deliver",
+        "workflow",
+        "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\candidate.json",
+        "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "C:\\dev\\mobile-api-ai-assessment",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "receiptId": "cc361c31-46ec-47a6-a4d2-9c2966833fd9",
+        "ok": true,
+        "command": "deliver",
+        "type": "workflow",
+        "input": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\candidate.json",
+        "output": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.html",
+        "specification": {
+          "sha256": "0cd67d99360e312adf71da83c9385fb616d06ccb8dc9cacd053716c917f0aedc",
+          "bytes": 7897
+        },
+        "artifact": {
+          "sha256": "16306b598cc4ac58f3919fcd59b1b0b2265b8528e0343029221255253e846bc9",
+          "bytes": 858191
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        },
+        "evidence": {
+          "verified": true,
+          "repository": "https://github.com/Fperezu96/mobile-api-ai-assessment",
+          "revision": "ed6feb554c2bec69891473000a2ab6a3e97d3480",
+          "references": 13
+        },
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      }
+    },
+    "check": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 765,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\FelipePérez\\.codex\\skills\\archify\\bin\\archify.mjs",
+        "check",
+        "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.html",
+        "--require-provenance"
+      ],
+      "receipt": {
+        "ok": true,
+        "file": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.html",
+        "artifact": {
+          "sha256": "16306b598cc4ac58f3919fcd59b1b0b2265b8528e0343029221255253e846bc9",
+          "bytes": 858191
+        },
+        "checks": [
+          {
+            "name": "single_svg",
+            "ok": true,
+            "details": [
+              "found 1 <svg> block(s)"
+            ]
+          },
+          {
+            "name": "finite_svg",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "orthogonal_arrows",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "label_route_clearance",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_crossings",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_corridors",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "container_border_runs",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "route_rhythm",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "legend_clearance",
+            "ok": true,
+            "details": []
+          }
+        ],
+        "composition": {
+          "schemaVersion": 1,
+          "profile": "showcase",
+          "status": "pass",
+          "summary": {
+            "errors": 0,
+            "warnings": 0
+          },
+          "metrics": {
+            "properCrossings": 0,
+            "resolvedCrossovers": 0,
+            "ambiguousCorridors": 0,
+            "arrowheadCollisions": 0,
+            "containerBorderRuns": 0,
+            "labelRouteClearanceIssues": 0,
+            "labelCanvasOverflowIssues": 0,
+            "minLabelRouteClearance": 13,
+            "desktopReadabilityIssues": 0,
+            "viewportHeightIssues": 0,
+            "minProjectedNodeTextPx": 7.3,
+            "maxBends": 0,
+            "routesOverSuggestedBends": 0,
+            "maxStretch": 1,
+            "routesOverSuggestedStretch": 0,
+            "minSegmentPx": 8,
+            "minInteriorSegmentPx": null,
+            "shortSegmentCount": 3,
+            "shortEndpointSegmentCount": 3,
+            "shortInteriorSegmentCount": 0,
+            "microSegmentCount": 0
+          },
+          "suggestedLimits": {
+            "bendsPerRelationship": 2,
+            "stretch": 1.35,
+            "segmentPx": 16,
+            "microSegmentPx": 8
+          },
+          "routeReview": {
+            "crossings": [],
+            "detours": []
+          },
+          "leadingSpace": {
+            "measured": false,
+            "reviewSuggested": false
+          },
+          "desktopReadability": {
+            "budgetBasis": "legacy-930",
+            "readerContract": "declared-wide-v1",
+            "availableDiagramWidth": 930,
+            "actualBudgetPx": 930,
+            "limit": "legacy",
+            "requestedTargetPx": null,
+            "requestedTargetMet": null,
+            "hardFloorPx": 6,
+            "hardFloorMet": true,
+            "minimumOwner": {
+              "kind": "node",
+              "id": "detail"
+            },
+            "minimumSourceTextPx": 7.3,
+            "minimumProjectedTextPx": 7.3,
+            "semanticTextCount": 39
+          },
+          "issues": []
+        },
+        "provenance": "current",
+        "deliveryReceiptId": "cc361c31-46ec-47a6-a4d2-9c2966833fd9"
+      }
+    },
+    "browser-check": {
+      "status": "fail",
+      "exitCode": 1,
+      "durationMs": 455,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\FelipePérez\\.codex\\skills\\archify\\bin\\archify.mjs",
+        "browser-check",
+        "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.html",
+        "--json",
+        "--require-provenance"
+      ],
+      "execution": "in-process",
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "browser-check",
+        "evidenceKind": "automated-browser",
+        "status": "fail",
+        "visualReview": "not-requested",
+        "provenance": "current",
+        "deliveryReceiptId": "cc361c31-46ec-47a6-a4d2-9c2966833fd9",
+        "artifact": {
+          "path": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.html",
+          "sha256": "16306b598cc4ac58f3919fcd59b1b0b2265b8528e0343029221255253e846bc9",
+          "bytes": 858191
+        },
+        "state": {
+          "detail": "read",
+          "motion": "still"
+        },
+        "chrome": {
+          "status": "available",
+          "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        "diagnostics": [
+          {
+            "code": "viewer/browser-check-runtime",
+            "severity": "error",
+            "message": "browser-check could not complete its Chrome inspection.",
+            "subject": {
+              "artifact": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.html"
+            },
+            "evidence": {
+              "reason": "Chrome DevTools read pipe failed: stream ended\nChrome process: still running.\nWindows browser startup may have relaunched before connecting to the DevTools pipe. Retry from a non-elevated PowerShell opened normally, outside an elevated or compatibility-mode parent. Archify does not disable browser de-elevation or the sandbox to preserve pipe handles.\nChrome transport: Node v22.18.0, libuv 1.51.0, win32; pid=14616, exitCode=null, signalCode=null.\nChrome read pipe: readable=false, ended=true, destroyed=false, receivedBytes=0, messages=0, bufferedBytes=0.\nChrome write pipe: writable=false, ended=true, destroyed=false, completedWrites=1, writtenBytes=50, bufferedBytes=0."
+            },
+            "supportedFixes": [
+              "resolve the reported Chrome inspection error, then rerun browser-check"
+            ]
+          }
+        ],
+        "containment": {
+          "status": "fail",
+          "policy": "fit-or-reader-declared-readable-vertical-scroll",
+          "viewports": []
+        },
+        "themeStates": {
+          "status": "fail",
+          "viewports": []
+        },
+        "readability": {
+          "status": "fail",
+          "minimumProjectedNodeTextPx": 6,
+          "viewports": []
+        },
+        "viewerChrome": {
+          "status": "fail",
+          "viewports": []
+        },
+        "captures": {
+          "status": "not-requested",
+          "screenshots": [],
+          "contactSheet": null
+        },
+        "sidecars": {
+          "receipt": "modelo-negocio.browser-check.json",
+          "files": []
+        },
+        "error": "Chrome DevTools read pipe failed: stream ended\nChrome process: still running.\nWindows browser startup may have relaunched before connecting to the DevTools pipe. Retry from a non-elevated PowerShell opened normally, outside an elevated or compatibility-mode parent. Archify does not disable browser de-elevation or the sandbox to preserve pipe handles.\nChrome transport: Node v22.18.0, libuv 1.51.0, win32; pid=14616, exitCode=null, signalCode=null.\nChrome read pipe: readable=false, ended=true, destroyed=false, receivedBytes=0, messages=0, bufferedBytes=0.\nChrome write pipe: writable=false, ended=true, destroyed=false, completedWrites=1, writtenBytes=50, bufferedBytes=0."
+      }
+    }
+  },
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "diagnostics": [
+    {
+      "code": "viewer/browser-check-runtime",
+      "severity": "error",
+      "message": "browser-check could not complete its Chrome inspection.",
+      "subject": {
+        "artifact": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.html"
+      },
+      "evidence": {
+        "reason": "Chrome DevTools read pipe failed: stream ended\nChrome process: still running.\nWindows browser startup may have relaunched before connecting to the DevTools pipe. Retry from a non-elevated PowerShell opened normally, outside an elevated or compatibility-mode parent. Archify does not disable browser de-elevation or the sandbox to preserve pipe handles.\nChrome transport: Node v22.18.0, libuv 1.51.0, win32; pid=14616, exitCode=null, signalCode=null.\nChrome read pipe: readable=false, ended=true, destroyed=false, receivedBytes=0, messages=0, bufferedBytes=0.\nChrome write pipe: writable=false, ended=true, destroyed=false, completedWrites=1, writtenBytes=50, bufferedBytes=0."
+      },
+      "supportedFixes": [
+        "resolve the reported Chrome inspection error, then rerun browser-check"
+      ]
+    }
+  ],
+  "evidence": {
+    "receipt": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.finalize.json",
+    "summaryReceipt": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.finalize-summary.json",
+    "browserCheckReceipt": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "browser-check",
+  "finishedAt": "2026-11-10T22:42:52.915Z",
+  "durationMs": 5033,
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-10T18:18:24.237Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  }
+}
