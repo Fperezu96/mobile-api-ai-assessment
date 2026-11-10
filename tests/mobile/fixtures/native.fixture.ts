@@ -1,3 +1,4 @@
+import { selectedDeviceProfiles, type MobileOptions } from '../../../config/mobile/device-profile.js';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -18,9 +19,10 @@ type NativeApp = {
   login: LoginScreen;
   shopping: ShoppingActions;
 };
-export const test = base.extend<{app: NativeApp}>({
-  app: async ({}, use, info) => {
-    const capabilities = androidCapabilities();
+export const test = base.extend<MobileOptions & {app: NativeApp}>({
+  deviceProfile: [selectedDeviceProfiles()[0], {option: true}],
+  app: async ({deviceProfile}, use, info) => {
+    const capabilities = androidCapabilities(deviceProfile);
     const endpoint = 'http://127.0.0.1:' + (process.env.APPIUM_PORT || '4723');
     const statusResponse = await fetch(endpoint + '/status', {signal: AbortSignal.timeout(5000)});
     const status = await statusResponse.json();
@@ -47,7 +49,7 @@ export const test = base.extend<{app: NativeApp}>({
         await info.attach('Preparación del dispositivo', {body: 'Se cerró el panel de notificaciones antes del escenario.', contentType: 'text/plain'});
       }
       await driver.activateApp('com.saucelabs.mydemoapp.android');
-      await info.attach('Sesión nativa', {body: JSON.stringify({sessionId: driver.sessionId, capabilities}, null, 2), contentType: 'application/json'});
+      await info.attach('Sesión nativa', {body: JSON.stringify({project: info.project.name, workerIndex: info.workerIndex, deviceProfile, sessionId: driver.sessionId, capabilities, resolvedCapabilities: driver.capabilities}, null, 2), contentType: 'application/json'});
       await catalog.waitForLoaded();
       await use(app);
     } finally {

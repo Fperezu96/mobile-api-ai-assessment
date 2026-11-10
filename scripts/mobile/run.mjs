@@ -2,13 +2,18 @@ import {waitForAppium} from './wait-for-appium.mjs';
 import {spawn} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
+const args=process.argv.slice(2);
+const listOnly=args.includes('--list');
 const runId=new Date().toISOString().replace(/[:.]/g,'-');
 const root=path.resolve('reports/mobile',runId);
-fs.mkdirSync(root,{recursive:true});
-fs.mkdirSync('reports/mobile',{recursive:true});
-fs.writeFileSync('reports/mobile/latest.json',JSON.stringify({runId,directory:root},null,2));
-console.log('Evidencia de esta ejecución: '+root);
-await waitForAppium();
-const child=spawn(process.execPath,['node_modules/@playwright/test/cli.js','test','-c','config/mobile/playwright.config.ts',...process.argv.slice(2)],{env:{...process.env,MOBILE_RUN_ID:runId},stdio:'inherit'});
+if(!listOnly){
+  fs.mkdirSync(root,{recursive:true});
+  fs.writeFileSync('reports/mobile/latest.json',JSON.stringify({runId,directory:root},null,2));
+  console.log('Evidencia de esta ejecución: '+root);
+  await waitForAppium();
+}else{
+  console.log('Descubrimiento de escenarios; no se crearán sesiones Appium.');
+}
+const child=spawn(process.execPath,['node_modules/@playwright/test/cli.js','test','-c','config/mobile/playwright.config.ts',...args],{env:{...process.env,MOBILE_RUN_ID:runId},stdio:'inherit'});
 child.on('error',error=>{console.error(error.message);process.exitCode=1});
 child.on('exit',code=>{process.exitCode=code ?? 1});

@@ -22,6 +22,7 @@ jobs:
     env:
       MOBILE_SUITE: ${{ inputs.suite }}
       ANDROID_UDID: emulator-5554
+      ANDROID_DEVICE_NAME: android-api-${{ matrix.api }}
       ANDROID_SYSTEM_PORT: '8200'
       APPIUM_PORT: '4723'
     steps:

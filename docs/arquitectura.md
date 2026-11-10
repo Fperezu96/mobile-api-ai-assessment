@@ -49,7 +49,7 @@ Java, SDK y rutas pueden configurarse por variables del proceso. La instalación
 
 ## DevOps, matriz y paralelismo
 
-Un solo dispositivo utiliza un worker. Aumentar workers sobre emulator-5554 generaría interferencia de estado. Para dos emuladores en un mismo host, usar UDID/puerto de emulador, systemPort y puerto Appium distintos por proceso.
+Un solo dispositivo utiliza un worker. Aumentar workers sobre emulator-5554 generaría interferencia de estado. Para dos emuladores en un mismo host, usar UDID/puerto de emulador y systemPort distintos. Esta implementación comparte un servidor Appium entre sesiones; si se optara por dos servidores, sus puertos Appium también deberían ser distintos.
 
 El workflow manual .github/workflows/mobile.yml define jobs aislados en Ubuntu para API 30 y 33, max-parallel=2 y fail-fast=false. Cada job instala versiones, prepara su emulador y ejecuta test:mobile:ci. Los puertos pueden coincidir entre jobs porque no comparten máquina. Siempre se suben logs y reportes. No hay ejecución de esa matriz en GitHub todavía; validar minutos disponibles antes de lanzarla.
 
@@ -60,3 +60,18 @@ test:mobile:ci inicia su propio Appium, espera /status, ejecuta la selección y 
 Los perfiles de AWS y BrowserStack aún no se presentan como implementados ni verificados. BrowserStack rechazó el APK con 422 antes de crear sesión. La promoción de AWS requiere autenticar exclusivamente la cuenta personal de Felipe y consultar su cuota. iOS requiere un instalador compatible y acceso a infraestructura Apple; no hay Mac ni iPhone disponibles.
 
 La visual Archify existente es histórica: .archify/architecture-mobile-api-20261110-132500/arquitectura.html. Pasó controles de estructura, pero browser-check quedó bloqueado por el proceso elevado. Debe actualizarse y verificarse para esta implementación; no se afirma que describa ya el estado final.
+
+## Fixture parametrizado por dispositivo
+
+El fixture recibe deviceProfile como opción de Playwright Test. Cada proyecto inyecta un perfil del archivo devices.json; no se calcula el dispositivo a partir de workerIndex. Este índice puede cambiar tras un fallo y solo se conserva como evidencia.
+
+La configuración admite tantos workers globales como perfiles seleccionados, con un límite workers=1 dentro de cada proyecto. Esto permite concurrencia entre emuladores y evita concurrencia de tests sobre el mismo UDID incluso si se incorporan más archivos de escenarios. Cada test conserva una sesión nueva, limpieza y cierre independientes.
+
+| Perfil | UDID | systemPort | mjpegServerPort | Estado físico |
+| --- | --- | --- | --- | --- |
+| android-local-primary | emulator-5554 | 8200 | 9100 | Verificado |
+| android-local-secondary | emulator-5556 | 8201 | 9101 | Configurado; AVD pendiente |
+
+Se comparte Appium en el puerto 4723; no es obligatorio levantar un servidor por emulador. El puerto ADB del host también puede compartirse porque cada comando identifica su UDID. Se rechazan nombres repetidos, UDID duplicados y colisiones de puertos internos antes de crear sesiones. Los puertos MJPEG quedan separados para evitar conflictos si se incorporan streams; esto no significa que ya haya video implementado.
+
+Los proyectos incluyen su nombre en la evidencia generada por Playwright. El fixture adjunta el perfil, el nombre de proyecto, las capabilities resueltas y el session ID. El segundo AVD deberá crearse y arrancarse antes de una ejecución paralela real. [Guía UiAutomator2](https://appium.github.io/appium-uiautomator2-driver/latest/guides/parallel-tests/) y [límite por proyecto](https://playwright.dev/docs/api/class-testproject#test-project-workers).

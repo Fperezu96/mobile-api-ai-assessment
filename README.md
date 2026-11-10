@@ -64,3 +64,22 @@ El flujo manual de GitHub está en [.github/workflows/mobile.yml](.github/workfl
 - [Instrucciones móviles utilizadas por el agente](.agents/skills/mobile-native-tests/SKILL.md).
 
 La skill quedó en el commit 4d786db antes del código móvil. La revisión humana, el tiempo humano acumulado y el acceso del evaluador al repositorio privado siguen pendientes. No se inventa el identificador exacto del modelo cuando la interfaz no lo informa.
+
+## Seleccionar varios emuladores locales
+
+config/mobile/devices.json contiene los perfiles de sesión. Por defecto solo se selecciona android-local-primary. El segundo perfil está configurado, pero su AVD aún no se creó ni arrancó. No se ha demostrado ejecución local simultánea.
+
+Con ambos emuladores ya disponibles y sin otro Appium en el puerto, seleccionar los dos perfiles:
+
+    $env:MOBILE_DEVICES="android-local-primary,android-local-secondary"
+    npm.cmd run test:mobile:ci
+
+Cada proyecto tiene un worker y su propio UDID, systemPort y mjpegServerPort. Se comparte un servidor Appium en 127.0.0.1:4723, que admite varias sesiones. Los reportes distinguen proyectos y sesiones. Para volver al dispositivo predeterminado:
+
+    Remove-Item Env:MOBILE_DEVICES
+
+Para revisar la matriz sin arrancar Appium ni crear sesiones:
+
+    npm.cmd run test:mobile -- --list
+
+En selección explícita se usan los UDID y puertos del archivo; las variables ANDROID_UDID y ANDROID_SYSTEM_PORT se reservan al modo predeterminado de un dispositivo. APPIUM_PORT configura el servidor compartido.

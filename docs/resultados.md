@@ -74,3 +74,11 @@ Referencia: [implementación de Booker](https://github.com/mwinteringham/restful
 - AWS: acceso personal y minutos gratuitos no verificados. No se accedió ni modificó la cuenta del banco.
 - iOS y matriz remota no ejecutados. Una ejecución Android local no demuestra compatibilidad iOS ni ejecución paralela real.
 - Mediciones de rendimiento completas, actualización de la visual Archify, revisión humana, tiempo humano total y acceso del evaluador al repositorio privado pendientes.
+
+## Preparación del fixture para varios emuladores
+
+Typecheck aprobado con la opción deviceProfile. El descubrimiento de android-local-primary y android-local-secondary mostró 16 combinaciones: ocho escenarios por perfil, sin sesiones Appium. La selección de un nombre repetido se rechazó con salida 1 antes de iniciar pruebas. Esto valida configuración y descubrimiento; no acredita ejecución simultánea en dos emuladores.
+
+La regresión completa indicada arriba corresponde al entorno local previamente verificado. La comprobación del fixture parametrizado sobre el perfil primario se registrará en una ejecución smoke separada, sin sustituir ni ocultar los tres fallos conocidos de la regresión.
+
+Comprobación posterior del fixture parametrizado: 2026-11-10T20-23-42-320Z, 2 aprobados, 0 fallos, 0 omitidos; salida 0. test:mobile:ci inició y cerró su Appium; /status dejó de responder al terminar. Solo se usó android-local-primary. Los 16 escenarios descubiertos para dos perfiles no se cuentan como ejecutados ni aprobados.
