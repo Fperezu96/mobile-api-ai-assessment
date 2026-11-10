@@ -132,7 +132,7 @@ La ampliación a BrowserStack se mantiene independiente del pipeline Android con
 
 Variables del ejemplo .env.example: BROWSERSTACK_ANDROID_APP y BROWSERSTACK_IOS_APP contendrían bs://… tras una carga válida. No se usa un “client ID”: App Automate autentica con username/access key. Mantenerlos fuera de Git y de logs. La clave no debe adjuntarse dentro de capabilities ni de resúmenes.
 
-~~~typescrip
+~~~typescript
 // Esquema de conexión futura: no es una opción activa del fixture actual.
 const session = await remote({
   protocol: 'https', hostname: 'hub-cloud.browserstack.com', port: 443, path: '/wd/hub',
@@ -150,4 +150,4 @@ const session = await remote({
 
 BrowserStack administra servidor Appium y dispositivos remotos; no arrancar appium:start para ese endpoint ni enviar UDID/systemPort de emuladores locales. Para iOS hacen falta un instalador compatible y firmado, XCUITest y adaptadores/locators observados; una APK no se ejecuta en iOS.
 
-**Paralelismo propuesto.** Cada proyecto crea su sesión y datos aislados. El máximo concurrente debe respetar los paralelos disponibles del plan; multiplicar jobs de una matriz por workers puede excederlo. Limitar ambos niveles, cerrar sesiones aun al fallar y recuperar session ID, URL, capturas y logs sanitizados. El perfil local secundario tampoco se considera ejecutado por estar en JSON.\n
+**Paralelismo propuesto.** Cada proyecto crea su sesión y datos aislados. El máximo concurrente debe respetar los paralelos disponibles del plan; multiplicar jobs de una matriz por workers puede excederlo. Limitar ambos niveles, cerrar sesiones aun al fallar y recuperar session ID, URL, capturas y logs sanitizados. El perfil local secundario tampoco se considera ejecutado por estar en JSON.

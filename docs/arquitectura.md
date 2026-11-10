@@ -154,4 +154,4 @@ Cada ejecución tiene HTML, JSON, JUnit y execution-summary.json con ruta del pa
 
 Instalador iOS compatible, proveedor/permisos/cuota, localizadores observados, driver XCUITest y sesiones reales. No basta con cambiar platformName o reutilizar IDs Android. Primero validar un smoke de equivalencia y luego decidir qué implementación compartir.
 
-BrowserStack autenticó, pero rechazó la carga Android con 422 antes de crear sesión; no se ha confirmado la causa particular. Su valor sería acceso a dispositivos reales/iOS y evidencia de sesiones; se evaluará después de la revisión final, sin compra ni consumo adicional ahora. AWS personal y cuota gratuita siguen sin verificar; no se toca la cuenta del banco.\n
+BrowserStack autenticó, pero rechazó la carga Android con 422 antes de crear sesión; no se ha confirmado la causa particular. Su valor sería acceso a dispositivos reales/iOS y evidencia de sesiones; se evaluará después de la revisión final, sin compra ni consumo adicional ahora. AWS personal y cuota gratuita siguen sin verificar; no se toca la cuenta del banco.

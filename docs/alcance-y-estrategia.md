@@ -90,4 +90,4 @@ Las reseñas, eliminación de última unidad, barrido de catálogo y muestra por
 
 1. Cambiar la fotografía al elegir un color no está exigido por el enunciado: se adjuntan imágenes y se registra la ambigüedad.
 2. El catálogo admite invitado; login no es una precondición universal.
-3. El checkout se describe como capacidad de la demo, pero no se presenta como compra completa ejecutada.\n
+3. El checkout se describe como capacidad de la demo, pero no se presenta como compra completa ejecutada.
