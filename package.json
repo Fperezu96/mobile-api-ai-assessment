@@ -1,25 +1,27 @@
 {
-    "name":  "mobile-api-ai-assessment",
-    "version":  "0.1.0",
-    "private":  true,
-    "type":  "module",
-    "engines":  {
-                    "node":  "\u003e=22.18.0 \u003c23"
-                },
-    "scripts":  {
-                    "typecheck":  "tsc --noEmit",
-                    "test:api":  "node --env-file-if-exists=.env node_modules/@playwright/test/cli.js test -c config/api/playwright.config.ts",
-                    "test:api:smoke":  "node --env-file-if-exists=.env node_modules/@playwright/test/cli.js test -c config/api/playwright.config.ts --grep @smoke",
-                    "report:api":  "playwright show-report reports/api/html",
-                    "browserstack:check":  "node --env-file-if-exists=.env scripts/browserstack/check.mjs",
-                    "app:download":  "node scripts/browserstack/download-android.mjs",
-                    "browserstack:android:connect":  "node --env-file-if-exists=.env scripts/browserstack/android-connection.mjs",
-                    "test:api:crud":  "node --env-file-if-exists=.env node_modules/@playwright/test/cli.js test -c config/api/playwright.config.ts --grep @crud"
-                },
-    "devDependencies":  {
-                            "@playwright/test":  "1.65.0",
-                            "@types/node":  "22.18.0",
-                            "typescript":  "5.9.3",
-                            "webdriverio":  "9.20.0"
-                        }
+  "name": "mobile-api-ai-assessment",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0 <23"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:api": "node --env-file-if-exists=.env node_modules/@playwright/test/cli.js test -c config/api/playwright.config.ts",
+    "test:api:smoke": "node --env-file-if-exists=.env node_modules/@playwright/test/cli.js test -c config/api/playwright.config.ts --grep @smoke",
+    "report:api": "playwright show-report reports/api/html",
+    "browserstack:check": "node --env-file-if-exists=.env scripts/browserstack/check.mjs",
+    "app:download": "node scripts/browserstack/download-android.mjs",
+    "browserstack:android:connect": "node --env-file-if-exists=.env scripts/browserstack/android-connection.mjs",
+    "test:api:crud": "node --env-file-if-exists=.env node_modules/@playwright/test/cli.js test -c config/api/playwright.config.ts --grep @crud",
+    "android:local:create": "powershell.exe -NoProfile -File scripts/android-local/create.ps1",
+    "android:local:start": "powershell.exe -NoProfile -File scripts/android-local/start.ps1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "@types/node": "22.18.0",
+    "typescript": "5.9.3",
+    "webdriverio": "9.20.0"
+  }
 }

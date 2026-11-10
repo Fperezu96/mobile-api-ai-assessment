@@ -4,7 +4,7 @@ Revisión del 10 de noviembre de 2026. Resultados del repositorio actual en Wind
 
 ## Cobertura API ejecutada
 
-La ejecución anterior tuvo siete aprobados y un fallo por exigir 400/422 sin respaldo contractual. Se conserva su evidencia histórica. La expectativa se corrigió al HTTP 500 implementado y se agregó una búsqueda posterior para comprobar que no se crea la reserva. Nueva ejecución: ocho escenarios aprobados, cero fallos y cero omitidos en 9,1 segundos; salida 0. Typecheck aprobado.
+La ejecución anterior tuvo siete aprobados y un fallo por exigir 400/422 sin respaldo contractual. Se conserva su evidencia histórica. La expectativa se corrigió al HTTP 500 implementado y se agregó una búsqueda posterior para comprobar que no se crea la reserva. Nueva ejecución: ocho escenarios aprobados, cero fallos y cero omitidos en 11,0 segundos tras consolidar los specs; salida 0. Typecheck aprobado.
 
 | ID | Comprobación | Resultado |
 | --- | --- | --- |
@@ -52,3 +52,15 @@ Aún no existe session ID ni ejecución móvil aprobada. iOS sigue pendiente de 
 Archify generó el HTML y pasó controles de estructura; browser-check sigue bloqueado por la conexión Chrome desde un proceso elevado. La limitación permanece en los recibos y en arquitectura.
 
 Faltan implementación móvil con skill previa, revisión humana, identificación exacta del modelo, propuestas de skills, pipeline y sustentación. El acceso del evaluador al repositorio privado no se ha concedido. No se inventa tiempo de dedicación humana a partir de la duración de comandos.
+
+## Android local y consolidación de reservas — 10 de noviembre
+
+Se instalaron platform-tools 37.0.1, Android Emulator y la imagen AOSP x86_64 API 33 revisión 2 en C:\dev\.tools\android-sdk. Los archivos del emulador y de la imagen coinciden con los SHA1 del catálogo oficial de Google. WHPX devolvió código 0 y confirmó aceleración disponible.
+
+El AVD QA_API33 arrancó con sys.boot_completed=1 y ADB lo identificó como emulator-5554, Android 13/API 33. La APK 2.3.0 build 27 coincide con el SHA256 del manifiesto; adb install devolvió Success y am start devolvió Status: ok para la app. El primer arranque observado registró TotalTime=1441 ms: es una observación de preparación, no una campaña de rendimiento ni un umbral aprobado.
+
+No hay todavía sesión Appium local ni resultados de los escenarios funcionales móviles. iOS y el acceso gratuito a AWS permanecen pendientes. La consulta inicial de AWS CLI no pudo autenticarse; no se accedió a una cuenta. Cualquier verificación posterior utilizará únicamente la cuenta personal autorizada, nunca la del banco.
+
+Los ocho escenarios de reservas se consolidaron en tests/api/specs/bookings.spec.ts y se eliminó crud.spec.ts. Se conservaron IDs, nombres, etiquetas, preparación y limpieza. Typecheck aprobado y suite completa: 8 aprobados, 0 fallos, 0 omitidos; salida 0. Se conservó la evidencia API anterior en artifacts/api-history.
+
+La captura de jerarquía UI confirmó el encabezado Products y el producto Sauce Labs Backpack en el paquete de la app. Evidencia local: artifacts/android-local/catalog-window.xml, catalog.png y environment-check.json. La actividad pública de entrada es SplashActivity; MainActivity no está exportada y no debe usarse para lanzamiento externo. Esta comprobación valida la preparación del entorno, no el escenario de carrito.

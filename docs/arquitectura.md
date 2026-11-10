@@ -72,3 +72,13 @@ Consulta del 10 de noviembre de 2026. Se mantiene WebdriverIO con Appium; cambia
 - AWS Device Farm: alternativa para dispositivos reales Android e iOS y Appium Node.js/WebdriverIO. Publica una promoción de prueba única de 1.000 minutos-dispositivo y después USD 0,17/minuto-dispositivo; la elegibilidad y saldo de Felipe no están comprobados. La promoción es temporal y no es una cuota mensual gratuita. Puede usarse pago por consumo sin mensualidad. Requiere integración y controles de consumo antes de ejecutar.
 
 Fuentes: [AWS precios](https://aws.amazon.com/device-farm/pricing/), [integración Appium](https://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-appium-integrate.html), [requisitos XCUITest](https://appium.github.io/appium-xcuitest-driver/12.22/getting-started/system-requirements/) y [emulador Android](https://developer.android.com/studio/run/emulator).
+
+## Entorno Android local instalado
+
+Se eligió una imagen AOSP API 33 x86_64 para ejecutar la APK sin requerir Play Store ni iniciar sesión con Google. Emulador e imagen se descargaron de Google; se verificaron sus SHA1 contra el catálogo oficial antes de usarlos. El entorno usa WHPX disponible en Windows, sin cambiar funciones de virtualización ni requerir reinicio. Se conservan instalación y datos fuera del repositorio.
+
+El perfil config/mobile/android-local.json describe el dispositivo. Los scripts scripts/android-local/create.ps1 y start.ps1 crean el AVD e inician su proceso, respectivamente. No implementan todavía una sesión Appium ni los escenarios de carrito o login.
+
+Para AWS solo se autoriza la cuenta personal de Felipe. No usar la cuenta del banco, perfiles corporativos ni modificar la configuración AWS global. El beneficio de Device Farm no está confirmado: requiere autenticación personal y consulta explícita de trialMinutes antes de ejecutar trabajos.
+
+Los ocho escenarios API se agrupan en tests/api/specs/bookings.spec.ts porque pertenecen al mismo recurso de reservas. Crear, listar, consultar, actualizar y eliminar se distinguen por escenario y etiquetas, sin separar archivos por verbo HTTP. Se conservan @smoke, @crud, @authorization, @isolation y @characterization.

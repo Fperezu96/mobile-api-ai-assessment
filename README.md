@@ -59,3 +59,11 @@ Estos documentos se actualizan con las conclusiones vigentes. Las decisiones ant
 Los secretos, instaladores y resultados generados están excluidos de Git. Para la sustentación, la skill deberá guardarse antes de usarla en el primer escenario móvil y se conservarán invocación, cambios y revisión humana.
 
 Las mutaciones requieren BOOKER_USERNAME y BOOKER_PASSWORD en .env local, con las credenciales de práctica de Restful Booker. Los fixtures limpian únicamente sus reservas. Se desactivaron las trazas API para no publicar tokens; se conservan pasos y respuestas de negocio sin autenticación.
+
+## Emulador Android local
+
+SDK separado del reto: C:\dev\.tools\android-sdk. AVD QA_API33: Android 13, API 33, AOSP x86_64, 3 GB RAM, dos núcleos y pantalla 1080x1920. Su almacenamiento está en C:\dev\.tools\android-avd. El perfil descriptivo está en config/mobile/android-local.json; la integración Appium aún está pendiente.
+
+Con los componentes instalados, ejecutar npm.cmd run android:local:start. Para recrear el AVD en otra instalación con esos componentes y rutas, usar npm.cmd run android:local:create; se detiene si ya existe y no borra datos. Los scripts ajustan variables solo para el proceso de arranque. Si Android Studio solicita la ubicación del SDK, seleccionar C:\dev\.tools\android-sdk.
+
+La comprobación manual de disponibilidad es C:\dev\.tools\android-sdk\platform-tools\adb.exe -s emulator-5554 shell getprop sys.boot_completed; debe devolver 1 antes de instalar la APK. Logs en artifacts/android-local. Arrancar el dispositivo no equivale a aprobar los escenarios móviles.

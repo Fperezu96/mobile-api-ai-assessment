@@ -37,3 +37,5 @@ La entrega debe incluir código y versiones, README reproducible, reportes, ries
 ## Cobertura API ampliada
 
 API-03 lista y filtra por huésped; API-04 verifica PUT mediante GET previo y posterior; API-05 verifica PATCH sin alterar otros campos; API-06 comprueba DELETE con GET 404 y búsqueda vacía; API-07 comprueba 403 y ausencia de cambios sin autorización; API-08 separa dos fixtures y sus búsquedas. Cada prueba prepara y limpia sus registros. Los UUID completos reducen colisiones y se consulta su ausencia previa; no se promete unicidad global.
+
+El complemento no funcional para la app nativa medirá arranque, memoria y fluidez cuando haya soporte de captura, con condiciones y muestras documentadas. Lighthouse y Web Vitals solo se incorporarán si existe contenido web pertinente y accesible; no se presentan como métricas de las pantallas nativas. Estas mediciones todavía no se han ejecutado como campaña ni bloquean el mínimo funcional del reto.
