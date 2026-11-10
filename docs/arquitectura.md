@@ -88,3 +88,41 @@ config/combined/playwright.config.ts crea un proyecto API y los proyectos Androi
 scripts/quality/ci.mjs reutiliza la orquestación Appium existente. scripts/quality/run.mjs ejecuta una sola invocación Playwright con reporteros HTML/JSON/JUnit y directorio propio por runId. No se fusionan reportes HTML independientes ni se sobrescriben evidencias anteriores. summarize.mjs agrega execution-summary.json con proyecto, etiquetas, estado, errores y rutas de pasos fallidos. Los runners independientes generan la misma estructura de resumen.
 
 Los controles nativos se exponen dentro del viewport antes de pulsar. NativeUi.tap espera varias muestras consecutivas de posición y tamaño estables y usa clickGesture por ID de elemento. No introduce pausas fijas ni reintentos del test; las esperas siguen exigiendo la cantidad exacta. Los errores de sincronización se clasifican por separado de los cierres conocidos de la app.
+
+## Revisión de responsabilidades y patrón
+
+La solución usa Screen Objects y acciones de negocio inyectadas. No implementa Actor/Tasks/Interactions/Questions de Screenplay. Los archivos anteriores contenían varias clases/interfaces; se retiraron shop.screens.ts y shop.contracts.ts para mantener una responsabilidad por archivo.
+
+| Carpeta | Responsabilidad | Ejemplos |
+| --- | --- | --- |
+| src/mobile/models | Datos sin operaciones UI | product.ts, product-case.ts, cart-snapshot.ts, authentication-state.ts |
+| src/mobile/contracts | Interfaces de comportamiento | catalog.contract.ts, product-detail.contract.ts, cart.contract.ts, login.contract.ts |
+| src/mobile/screens/android | Una implementación por pantalla | catalog, product-detail, cart, login |
+| src/mobile/components/android | Cabecera y modal compartidos | header.component.ts, review-dialog.component.ts |
+| src/mobile/actions | Coordinación por interfaces inyectadas | shopping.actions.ts |
+| tests/mobile/data | Referencia y generación reproducible | catalog-products.ts, product-case.factory.ts, cart-cases.ts |
+| tests/mobile/specs | Escenarios por funcionalidad | cart, cart-interactions, catalog, generated-cart, login, navigation, review |
+
+contracts es una decisión del proyecto, no una obligación de Playwright o WebdriverIO. TypeScript admite interfaces para datos y comportamiento; las carpetas distinguen su intención. El fixture compone implementaciones y expone interfaces. Se eliminaron todos los .gitkeep, incluido iOS: una carpeta vacía no demuestra soporte implementado.
+
+WebdriverIO sigue siendo el cliente WebDriver, Appium el servidor y UiAutomator2 el driver Android. Playwright Test ejecuta, verifica y reporta. No hay servidor Appium dentro de un Screen Object.
+
+## Productos y reproducción por semilla
+
+Los 24 productos y precios se fijan desde BaseActivity de la versión 2.3.0, commit 3e514167ec715abf6ab93e148ef6f97b86752c05 del repositorio público de la demo. El esperado no se copia de la respuesta del carrito. productCase calcula total a partir de precio de referencia y cantidad.
+
+syntheticProductCases deriva un PRNG desde SHA-256 de la semilla y mezcla el catálogo sin reemplazo. MOBILE_DATA_SEED se registra y se hereda en los workers; MOBILE_SAMPLE_SIZE admite 1..24 (predeterminado 3). Se generan cantidades 1..3 y no se excluyen productos que fallan. Los límites de seguridad de los helpers no se presentan como límites del negocio.
+
+CAT-01 cubre todos los productos de forma determinista. GEN-01 explora compras con @random, fuera de @regression. Smoke conserva dos datos fijos de carrito. La búsqueda del catálogo permite hasta 16 desplazamientos, con límite y comprobación de paquete activo.
+
+## Colores y reseñas
+
+Las muestras usan takeElementScreenshot del protocolo WebDriver. takeScreenshot resolvía una captura completa y produjo una comparación de regiones incorrectas en el primer intento; ese fallo de automatización se conserva y no se clasifica como defecto de la app. PNGJS decodifica el centro del elemento para comparar la variante elegida antes de agregar con el indicador del carrito; no compara PNG comprimido ni fotografía completa.
+
+La imagen anterior/posterior se adjunta aparte. No se exige que cambie sin un criterio visual confirmado. El indicador del carrito se caracteriza como solo lectura conforme a CartItemAdapter de 2.3.0.
+
+ReviewDialog tiene contrato y componente propios. Los casos de 1/5 estrellas comprueban confirmación UI, cierre del modal y regreso al producto sin alterar el carrito. No demuestran almacenamiento ni envío a un backend.
+
+La matriz manual dispone de 40 minutos por job para incluir instalación, arranque y regresión ampliada; smoke sigue siendo la selección predeterminada. El descubrimiento de regresión con ambos perfiles produjo 86 combinaciones (8 API + 39 por dispositivo), sin ejecutar el segundo emulador. No se ha consumido ejecución en GitHub.
+
+El workflow manual expone seed y sample_size. La semilla predeterminada assessment-2.3.0 se comparte entre jobs para comparar la misma selección; sample_size predeterminado 3. En local, si no se especifica semilla, el runner registra el runId.

@@ -2,32 +2,39 @@
 
 El reto exige app instalada, Page/Screen Objects, API con Playwright Test TypeScript, dos conjuntos de datos móviles, una skill usada por un agente y evidencia verificable. Android local cumple el mínimo; iOS y nube son extensiones solicitadas por Felipe.
 
-## Cobertura vigente
+## Cobertura vigente y fuentes de expectativas
 
-| Escenario | Comprobación | Etiquetas |
+La regresión descubre 47 ejecuciones con el perfil primario: 8 API y 39 Android. El perfil exploratorio predeterminado selecciona 3 compras adicionales por semilla y queda fuera de la regresión. Descubrimiento no significa aprobación.
+
+| Caso | Expectativa y fuente | Etiquetas |
 | --- | --- | --- |
-| MOB-01 D1/D2 | Una y dos unidades de Backpack: nombre, cantidad, precio unitario y total | smoke, regression, cart |
-| MOB-02 | Contraseña incorrecta: rechazo visible y ausencia de sesión válida | regression, negative, login, known-issue |
-| MOB-03 | Volver con Android Back hasta el catálogo y comprobar que el carrito conserva sus datos | smoke, regression, native, back, navigation |
-| MOB-04 | Eliminar el único producto y comprobar estado vacío | regression, cart |
-| MOB-05, dos productos | Abrir Bike Light y Backpack (green) debe mostrar el detalle sin cerrar la app | regression, known-issue |
-| MOB-06 | Usuario vacío: validación visible y ausencia de sesión válida | smoke, regression, negative, login |
-| MOB-07 | Scroll nativo hacia Bike Light, regreso a Backpack y carrito sin cambios | regression, native, scroll |
-| API-01 a API-08 | Crear, consultar, listar, filtrar, PUT, PATCH, DELETE, autorización y aislamiento | smoke, regression, crud, authorization, isolation, characterization |
+| CAT-01, 24 productos | Catálogo completo; abrir detalle y comparar nombre/precio de referencia. Continuidad sin cierre es una expectativa derivada del recorrido de compra. Incluye las dos reproducciones antes llamadas MOB-05. | regression, catalog |
+| CART-01 | Aumentar a 3 y reducir a 1 recalcula unidades e importe; criterio de cantidad/precio del reto y cálculo aritmético. | regression, cart, quantity |
+| CART-02 | Decrementar la última unidad retira el producto; caracterización de CartItemAdapter 2.3.0. | regression, cart, boundary |
+| DETAIL-01 | Con cero unidades se deshabilita agregar y con una se recupera; ProductDetailFragment 2.3.0. | regression, negative, boundary |
+| COLOR-01, Blue/Green | La variante elegida llega al carrito sin alterar producto/importes; expectativa derivada del flujo ampliado solicitado. | regression, color |
+| COLOR-02 | El indicador del carrito no edita la variante; caracterización de la implementación, no regla del evaluador. | regression, color, characterization |
+| REVIEW-01, 1/5 estrellas | Confirmación, cierre y continuidad; dialog_review.xml y Methods.showReviewDialog. No afirma persistencia de reseñas. | regression, review, boundary |
+| GEN-01 | Compra con productos reales, cantidades sintéticas y semilla adjunta; sin filtrar productos problemáticos. | exploratory, random |
 
-MOB-01 fija antes de ejecutar USD 29,99 por unidad, cantidades 1/2 y totales USD 29,99/59,98. Los productos que provocaron cierres permanecen en MOB-05: cambiar los datos del caso positivo no eliminó su comprobación ni sus fallos.
+Login inválido conserva el criterio explícito del reto: rechazo y ausencia de sesión. Se retiró la exigencia adicional de permanecer en el formulario, porque no estaba especificada. Cambiar la fotografía al elegir color tampoco es un criterio confirmado: se registra como observación/ambigüedad y se adjuntan imágenes, sin inventar un defecto.
 
-MOB-06 comprueba un rechazo definido por el formulario. MOB-02 conserva una expectativa de contraseña incorrecta frente al criterio del reto; la demo tiene un login permisivo, por lo que se distingue esa limitación de un contrato de autenticación formal inexistente.
+El barrido completo evita que una selección aleatoria deje productos sin visitar. La expansión no confunde fallos de datos distintos con defectos diferentes; se agrupan por síntoma, excepción y punto de fallo.
 
-La API es independiente de la demo. La documentación de Booker exige firstname, pero no especifica su código de rechazo. API-02 caracteriza el HTTP 500 implementado y comprueba ausencia de reserva; recomendar 4xx queda como observación de diseño no bloqueante.
+Siguiente cobertura por riesgo: checkout incompleto; acumulación de varios productos/variantes y total del pedido; segundo plano/recuperación. El máximo de cantidad de negocio sigue sin especificación.
 
-## Lectura de escenarios y selecciones
 
-Hay 17 ejecuciones con el dispositivo primario: ocho API y nueve Android. Smoke selecciona cinco: API-01, MOB-01 D1/D2, MOB-03 y MOB-06. Regresión incluye todos, también los tres hallazgos conocidos; la etiqueta known-issue no los omite. API-02 y API-07 llevan negative; API-03 a API-06 llevan crud. La tabla no sustituye las etiquetas ejecutables del código.
+| Caso estable | Comprobación | Etiquetas |
+| --- | --- | --- |
+| MOB-01 D1/D2 | Backpack con 1/2 unidades; nombre, cantidad, precio unitario y total fijados antes de ejecutar | smoke, regression, cart |
+| MOB-02 | Contraseña incorrecta: rechazo y ausencia de sesión, criterio explícito del reto | regression, negative, known-issue |
+| MOB-03 | Back nativo hasta catálogo y contenido del carrito conservado | smoke, regression, native, back |
+| MOB-04 | Retirar el único producto deja carrito vacío | regression, cart |
+| MOB-06 | Usuario vacío: rechazo del formulario y usuario sin autenticar | smoke, regression, negative |
+| MOB-07 | Scroll nativo hacia Bike Light y regreso a Backpack sin cambiar carrito | regression, native, scroll |
+| API-01 a API-08 | Crear, consultar, listar, PUT, PATCH, DELETE, rechazo y aislamiento | api, regression; API-01 smoke |
 
-Los pasos Dado/Cuando/Entonces/Y describen precondiciones, acciones y resultados observables en español mediante Playwright test.step. El fixture step agrega diagnóstico sin cambiar la expectativa ni ocultar errores. Una aserción suave permite recoger varias discrepancias de login y mantiene el test fallido. Los helpers técnicos no se copian en el wording del reporte.
-
-Scroll usa mobile:scrollGesture de UiAutomator2, hacia abajo y arriba; exige al menos un gesto real y visibilidad del producto. No abre Bike Light, porque su cierre se comprueba por separado. Back usa el comando nativo del driver, vuelve por detalle/catálogo y verifica de nuevo el contenido completo del carrito. Estas comprobaciones no sustituyen una campaña de gestos del sistema o ciclo de vida.
+Smoke selecciona cinco ejecuciones. API-02 caracteriza el 500 de la implementación al omitir firstname: el campo es obligatorio, pero el estado de rechazo no está especificado en la documentación. No se presenta como incumplimiento contractual. Los dos datos fijos de carrito no sustituyen el barrido completo ni la exploración.
 
 ## Datos, aislamiento y revisión
 
@@ -37,13 +44,6 @@ Los fixtures API usan UUID completos y consultas previas/posteriores. La limpiez
 
 No hay skips ni reintentos automáticos para disimular fallos. Se conservan también intentos con problemas de entorno o sincronización, diferenciándolos de los hallazgos de la app.
 
-## Tres siguientes casos por riesgo
-
-1. Checkout con campos obligatorios ausentes: evita avanzar con datos incompletos en un flujo comercial.
-2. Límites de cantidad y recálculo al reducir unidades: comprueba cero, límites admitidos y coherencia del importe.
-3. Segundo plano y recuperación de la app: comprueba continuidad del carrito y que no se habilite una sesión inesperada.
-
-El complemento no funcional medirá arranque, memoria y fluidez con condiciones y muestras documentadas. Todavía no es una campaña ejecutada. Lighthouse y Web Vitals solo aplicarán si se incluye contenido web pertinente; no miden estas pantallas nativas.
 
 ## IA y adopción
 
@@ -56,3 +56,6 @@ Las instrucciones de implementación están en .agents/skills/mobile-native-test
 | Preparación de entrega QA | QA/lead; recibe resultados, versiones, riesgos y enlaces; actualiza los documentos consolidados | Comprobar cada afirmación contra una evidencia real. P2 |
 
 Construir primero el triage: este ejercicio ya muestra cierres de la app, un login permisivo y errores de preparación distintos. Medir tiempo de diagnóstico y coincidencia de clasificación con revisión humana antes/después, sin inventar una mejora porcentual. Descargas con checksum, extracción de estadísticas y validación de puertos deben seguir siendo scripts deterministas, no nuevas skills.
+
+
+En este barrido se mantuvo el orden inicial del catálogo. Los defectos de metadatos dependen de la posición del elemento (valor nulo en la posición 1 y arreglo de seis posiciones), no de una regla propia de cada SKU/color. Los nombres identifican reproducciones observadas en ese orden. Cambiar el orden para aislar esta condición y alcanzar flujos bloqueados es una exploración posterior; no se afirma que los 24 productos hayan completado una compra.

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {setTimeout as pause} from 'node:timers/promises';
 const suite=process.env.MOBILE_SUITE || 'regression';
-if(!['smoke','regression'].includes(suite))throw new Error('MOBILE_SUITE debe ser smoke o regression.');
+if(!['smoke','regression','catalog','exploratory'].includes(suite))throw new Error('MOBILE_SUITE debe ser smoke, regression, catalog o exploratory.');
 const port=Number(process.env.APPIUM_PORT || 4723);
 const url='http://127.0.0.1:'+port+'/status';
 const stamp=new Date().toISOString().replace(/[:.]/g,'-');
@@ -32,7 +32,7 @@ try {
     await pause(500);
   }
   if(!ready)throw new Error('Appium no estuvo listo en el tiempo permitido.');
-  const args=[process.env.TEST_TARGET === 'all' ? 'scripts/quality/run.mjs' : 'scripts/mobile/run.mjs',...(suite==='smoke'?['--grep','@smoke']:[])];
+  const args=[process.env.TEST_TARGET === 'all' ? 'scripts/quality/run.mjs' : 'scripts/mobile/run.mjs',...['--grep', {smoke: '@smoke', regression: '@regression', catalog: '@catalog', exploratory: '@random'}[suite]]];
   process.exitCode=await run(process.execPath,args);
 } catch(error) {
   console.error(String(error));

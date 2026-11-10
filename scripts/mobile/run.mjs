@@ -6,6 +6,8 @@ import fs from 'node:fs';
 const args=process.argv.slice(2);
 const listOnly=args.includes('--list');
 const runId=new Date().toISOString().replace(/[:.]/g,'-');
+process.env.MOBILE_DATA_SEED ||= runId;
+console.log('Semilla de datos móviles: '+process.env.MOBILE_DATA_SEED);
 const root=path.resolve('reports/mobile',runId);
 if(!listOnly){
   fs.mkdirSync(root,{recursive:true});

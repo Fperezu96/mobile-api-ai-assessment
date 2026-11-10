@@ -4,7 +4,7 @@ Proyecto de Felipe Pérez Upegui. Playwright Test ejecuta y reporta las dos suit
 
 ## Última ejecución comprobada
 
-2026-11-10T21-03-49-082Z: **8/8 API aprobadas; 6/9 Android aprobadas**. Los tres fallos conocidos son el login permisivo y los cierres de Bike Light/mochila verde. Los cinco casos smoke aprobaron dentro de esta regresión. Sin omisiones ni reintentos. Una sola ejecución no garantiza ausencia de intermitencias. El detalle y los intentos anteriores están en [resultados](docs/resultados.md).
+Regresión ampliada 2026-11-10T21-40-59-483Z: 8/8 API y 18/39 Android aprobadas en ese intento; catálogo 5/24. Los cierres y el login permisivo se conservan. La espera de eliminación se corrigió y el caso aprobó en 2026-11-10T21-59-19-091Z, junto con una muestra de compras por semilla. Consultar [resultados](docs/resultados.md) para diferenciar hallazgos de la app y correcciones de automatización. No se suman intentos como casos nuevos ni se ocultan fallos.
 
 ## Preparación
 
@@ -27,7 +27,7 @@ Con el emulador listo y el puerto Appium libre, los comandos conjuntos inician A
 | Comando | Selección y requisito |
 | --- | --- |
 | `npm.cmd run test:all:smoke` | 5 casos: API de reserva, carrito con 1/2 unidades, Back y usuario vacío |
-| `npm.cmd run test:all:regression` | 17 casos: 8 API y 9 Android, incluidos los hallazgos conocidos |
+| `npm.cmd run test:all:regression` | 47 casos: 8 API y 39 Android, incluidos los hallazgos conocidos |
 | `npm.cmd run test:all` | Equivale a la regresión conjunta |
 | `npm.cmd run test:all:list` | Descubrimiento; no ejecuta pruebas ni crea sesiones |
 | `npm.cmd run report:all` | Abre el último reporte conjunto |
@@ -35,7 +35,7 @@ Con el emulador listo y el puerto Appium libre, los comandos conjuntos inician A
 | `npm.cmd run test:api:smoke` / `test:api:regression` | Selección API por etiqueta |
 | `npm.cmd run test:api:negative` / `test:api:crud` | Rechazos API o ciclo de reservas |
 | `npm.cmd run report:api` | Abre el último reporte API independiente |
-| `npm.cmd run test:mobile:ci` | Regresión Android con servidor gestionado; MOBILE_SUITE admite smoke/regression |
+| `npm.cmd run test:mobile:ci` | Regresión Android con servidor gestionado; MOBILE_SUITE admite smoke/regression/catalog/exploratory |
 | `npm.cmd run test:mobile:smoke` / `test:mobile:regression` | Android con Appium ya iniciado manualmente |
 | `npm.cmd run test:mobile:negative` / `test:mobile:native` | Negativos o gestos nativos; Appium manual |
 | `npm.cmd run report:mobile` | Abre el último reporte móvil independiente |
@@ -82,7 +82,7 @@ Remove-Item Env:MOBILE_DEVICES
 
 El segundo perfil aún no acredita paralelismo real. Los nombres, UDID y puertos internos duplicados se rechazan antes de crear sesiones. No aumentar workers sobre un mismo dispositivo.
 
-El [workflow manual](.github/workflows/mobile.yml) permite target all/mobile y smoke/regression en una matriz Android API 30/33, con subida de reportes y logs incluso ante fallos. Para target all, configurar BOOKER_USERNAME y BOOKER_PASSWORD en GitHub Secrets. No se ha ejecutado la matriz en GitHub; verificar minutos disponibles antes de lanzarla.
+El [workflow manual](.github/workflows/mobile.yml) permite target all/mobile y smoke/regression/catalog/exploratory en una matriz Android API 30/33, con subida de reportes y logs incluso ante fallos. Para target all, configurar BOOKER_USERNAME y BOOKER_PASSWORD en GitHub Secrets. No se ha ejecutado la matriz en GitHub; verificar minutos disponibles antes de lanzarla.
 
 ## Documentación y estado comprobado
 
@@ -93,3 +93,23 @@ El [workflow manual](.github/workflows/mobile.yml) permite target all/mobile y s
 Inspector 2026.9.2 está en `C:\dev\.tools\appium-inspector-2026.9.2`, con acceso directo y [capabilities locales](config/mobile/inspector.android-local.json). Finalizar su sesión antes de probar el mismo dispositivo.
 
 iOS, AWS personal, BrowserStack, visual Archify actualizada y revisión humana siguen pendientes. No se accede a la cuenta del banco. Las [instrucciones móviles del agente](.agents/skills/mobile-native-tests/SKILL.md) quedaron en el commit 4d786db antes del primer código nativo. El modelo exacto y el tiempo humano no se inventan.
+
+## Estructura y productos reproducibles
+
+models contiene datos; contracts, interfaces de comportamiento; screens, una pantalla por archivo; components, cabecera y modal compartidos. El patrón es Screen Objects con acciones inyectadas. Los specs se separan por funcionalidad.
+
+Con el emulador listo y el puerto Appium libre:
+
+```powershell
+npm.cmd run test:all:catalog
+$env:MOBILE_DATA_SEED="felipe-20261110"
+$env:MOBILE_SAMPLE_SIZE="3"
+npm.cmd run test:all:random
+npm.cmd run report:all
+Remove-Item Env:MOBILE_DATA_SEED
+Remove-Item Env:MOBILE_SAMPLE_SIZE
+```
+
+catalog ejecuta los 24 productos. random elige productos reales sin reemplazo y cantidades 1..3; no descarta los que fallan. La misma semilla/tamaño reproduce la selección. Sin semilla explícita se registra el runId. Ambos comandos seleccionan Android dentro del reporte conjunto; para incluir API y toda la cobertura determinista usar test:all:regression.
+
+test:mobile:catalog y test:mobile:random necesitan Appium iniciado manualmente. Los reportes adjuntan semilla y expectativas. La reseña confirma UI, no persistencia remota; las imágenes de color se adjuntan sin inventar un requisito visual.

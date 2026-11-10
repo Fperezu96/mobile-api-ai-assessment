@@ -1,3 +1,10 @@
+import type { Catalog } from '../../../src/mobile/contracts/catalog.contract.js';
+import type { ProductDetail } from '../../../src/mobile/contracts/product-detail.contract.js';
+import type { Cart } from '../../../src/mobile/contracts/cart.contract.js';
+import type { Header } from '../../../src/mobile/contracts/header.contract.js';
+import type { Login } from '../../../src/mobile/contracts/login.contract.js';
+import type { ReviewDialog } from '../../../src/mobile/contracts/review-dialog.contract.js';
+import { ReviewDialogComponent } from '../../../src/mobile/components/android/review-dialog.component.js';
 import { observedStep, errorDetails, type ObservedStep } from '../../support/observed-step.js';
 import { selectedDeviceProfiles, type MobileOptions } from '../../../config/mobile/device-profile.js';
 import path from 'node:path';
@@ -8,17 +15,22 @@ import { remote, type Browser } from 'webdriverio';
 import { writeFile } from 'node:fs/promises';
 import { androidCapabilities } from '../../../config/mobile/capabilities.js';
 import { NativeUi } from '../../../src/mobile/support/native-ui.js';
-import { CatalogScreen, HeaderScreen, ProductDetailScreen, CartScreen, LoginScreen } from '../../../src/mobile/screens/android/shop.screens.js';
+import { CatalogScreen } from '../../../src/mobile/screens/android/catalog.screen.js';
+import { ProductDetailScreen } from '../../../src/mobile/screens/android/product-detail.screen.js';
+import { CartScreen } from '../../../src/mobile/screens/android/cart.screen.js';
+import { LoginScreen } from '../../../src/mobile/screens/android/login.screen.js';
+import { HeaderComponent } from '../../../src/mobile/components/android/header.component.js';
 import { ShoppingActions } from '../../../src/mobile/actions/shopping.actions.js';
 
 type NativeApp = {
   driver: Browser;
-  catalog: CatalogScreen;
-  header: HeaderScreen;
-  detail: ProductDetailScreen;
-  cart: CartScreen;
-  login: LoginScreen;
+  catalog: Catalog;
+  header: Header;
+  detail: ProductDetail;
+  cart: Cart;
+  login: Login;
   shopping: ShoppingActions;
+  review: ReviewDialog;
 };
 export const test = base.extend<MobileOptions & {app: NativeApp; step: ObservedStep}>({
   step: async ({app}, use, info) => {
@@ -44,8 +56,8 @@ export const test = base.extend<MobileOptions & {app: NativeApp; step: ObservedS
     const ui = new NativeUi(driver);
     const catalog = new CatalogScreen(ui);
     const detail = new ProductDetailScreen(ui);
-    const header = new HeaderScreen(ui);
-    const app: NativeApp = {driver, catalog, detail, header, cart: new CartScreen(ui), login: new LoginScreen(ui), shopping: new ShoppingActions(catalog, detail, header)};
+    const header = new HeaderComponent(ui);
+    const app: NativeApp = {review: new ReviewDialogComponent(ui), driver, catalog, detail, header, cart: new CartScreen(ui), login: new LoginScreen(ui), shopping: new ShoppingActions(catalog, detail, header)};
     const captureErrors: string[] = [];
     try {
       await driver.setTimeout({implicit: 0});

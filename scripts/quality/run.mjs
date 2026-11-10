@@ -6,6 +6,8 @@ import {waitForAppium} from '../mobile/wait-for-appium.mjs';
 const args=process.argv.slice(2);
 const listOnly=args.includes('--list');
 const runId=new Date().toISOString().replace(/[:.]/g,'-');
+process.env.MOBILE_DATA_SEED ||= runId;
+console.log('Semilla de datos móviles: '+process.env.MOBILE_DATA_SEED);
 const directory=path.resolve('reports/combined',runId);
 if(!listOnly){
   fs.mkdirSync(directory,{recursive:true});

@@ -33,13 +33,19 @@
     "test:all:regression": "node scripts/quality/ci.mjs regression",
     "test:all:list": "node scripts/quality/run.mjs --list",
     "report:all": "node scripts/quality/report.mjs combined",
-    "test:api:negative": "node scripts/api/run.mjs --grep @negative"
+    "test:api:negative": "node scripts/api/run.mjs --grep @negative",
+    "test:mobile:catalog": "node scripts/mobile/run.mjs --grep @catalog",
+    "test:mobile:random": "node scripts/mobile/run.mjs --grep @random",
+    "test:all:catalog": "node scripts/quality/ci.mjs catalog",
+    "test:all:random": "node scripts/quality/ci.mjs exploratory"
   },
   "devDependencies": {
     "@playwright/test": "1.65.0",
     "@types/node": "22.18.0",
+    "@types/pngjs": "6.0.5",
     "appium": "3.9.0",
     "appium-uiautomator2-driver": "6.0.0",
+    "pngjs": "7.0.0",
     "typescript": "5.9.3",
     "webdriverio": "9.20.0"
   }

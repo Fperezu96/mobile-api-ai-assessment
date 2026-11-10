@@ -17,12 +17,12 @@ export class NativeUi {
   async wait(name: string): Promise<void> {
     await this.element(name).waitForDisplayed({ timeout: 15000 });
   }
-  async showSelector(selector: string): Promise<void> {
+  async showSelector(selector: string, maxSwipes = 6): Promise<void> {
     const element = this.driver.$('android=' + selector);
     if (!(await element.isDisplayed())) {
       const currentPackage = await this.driver.getCurrentPackage();
       if (currentPackage !== appPackage) throw new Error('La app dejó de estar en primer plano al buscar el elemento; paquete actual: ' + currentPackage);
-      await this.driver.$('android=new UiScrollable(new UiSelector().scrollable(true)).setMaxSearchSwipes(6).scrollIntoView(' + selector + ')').getElement();
+      await this.driver.$('android=new UiScrollable(new UiSelector().scrollable(true)).setMaxSearchSwipes(' + maxSwipes + ').scrollIntoView(' + selector + ')').getElement();
     }
     await element.waitForDisplayed({ timeout: 10000 });
   }

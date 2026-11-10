@@ -1,4 +1,7 @@
-import type { Catalog, ProductDetail, Header, ProductCase } from '../contracts/shop.contracts.js';
+import type { Catalog } from '../contracts/catalog.contract.js';
+import type { ProductDetail } from '../contracts/product-detail.contract.js';
+import type { Header } from '../contracts/header.contract.js';
+import type { ProductCase } from '../models/product-case.js';
 
 export class ShoppingActions {
   constructor(private readonly catalog: Catalog, private readonly detail: ProductDetail, private readonly header: Header) {}
