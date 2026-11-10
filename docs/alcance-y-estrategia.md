@@ -1,41 +1,49 @@
 # Alcance y estrategia
 
-El reto exige automatización móvil nativa, API con Playwright Test TypeScript y uso verificable de una skill con un agente. La dedicación orientativa es de 4 a 6 horas y la sustentación de 30 minutos.
+El reto exige app instalada, Page/Screen Objects, API con Playwright Test TypeScript, dos conjuntos de datos móviles, una skill usada por un agente y evidencia verificable. Android local cumple el mínimo; iOS y nube son extensiones solicitadas por Felipe.
 
-El mínimo del enunciado permite Android local; Felipe solicitó además BrowserStack con Android e iOS. Esta extensión requiere instaladores, perfiles y evidencia independientes por plataforma.
+## Cobertura vigente
 
-## Escenarios
-
-| ID | Comportamiento que se valida | Expectativa |
+| Escenario | Comprobación | Etiquetas |
 | --- | --- | --- |
-| MOB-01 | El carrito conserva el producto y la cantidad seleccionados | Nombre, cantidad, precio unitario y total coinciden con datos definidos antes de ejecutar; dos datasets independientes |
-| MOB-02 | El inicio de sesión rechaza credenciales inválidas | Rechazo visible y ausencia de sesión válida |
-| MOB-03 | La navegación de regreso conserva el estado esperado | Acción real del sistema y validación funcional posterior |
-| API-01 | Consultar una reserva recién creada devuelve los datos registrados | Creación y consulta HTTP 200 y datos completos consistentes |
-| API-02 | No se permite crear una reserva sin el nombre del huésped | HTTP 500 implementado, sin bookingid ni reserva en la consulta posterior |
+| MOB-01 D1/D2 | Una y dos unidades de Backpack: nombre, cantidad, precio unitario y total | smoke, regression, cart |
+| MOB-02 | Contraseña incorrecta: rechazo visible y ausencia de sesión válida | regression, login |
+| MOB-03 | Volver con Android Back hasta el catálogo y comprobar que el carrito conserva sus datos | regression, navigation |
+| MOB-04 | Eliminar el único producto y comprobar estado vacío | regression, cart |
+| MOB-05, dos productos | Abrir Bike Light y Backpack (green) debe mostrar el detalle sin cerrar la app | regression, known-issue |
+| MOB-06 | Usuario vacío: validación visible y ausencia de sesión válida | regression, login |
+| API-01 a API-08 | Crear, consultar, listar, filtrar, PUT, PATCH, DELETE, autorización y aislamiento | smoke, regression, crud, authorization, isolation, characterization |
 
-La documentación de Restful Booker marca firstname como obligatorio, pero no especifica el código de error por su ausencia. API-02 caracteriza el HTTP 500 explícito del código público y verifica que no se crea una reserva. No se clasifica como incumplimiento contractual. Recomendar un 4xx para entradas inválidas es una observación de diseño no bloqueante, no una expectativa inventada para la regresión.
+MOB-01 fija antes de ejecutar USD 29,99 por unidad, cantidades 1/2 y totales USD 29,99/59,98. Los productos que provocaron cierres permanecen en MOB-05: cambiar los datos del caso positivo no eliminó su comprobación ni sus fallos.
 
-## Priorización y ejecución
+MOB-06 comprueba un rechazo definido por el formulario. MOB-02 conserva una expectativa de contraseña incorrecta frente al criterio del reto; la demo tiene un login permisivo, por lo que se distingue esa limitación de un contrato de autenticación formal inexistente.
 
-Smoke cubre creación y consulta API y, cuando esté implementado, el flujo principal del carrito. Regresión agrega negativos y navegación. Cada prueba prepara sus datos y estado, sin depender de otra ejecución. No ocultar defectos con skips o reintentos que cambien el resultado.
+La API es independiente de la demo. La documentación de Booker exige firstname, pero no especifica su código de rechazo. API-02 caracteriza el HTTP 500 implementado y comprueba ausencia de reserva; recomendar 4xx queda como observación de diseño no bloqueante.
 
-Priorizar después edición o eliminación de productos, campos obligatorios del checkout y fechas o tipos inválidos en reservas. Son propuestas, no casos implementados.
+## Datos, aislamiento y revisión
 
-## Narrativa y evidencia
+Una sesión Appium nueva por prueba, noReset=false y cierre garantizado. Antes del escenario se desbloquea el dispositivo y, si quedó abierto, se cierra el panel de notificaciones. No se comparte el UDID entre workers. Las esperas dependen de condiciones; el scroll verifica que la app permanezca en primer plano antes de actuar.
 
-Los nombres expresan comportamientos del producto. Los pasos describen preparación, acción y comprobación con lenguaje de QA; no exponen selectores ni repiten fórmulas de manera mecánica. Los tags se guardan como metadatos del escenario.
+Los fixtures API usan UUID completos y consultas previas/posteriores. La limpieza comprueba que cada registro sigue perteneciendo al test antes de eliminarlo. Esto verifica consistencia observable y aislamiento, no durabilidad tras reinicios ni unicidad global.
 
-Definir expectativas antes de ejecutar y conservar datos, resultado y evidencia del mismo intento. Reportes con nombres legibles no sustituyen aserciones ni ejecución real.
+No hay skips ni reintentos automáticos para disimular fallos. Se conservan también intentos con problemas de entorno o sincronización, diferenciándolos de los hallazgos de la app.
 
-## IA y entrega
+## Tres siguientes casos por riesgo
 
-La skill debe incluir entradas, procedimiento, convenciones, verificación y manejo de errores. Guardarla en un commit anterior a su uso y registrar agente, modelo, invocación, cambios, ejecución observada y correcciones humanas reales.
+1. Checkout con campos obligatorios ausentes: evita avanzar con datos incompletos en un flujo comercial.
+2. Límites de cantidad y recálculo al reducir unidades: comprueba cero, límites admitidos y coherencia del importe.
+3. Segundo plano y recuperación de la app: comprueba continuidad del carrito y que no se habilite una sesión inesperada.
 
-La entrega debe incluir código y versiones, README reproducible, reportes, riesgos, tiempo invertido y tres propuestas de skills justificadas. Estas obligaciones siguen pendientes donde todavía no haya implementación o evidencia.
+El complemento no funcional medirá arranque, memoria y fluidez con condiciones y muestras documentadas. Todavía no es una campaña ejecutada. Lighthouse y Web Vitals solo aplicarán si se incluye contenido web pertinente; no miden estas pantallas nativas.
 
-## Cobertura API ampliada
+## IA y adopción
 
-API-03 lista y filtra por huésped; API-04 verifica PUT mediante GET previo y posterior; API-05 verifica PATCH sin alterar otros campos; API-06 comprueba DELETE con GET 404 y búsqueda vacía; API-07 comprueba 403 y ausencia de cambios sin autorización; API-08 separa dos fixtures y sus búsquedas. Cada prueba prepara y limpia sus registros. Los UUID completos reducen colisiones y se consulta su ausencia previa; no se promete unicidad global.
+Las instrucciones de implementación están en .agents/skills/mobile-native-tests/SKILL.md, conservadas antes del primer escenario móvil en 4d786db. La invocación, la revisión del agente y sus correcciones se documentan en resultados. No se registra una aprobación humana inexistente.
 
-El complemento no funcional para la app nativa medirá arranque, memoria y fluidez cuando haya soporte de captura, con condiciones y muestras documentadas. Lighthouse y Web Vitals solo se incorporarán si existe contenido web pertinente y accesible; no se presentan como métricas de las pantallas nativas. Estas mediciones todavía no se han ejecutado como campaña ni bloquean el mínimo funcional del reto.
+| Propuesta | Usuario, entradas y salida | Verificación y prioridad |
+| --- | --- | --- |
+| Triage de fallos móviles | QA; recibe reporte, logs, capturas y árbol UI; entrega diagnóstico con evidencia y clasificación app/automatización/entorno | Contrastar con reproducción y revisión humana, sin debilitar aserciones. P1 |
+| Revisión de matriz de dispositivos | QA/DevOps; recibe compatibilidad, cuota y capacidad; entrega matriz acotada con aislamiento de sesiones y puertos | Comprobar arranque y reportes por dispositivo. P2 |
+| Preparación de entrega QA | QA/lead; recibe resultados, versiones, riesgos y enlaces; actualiza los documentos consolidados | Comprobar cada afirmación contra una evidencia real. P2 |
+
+Construir primero el triage: este ejercicio ya muestra cierres de la app, un login permisivo y errores de preparación distintos. Medir tiempo de diagnóstico y coincidencia de clasificación con revisión humana antes/después, sin inventar una mejora porcentual. Descargas con checksum, extracción de estadísticas y validación de puertos deben seguir siendo scripts deterministas, no nuevas skills.

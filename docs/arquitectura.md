@@ -1,84 +1,62 @@
 # Arquitectura y decisiones vigentes
 
-TypeScript para móvil y API está aprobado por Felipe. Compartir lenguaje y gestión de dependencias facilita mantenimiento; no garantiza menor consumo del emulador ni permite compartir todos los selectores.
+Se conserva TypeScript en un repositorio. La elección reduce duplicación de configuración y convenciones; no reduce por sí misma el coste del emulador.
 
-## Estructura
+## Cliente, servidor y dispositivo
 
-| Ubicación | Responsabilidad |
+| Componente | Responsabilidad y ubicación |
 | --- | --- |
-| src/api/models | Datos tipados de reserva |
-| src/api/clients | Transporte HTTP mediante un cliente inyectado |
-| tests/api/fixtures | Datos únicos y preparación independiente |
-| tests/api/specs | Escenarios y aserciones con steps de negocio |
-| config/api | Configuración y reportes Playwright |
-| src/mobile/contracts | Contratos pequeños de pantallas previstos |
-| src/mobile/actions | Acciones de negocio previstas |
-| src/mobile/screens/android e ios | Implementaciones específicas previstas |
-| tests/mobile | Escenarios y datos móviles por implementar |
-| config/mobile | Perfiles locales y nube por implementar |
-| scripts/browserstack | Acceso, descarga del APK y comprobación de apertura |
+| Playwright Test | Ejecutar escenarios, steps, aserciones y reportes; no crea un navegador para móvil |
+| Fixture nativo | Crear y cerrar cada sesión, adjuntar evidencia; tests/mobile/fixtures/native.fixture.ts |
+| WebdriverIO | Cliente W3C WebDriver que envía peticiones HTTP a Appium mediante remote |
+| Appium | Servidor independiente iniciado por scripts/mobile/appium.mjs; escucha solo en 127.0.0.1 |
+| UiAutomator2 | Driver cargado por Appium para controlar la APK en Android |
+| Inspector | Cliente gráfico alternativo del mismo servidor; no se usa al mismo tiempo que la suite sobre un UDID |
 
-La API está implementada. Los directorios móviles vacíos reservan responsabilidades, no prueban soporte Android o iOS.
+El fixture no importa el servidor Appium porque no lo ejecuta dentro de cada prueba. Sus capabilities appium:automationName, udid, appPackage y appActivity seleccionan la automatización nativa. La creación de sesión es POST /session; las acciones pasan por ese servidor y el driver. El reporte adjunta /status, versión real y session ID.
 
-## Principios aplicados y previstos
+## Organización y principios
 
-El cliente API solo transporta y los escenarios deciden expectativas. Los fixtures se encargan de datos y preparación. La inyección del contexto HTTP permite separar esas responsabilidades sin introducir capas artificiales.
+- src/mobile/contracts: interfaces pequeñas de catálogo, detalle, carrito y cabecera.
+- src/mobile/screens/android: Screen Objects con localizadores observados en la app.
+- src/mobile/actions: acciones de negocio que reciben contratos por constructor.
+- src/mobile/support: selectores nativos y conversión de importes a centavos.
+- config/mobile: capabilities, ejecutor e importación de configuración de Inspector.
+- tests/mobile: datos previos, fixture y escenarios.
+- scripts/mobile: servidor, readiness, ejecución, reporte y orquestación CI.
+- src/api y tests/api: cliente, modelos, fixtures y los ocho escenarios en bookings.spec.ts.
 
-Para móvil, las acciones recibirán contratos de catálogo, carrito y autenticación. Android e iOS tendrán implementaciones sustituibles con el mismo significado de datos, no una BaseScreen Android reutilizada por fuerza. Separar ciclo de sesión, configuración y evidencia evita un hook con demasiadas responsabilidades.
+Hay separación concreta de responsabilidades, contratos pequeños e inyección de dependencias. No se afirma una Clean Architecture completa. No hay una BaseScreen que mezcle negocio, sesión y evidencia. Los comentarios explican decisiones en español; los tests conservan steps de negocio.
 
-Son aplicaciones concretas de responsabilidad única, extensión, sustitución, interfaces pequeñas e inversión de dependencias. La I corresponde a segregación de interfaces; la inyección ayuda a D. Se toma la separación de políticas e infraestructura de Clean Architecture sin afirmar que ya exista una arquitectura completa.
+La revisión corrigió el scroll al volver a un título fuera de pantalla, el control de cantidad mediante clickGesture por ID de elemento, la preparación ante paneles del sistema y la espera /status. Se conservaron aserciones de nombre, cantidad, precio y total.
 
-## Versiones
+## Versiones comprobadas
 
-| Componente | Versión y razón | Estado |
-| --- | --- | --- |
-| Node y npm del PC | 22.18.0 y 10.9.3; se preserva instalación global | Verificados |
-| Playwright Test | 1.65.0 requiere Node >=20 | Instalado y ejecutado |
-| TypeScript | 5.9.3 compatible con el entorno | Compilación aprobada |
-| WebdriverIO cliente | 9.20.0 admite Node >=18.20.0; evita trasladar 9.33.1 incompatible con Node 22.18.0 | Instalado para comprobación de conexión |
-| Appium en BrowserStack | La primera comprobación usa selección del proveedor | No hubo sesión; versión aún no comprobada ni fijada |
-| Runner móvil y BDD | Evaluar Cucumber o pasos explícitos con un reporte mínimo | Pendiente |
+| Componente | Versión |
+| --- | --- |
+| Node / npm del PC | 22.18.0 / 10.9.3 |
+| Playwright Test / TypeScript | 1.65.0 / 5.9.3 |
+| WebdriverIO | 9.20.0 |
+| Appium / driver UiAutomator2 | 3.9.0 / 6.0.0 |
+| Servidor UiAutomator2 en Android | 9.0.1 |
+| Android / API / imagen | 13 / 33 / AOSP x86_64 revisión 2 |
+| Emulator / Build Tools | 37.2.13.0 / 35.0.0 |
+| Java local / Inspector | JBR 25.0.3 / 2026.9.2 |
 
-El cliente WebdriverIO no implica tener Appium local instalado. La suite móvil requerirá decidir runner, reportes y versiones soportadas por BrowserStack. No se descargaron navegadores para API.
+Appium y el driver se gestionan en package.json y package-lock.json. No se carga APPIUM_HOME del usuario: Appium detecta las dependencias del proyecto, conforme a su [gestión mediante npm](https://appium.io/docs/en/latest/guides/managing-exts/). No hace falta instalar ni enlazar otro driver global. La versión más reciente de UiAutomator2 exigía otro Node y Appium preliminar; no se adoptó.
 
-## Revisión de código
+Java, SDK y rutas pueden configurarse por variables del proceso. La instalación local está separada en C:\dev\.tools; los scripts no modifican herramientas globales ni cuentas del banco. La imagen, APK e Inspector se verificaron contra los hashes publicados.
 
-Se conserva del prototipo el dinero en centavos, expectativas previas e independencia. Deben resolverse sus dependencias Android, falta de perfil iOS, ausencia de pasos de negocio en reportes, mezcla de responsabilidades en hooks y pérdida de historial al reemplazar resultados.
+## DevOps, matriz y paralelismo
 
-En la API actual se revisaron tipos, inyección, datos únicos y aserciones. Se eliminó una dependencia innecesaria del fixture de datos y el negativo verifica el estado implementado, ausencia de bookingid y búsqueda vacía posterior. La limpieza autenticada verifica propiedad y ausencia posterior; quedan histórico de reportes y controles de estilo.
+Un solo dispositivo utiliza un worker. Aumentar workers sobre emulator-5554 generaría interferencia de estado. Para dos emuladores en un mismo host, usar UDID/puerto de emulador, systemPort y puerto Appium distintos por proceso.
 
-Los comentarios del código van en español y explican decisiones. Los nombres oficiales de APIs y librerías se conservan. La revisión del agente no sustituye la revisión humana.
+El workflow manual .github/workflows/mobile.yml define jobs aislados en Ubuntu para API 30 y 33, max-parallel=2 y fail-fast=false. Cada job instala versiones, prepara su emulador y ejecuta test:mobile:ci. Los puertos pueden coincidir entre jobs porque no comparten máquina. Siempre se suben logs y reportes. No hay ejecución de esa matriz en GitHub todavía; validar minutos disponibles antes de lanzarla.
 
-## Visual Archify
+test:mobile:ci inicia su propio Appium, espera /status, ejecuta la selección y conserva el código de salida. Finalmente cierra únicamente los procesos que creó. El cierre contempla el árbol de procesos en Windows y señales en Linux. El comando manual test:mobile también espera readiness y falla claramente si no encuentra servidor.
 
-[Arquitectura por etapas](../.archify/architecture-mobile-api-20261110-132500/arquitectura.html), generada con Archify 3.2 y fuentes fijadas en el commit 87b6bd113f267daf05aba7c350d56c27477d5355. Las fuentes históricas siguen accesibles en ese commit aunque los documentos actuales se consoliden.
+## Nube, iOS y visual
 
-El HTML distingue API implementada de móvil previsto. Pasaron esquema, entrega y comprobación del artefacto; browser-check falló por Chrome DevTools pipe cerrado desde ejecución elevada. Un segundo intento continuó elevado. No se desactivó el sandbox ni se modificó Archify.
+Los perfiles de AWS y BrowserStack aún no se presentan como implementados ni verificados. BrowserStack rechazó el APK con 422 antes de crear sesión. La promoción de AWS requiere autenticar exclusivamente la cuenta personal de Felipe y consultar su cuota. iOS requiere un instalador compatible y acceso a infraestructura Apple; no hay Mac ni iPhone disponibles.
 
-Para completar esa comprobación, ejecutar el finalize desde PowerShell abierto sin administrador, usando el candidato existente, --repo-root . y un --out-dir nuevo. Los recibos conservan el detalle. La visual es consultable, pero no se afirma validación completa o revisión visual certificada.
-
-## CRUD y autenticación
-
-El cliente incorpora listado, filtros, PUT, PATCH y DELETE. Cada escenario usa datos UUID completos y comprueba el estado previo y posterior. Los fixtures verifican ausencia antes de crear y limpian solo registros propios. La lectura posterior comprueba consistencia observable, no durabilidad tras reinicios.
-
-La autenticación usa credenciales locales sin adjuntar tokens. Las trazas API están desactivadas para evitar publicar cookies. El negativo de campo obligatorio lleva @characterization: comprueba el 500 implementado y la ausencia de registro; la documentación no fija ese código de rechazo. Recomendar 4xx queda como observación de diseño no bloqueante.
-
-## Alternativas de acceso móvil evaluadas
-
-Consulta del 10 de noviembre de 2026. Se mantiene WebdriverIO con Appium; cambiar de proveedor no requiere cambiar el lenguaje, aunque sí adaptar configuración, carga de instaladores y evidencia. No se ha contratado ni provisionado otra plataforma.
-
-- Android local: emulador de Android Studio o dispositivo propio, sin mensualidad de nube. Requiere SDK y entorno Appium; aún no verificado.
-- iOS local: la vía habitual con simulador requiere Mac y Xcode. Requiere una compilación para simulador; para dispositivos reales, una IPA y firma compatibles. El APK Android no sirve para iOS.
-- AWS Device Farm: alternativa para dispositivos reales Android e iOS y Appium Node.js/WebdriverIO. Publica una promoción de prueba única de 1.000 minutos-dispositivo y después USD 0,17/minuto-dispositivo; la elegibilidad y saldo de Felipe no están comprobados. La promoción es temporal y no es una cuota mensual gratuita. Puede usarse pago por consumo sin mensualidad. Requiere integración y controles de consumo antes de ejecutar.
-
-Fuentes: [AWS precios](https://aws.amazon.com/device-farm/pricing/), [integración Appium](https://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-appium-integrate.html), [requisitos XCUITest](https://appium.github.io/appium-xcuitest-driver/12.22/getting-started/system-requirements/) y [emulador Android](https://developer.android.com/studio/run/emulator).
-
-## Entorno Android local instalado
-
-Se eligió una imagen AOSP API 33 x86_64 para ejecutar la APK sin requerir Play Store ni iniciar sesión con Google. Emulador e imagen se descargaron de Google; se verificaron sus SHA1 contra el catálogo oficial antes de usarlos. El entorno usa WHPX disponible en Windows, sin cambiar funciones de virtualización ni requerir reinicio. Se conservan instalación y datos fuera del repositorio.
-
-El perfil config/mobile/android-local.json describe el dispositivo. Los scripts scripts/android-local/create.ps1 y start.ps1 crean el AVD e inician su proceso, respectivamente. No implementan todavía una sesión Appium ni los escenarios de carrito o login.
-
-Para AWS solo se autoriza la cuenta personal de Felipe. No usar la cuenta del banco, perfiles corporativos ni modificar la configuración AWS global. El beneficio de Device Farm no está confirmado: requiere autenticación personal y consulta explícita de trialMinutes antes de ejecutar trabajos.
-
-Los ocho escenarios API se agrupan en tests/api/specs/bookings.spec.ts porque pertenecen al mismo recurso de reservas. Crear, listar, consultar, actualizar y eliminar se distinguen por escenario y etiquetas, sin separar archivos por verbo HTTP. Se conservan @smoke, @crud, @authorization, @isolation y @characterization.
+La visual Archify existente es histórica: .archify/architecture-mobile-api-20261110-132500/arquitectura.html. Pasó controles de estructura, pero browser-check quedó bloqueado por el proceso elevado. Debe actualizarse y verificarse para esta implementación; no se afirma que describa ya el estado final.

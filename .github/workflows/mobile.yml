@@ -1,0 +1,68 @@
+name: Pruebas móviles por dispositivo
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Alcance de la ejecución
+        type: choice
+        options: [smoke, regression]
+        default: smoke
+permissions:
+  contents: read
+jobs:
+  android:
+    name: Android API ${{ matrix.api }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        api: [30, 33]
+    env:
+      MOBILE_SUITE: ${{ inputs.suite }}
+      ANDROID_UDID: emulator-5554
+      ANDROID_SYSTEM_PORT: '8200'
+      APPIUM_PORT: '4723'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.18.0
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - name: Instalar dependencias fijadas
+        run: npm ci
+      - name: Comprobar TypeScript
+        run: npm run typecheck
+      - name: Descargar y verificar APK
+        run: npm run app:download
+      - name: Habilitar KVM en el runner
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Ejecutar con emulador y servidor Appium
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          target: default
+          arch: x86_64
+          profile: pixel_2
+          ram-size: 3072M
+          emulator-build: 16740729
+          emulator-boot-timeout: 600
+          script: npm run test:mobile:ci
+      - name: Conservar reportes y logs incluso ante fallo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-api-${{ matrix.api }}-${{ inputs.suite }}
+          path: |
+            reports/mobile/
+            artifacts/android-local/
+          retention-days: 7

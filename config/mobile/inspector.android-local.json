@@ -1,0 +1,10 @@
+{
+  "platformName": "Android",
+  "appium:automationName": "UiAutomator2",
+  "appium:udid": "emulator-5554",
+  "appium:deviceName": "QA_API33",
+  "appium:appPackage": "com.saucelabs.mydemoapp.android",
+  "appium:appActivity": ".view.activities.SplashActivity",
+  "appium:noReset": true,
+  "appium:systemPort": 8201
+}

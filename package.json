@@ -16,11 +16,20 @@
     "browserstack:android:connect": "node --env-file-if-exists=.env scripts/browserstack/android-connection.mjs",
     "test:api:crud": "node --env-file-if-exists=.env node_modules/@playwright/test/cli.js test -c config/api/playwright.config.ts --grep @crud",
     "android:local:create": "powershell.exe -NoProfile -File scripts/android-local/create.ps1",
-    "android:local:start": "powershell.exe -NoProfile -File scripts/android-local/start.ps1"
+    "android:local:start": "powershell.exe -NoProfile -File scripts/android-local/start.ps1",
+    "appium:setup": "node scripts/mobile/appium.mjs setup",
+    "appium:doctor": "node scripts/mobile/appium.mjs doctor",
+    "appium:start": "node scripts/mobile/appium.mjs start",
+    "test:mobile": "node scripts/mobile/run.mjs",
+    "test:mobile:smoke": "node scripts/mobile/run.mjs --grep @smoke",
+    "test:mobile:ci": "node scripts/mobile/ci.mjs",
+    "report:mobile": "node scripts/mobile/report.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.65.0",
     "@types/node": "22.18.0",
+    "appium": "3.9.0",
+    "appium-uiautomator2-driver": "6.0.0",
     "typescript": "5.9.3",
     "webdriverio": "9.20.0"
   }

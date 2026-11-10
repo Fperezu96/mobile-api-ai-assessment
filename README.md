@@ -1,69 +1,66 @@
-# Automatización móvil y API
+# Automatización móvil nativa y API
 
-Proyecto de Felipe Pérez Upegui para validar una aplicación móvil nativa y una API independiente, con escenarios legibles, código mantenible y evidencia de ejecución.
+Proyecto de Felipe Pérez Upegui. La API usa Playwright Test con TypeScript; la app Android se controla con WebdriverIO, Appium y UiAutomator2. Se reutiliza Playwright Test como ejecutor y reportero de ambas suites: para móvil no se crea navegador.
 
-## Estado actual
+## Estado verificado
 
-La API cubre creación, listado, filtros, PUT, PATCH, eliminación, autorización e independencia de fixtures. La expectativa del negativo se corrigió al HTTP 500 implementado y ahora verifica también que no se cree una reserva. La nueva ejecución terminó con ocho casos aprobados y typecheck aprobado. BrowserStack reconoce la cuenta y permite consultar dispositivos, pero rechazó la carga del APK con HTTP 422 tanto desde archivo como desde su URL oficial. Todavía no hay sesión móvil ni pruebas Android o iOS ejecutadas.
+- API: 8 aprobados en la última ejecución.
+- Regresión móvil local: 5 aprobados, 3 fallidos, 0 omitidos. Los fallos se conservan y explican en [resultados](docs/resultados.md).
+- Appium 3.9.0 e Inspector 2026.9.2 disponibles en el PC. Android 13/API 33, AVD QA_API33.
+- El comando de CI se ejecutó localmente. La matriz de GitHub API 30/33 está preparada para ejecución manual, sin ejecución remota verificada.
+- iOS, BrowserStack y AWS siguen pendientes; no se usó ninguna cuenta corporativa.
 
-La estructura móvil está preparada para WebdriverIO y Appium. Los contratos, acciones y Screen Objects se implementarán después de resolver la carga del instalador y revisar el primer flujo. El prototipo anterior sirve de referencia, no de evidencia de esta base.
+## Instalar y ejecutar
 
-## Preparar y ejecutar
+Node 22.18.0 y npm 10.9.3. Java, Android SDK, Emulator y Build Tools 35 son necesarios para móvil. npm ci instala las versiones fijadas de Appium y del driver; no se requiere Appium global ni instalar el driver otra vez fuera del proyecto.
 
-Requisitos comprobados: Node 22.18.0 y npm 10.9.3 en Windows. Las dependencias están fijadas en package-lock.json; no hace falta cambiar Node global ni descargar navegadores para las pruebas API.
+    npm.cmd ci
+    npm.cmd run typecheck
+    npm.cmd run app:download
+    npm.cmd run android:local:start
+    npm.cmd run appium:doctor
 
-```powershell
-Set-Location C:\dev\mobile-api-ai-assessment
-npm.cmd ci
-npm.cmd run typecheck
-npm.cmd run test:api:smoke
-npm.cmd run test:api:crud
-npm.cmd run test:api
-npm.cmd run report:api
-```
+El SDK de este PC está en C:\dev\.tools\android-sdk y los datos del AVD en C:\dev\.tools\android-avd. Los scripts de arranque solo ajustan variables del proceso. En otro entorno, configurar ANDROID_HOME, JAVA_HOME, ANDROID_UDID y, si aplica, ANDROID_SYSTEM_PORT y APPIUM_PORT. Android Studio puede usar esa misma ubicación de SDK.
 
-Smoke ejecuta el escenario positivo; test:api:crud cubre listado, filtros, PUT, PATCH y eliminación. La suite completa agrega el negativo: HTTP 500 implementado y ausencia de reserva. La documentación no fija ese código de error. El reporte muestra los pasos de negocio, datos y respuestas.
+En una terminal, dejar Appium corriendo:
 
-## Conectar BrowserStack
+    npm.cmd run appium:start
 
-Copiar .env.example a .env si todavía no existe y completar BROWSERSTACK_USERNAME y BROWSERSTACK_ACCESS_KEY únicamente en el archivo local.
+En otra terminal, ejecutar la suite o el smoke:
 
-```powershell
-npm.cmd run browserstack:check
-npm.cmd run app:download
-npm.cmd run browserstack:android:connect
-```
+    npm.cmd run test:mobile
+    npm.cmd run test:mobile:smoke
+    npm.cmd run report:mobile
 
-La conexión comprueba acceso a App Automate. El segundo comando descarga el APK oficial y valida su SHA256. El tercero intenta cargar la app y abrir el catálogo en un dispositivo Android real. Es una comprobación de entorno; no valida el carrito ni reemplaza los escenarios funcionales. La alternativa de carga desde URL es `npm.cmd run browserstack:android:connect -- --public-url`; también devolvió HTTP 422 en la ejecución registrada.
+Para abrir el reporte de la regresión documentada:
 
-## Reportes y evidencia
+    npm.cmd run report:mobile -- 2026-11-10T20-13-25-414Z
 
-- API: reports/api/html, reports/api/results.json y reports/api/junit.xml.
-- BrowserStack: artifacts/browserstack, con un directorio por intento y resultado sin credenciales.
-- Arquitectura: [visual Archify](.archify/architecture-mobile-api-20261110-132500/arquitectura.html). Descargar o abrir el HTML localmente; GitHub muestra su código.
+Con el emulador listo y sin otro Appium ocupando el puerto, este comando controla el servidor completo: inicia Appium, espera /status, ejecuta pruebas, conserva su salida y cierra los procesos propios:
 
-La validación automática de Archify en Chrome está pendiente por el contexto elevado de ejecución. El HTML se generó y pasó sus controles de estructura, pero no se presenta como validación completa.
+    npm.cmd run test:mobile:ci
 
-## Documentación del proyecto
+MOBILE_SUITE puede ser smoke o regression; por defecto es regression. La regresión conserva los fallos conocidos y termina con código 1. El smoke solo selecciona los dos datos de carrito; no declara aprobados los negativos.
 
-- [Alcance y estrategia](docs/alcance-y-estrategia.md): requisitos, escenarios y criterios.
-- [Arquitectura](docs/arquitectura.md): estructura, versiones, decisiones y revisión de código.
-- [Resultados](docs/resultados.md): ejecuciones, hallazgos, bloqueos y siguiente paso.
+API requiere BOOKER_USERNAME y BOOKER_PASSWORD en .env local, con las credenciales de práctica del servicio:
 
-Estos documentos se actualizan con las conclusiones vigentes. Las decisiones anteriores se consultan en Git; no se crea un informe nuevo por cada avance.
+    npm.cmd run test:api
+    npm.cmd run test:api:crud
+    npm.cmd run report:api
 
-## Repositorio y trabajo
+## Inspector y evidencia
 
-[GitHub privado](https://github.com/Fperezu96/mobile-api-ai-assessment). Carpeta local: C:\dev\mobile-api-ai-assessment. Trabajar en ramas pequeñas, revisar código y reporte antes de integrar y mantener comentarios en español que expliquen motivos.
+Inspector está instalado en C:\dev\.tools\appium-inspector-2026.9.2 y tiene acceso directo en el escritorio. Usar host 127.0.0.1, puerto 4723 y ruta /. Importar [estas capabilities](config/mobile/inspector.android-local.json). Finalizar su sesión antes de ejecutar pruebas en ese mismo dispositivo.
 
-Los secretos, instaladores y resultados generados están excluidos de Git. Para la sustentación, la skill deberá guardarse antes de usarla en el primer escenario móvil y se conservarán invocación, cambios y revisión humana.
+Cada ejecución móvil tiene un directorio propio bajo reports/mobile con HTML, JSON, JUnit, capturas, árbol UI, datos esperados, información del servidor Appium y session ID. Los logs del servidor se conservan en artifacts/android-local. Ningún instalador, secreto ni reporte generado se publica en Git.
 
-Las mutaciones requieren BOOKER_USERNAME y BOOKER_PASSWORD en .env local, con las credenciales de práctica de Restful Booker. Los fixtures limpian únicamente sus reservas. Se desactivaron las trazas API para no publicar tokens; se conservan pasos y respuestas de negocio sin autenticación.
+El flujo manual de GitHub está en [.github/workflows/mobile.yml](.github/workflows/mobile.yml). No se dispara con cada push. Antes de lanzarlo, revisar los minutos disponibles de Actions; esta preparación no demuestra ejecución en dos dispositivos.
 
-## Emulador Android local
+## Documentación y revisión
 
-SDK separado del reto: C:\dev\.tools\android-sdk. AVD QA_API33: Android 13, API 33, AOSP x86_64, 3 GB RAM, dos núcleos y pantalla 1080x1920. Su almacenamiento está en C:\dev\.tools\android-avd. El perfil descriptivo está en config/mobile/android-local.json; la integración Appium aún está pendiente.
+- [Alcance y estrategia](docs/alcance-y-estrategia.md).
+- [Arquitectura y decisiones](docs/arquitectura.md).
+- [Resultados, hallazgos y pendientes](docs/resultados.md).
+- [Instrucciones móviles utilizadas por el agente](.agents/skills/mobile-native-tests/SKILL.md).
 
-Con los componentes instalados, ejecutar npm.cmd run android:local:start. Para recrear el AVD en otra instalación con esos componentes y rutas, usar npm.cmd run android:local:create; se detiene si ya existe y no borra datos. Los scripts ajustan variables solo para el proceso de arranque. Si Android Studio solicita la ubicación del SDK, seleccionar C:\dev\.tools\android-sdk.
-
-La comprobación manual de disponibilidad es C:\dev\.tools\android-sdk\platform-tools\adb.exe -s emulator-5554 shell getprop sys.boot_completed; debe devolver 1 antes de instalar la APK. Logs en artifacts/android-local. Arrancar el dispositivo no equivale a aprobar los escenarios móviles.
+La skill quedó en el commit 4d786db antes del código móvil. La revisión humana, el tiempo humano acumulado y el acceso del evaluador al repositorio privado siguen pendientes. No se inventa el identificador exacto del modelo cuando la interfaz no lo informa.

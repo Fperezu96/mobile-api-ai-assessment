@@ -15,6 +15,9 @@
   "appPackage": "com.saucelabs.mydemoapp.android",
   "appManifest": "apps/android-manifest.json",
   "automationName": "UiAutomator2",
-  "sessionStatus": "pending-appium-setup",
-  "appActivity": ".view.activities.SplashActivity"
+  "sessionStatus": "local-appium-verified",
+  "appActivity": ".view.activities.SplashActivity",
+  "appiumVersion": "3.9.0",
+  "uiautomator2DriverVersion": "6.0.0",
+  "inspectorVersion": "2026.9.2"
 }
