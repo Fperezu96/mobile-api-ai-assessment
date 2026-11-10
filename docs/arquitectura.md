@@ -1,128 +1,143 @@
-# Arquitectura y decisiones vigentes
+# Arquitectura de negocio y de automatización
 
-Se conserva TypeScript en un repositorio. La elección reduce duplicación de configuración y convenciones; no reduce por sí misma el coste del emulador.
+**Autor:** Felipe Pérez Upegui · **Revisión:** 10 de noviembre de 2026.
 
-## Cliente, servidor y dispositivo
+## 1. ¿Qué negocio representa cada producto?
 
-| Componente | Responsabilidad y ubicación |
-| --- | --- |
-| Playwright Test | Ejecutar escenarios, steps, aserciones y reportes; no crea un navegador para móvil |
-| Fixture nativo | Crear y cerrar cada sesión, adjuntar evidencia; tests/mobile/fixtures/native.fixture.ts |
-| WebdriverIO | Cliente W3C WebDriver que envía peticiones HTTP a Appium mediante remote |
-| Appium | Servidor independiente iniciado por scripts/mobile/appium.mjs; escucha solo en 127.0.0.1 |
-| UiAutomator2 | Driver cargado por Appium para controlar la APK en Android |
-| Inspector | Cliente gráfico alternativo del mismo servidor; no se usa al mismo tiempo que la suite sobre un UDID |
+**Respuesta.** La APK representa una tienda de demostración; Restful Booker representa un servicio independiente de reservas. No se dibuja una conexión entre la APK y Booker ni se presupone una compra real o un sistema de pagos productivo.
 
-El fixture no importa el servidor Appium porque no lo ejecuta dentro de cada prueba. Sus capabilities appium:automationName, udid, appPackage y appActivity seleccionan la automatización nativa. La creación de sesión es POST /session; las acciones pasan por ese servidor y el driver. El reporte adjunta /status, versión real y session ID.
+### 1.1 Modelo funcional de la APK
 
-## Organización y principios
-
-- src/mobile/contracts: interfaces pequeñas de catálogo, detalle, carrito y cabecera.
-- src/mobile/screens/android: Screen Objects con localizadores observados en la app.
-- src/mobile/actions: acciones de negocio que reciben contratos por constructor.
-- src/mobile/support: selectores nativos y conversión de importes a centavos.
-- config/mobile: capabilities, ejecutor e importación de configuración de Inspector.
-- tests/mobile: datos previos, fixture y escenarios.
-- scripts/mobile: servidor, readiness, ejecución, reporte y orquestación CI.
-- src/api y tests/api: cliente, modelos, fixtures y los ocho escenarios en bookings.spec.ts.
-
-Hay separación concreta de responsabilidades, contratos pequeños e inyección de dependencias. No se afirma una Clean Architecture completa. No hay una BaseScreen que mezcle negocio, sesión y evidencia. Los comentarios explican decisiones en español; los tests conservan steps de negocio.
-
-La revisión corrigió el scroll al volver a un título fuera de pantalla, el control de cantidad mediante clickGesture por ID de elemento, la preparación ante paneles del sistema y la espera /status. Se conservaron aserciones de nombre, cantidad, precio y total.
-
-## Versiones comprobadas
-
-| Componente | Versión |
-| --- | --- |
-| Node / npm del PC | 22.18.0 / 10.9.3 |
-| Playwright Test / TypeScript | 1.65.0 / 5.9.3 |
-| WebdriverIO | 9.20.0 |
-| Appium / driver UiAutomator2 | 3.9.0 / 6.0.0 |
-| Servidor UiAutomator2 en Android | 9.0.1 |
-| Android / API / imagen | 13 / 33 / AOSP x86_64 revisión 2 |
-| Emulator / Build Tools | 37.2.13.0 / 35.0.0 |
-| Java local / Inspector | JBR 25.0.3 / 2026.9.2 |
-
-Appium y el driver se gestionan en package.json y package-lock.json. No se carga APPIUM_HOME del usuario: Appium detecta las dependencias del proyecto, conforme a su [gestión mediante npm](https://appium.io/docs/en/latest/guides/managing-exts/). No hace falta instalar ni enlazar otro driver global. La versión más reciente de UiAutomator2 exigía otro Node y Appium preliminar; no se adoptó.
-
-Java, SDK y rutas pueden configurarse por variables del proceso. La instalación local está separada en C:\dev\.tools; los scripts no modifican herramientas globales ni cuentas del banco. La imagen, APK e Inspector se verificaron contra los hashes publicados.
-
-## DevOps, matriz y paralelismo
-
-Un solo dispositivo utiliza un worker. Aumentar workers sobre emulator-5554 generaría interferencia de estado. Para dos emuladores en un mismo host, usar UDID/puerto de emulador y systemPort distintos. Esta implementación comparte un servidor Appium entre sesiones; si se optara por dos servidores, sus puertos Appium también deberían ser distintos.
-
-El workflow manual .github/workflows/mobile.yml define jobs aislados en Ubuntu para API 30 y 33, max-parallel=2 y fail-fast=false. Cada job instala versiones, prepara su emulador y ejecuta el target all o mobile mediante test:mobile:ci. El target all necesita los secrets BOOKER_USERNAME y BOOKER_PASSWORD; el orquestador selecciona la configuración conjunta. Los puertos pueden coincidir entre jobs porque no comparten máquina. Siempre se suben logs y reportes. No hay ejecución de esa matriz en GitHub todavía; validar minutos disponibles antes de lanzarla.
-
-test:mobile:ci inicia su propio Appium, espera /status, ejecuta la selección y conserva el código de salida. Finalmente cierra únicamente los procesos que creó. El cierre contempla el árbol de procesos en Windows y señales en Linux. El comando manual test:mobile también espera readiness y falla claramente si no encuentra servidor.
-
-## Nube, iOS y visual
-
-Los perfiles de AWS y BrowserStack aún no se presentan como implementados ni verificados. BrowserStack rechazó el APK con 422 antes de crear sesión. La promoción de AWS requiere autenticar exclusivamente la cuenta personal de Felipe y consultar su cuota. iOS requiere un instalador compatible y acceso a infraestructura Apple; no hay Mac ni iPhone disponibles.
-
-La visual Archify existente es histórica: .archify/architecture-mobile-api-20261110-132500/arquitectura.html. Pasó controles de estructura, pero browser-check quedó bloqueado por el proceso elevado. Debe actualizarse y verificarse para esta implementación; no se afirma que describa ya el estado final.
-
-## Fixture parametrizado por dispositivo
-
-El fixture recibe deviceProfile como opción de Playwright Test. Cada proyecto inyecta un perfil del archivo devices.json; no se calcula el dispositivo a partir de workerIndex. Este índice puede cambiar tras un fallo y solo se conserva como evidencia.
-
-La configuración admite tantos workers globales como perfiles seleccionados, con un límite workers=1 dentro de cada proyecto. Esto permite concurrencia entre emuladores y evita concurrencia de tests sobre el mismo UDID incluso si se incorporan más archivos de escenarios. Cada test conserva una sesión nueva, limpieza y cierre independientes.
-
-| Perfil | UDID | systemPort | mjpegServerPort | Estado físico |
-| --- | --- | --- | --- | --- |
-| android-local-primary | emulator-5554 | 8200 | 9100 | Verificado |
-| android-local-secondary | emulator-5556 | 8201 | 9101 | Configurado; AVD pendiente |
-
-Se comparte Appium en el puerto 4723; no es obligatorio levantar un servidor por emulador. El puerto ADB del host también puede compartirse porque cada comando identifica su UDID. Se rechazan nombres repetidos, UDID duplicados y colisiones de puertos internos antes de crear sesiones. Los puertos MJPEG quedan separados para evitar conflictos si se incorporan streams; esto no significa que ya haya video implementado.
-
-Los proyectos incluyen su nombre en la evidencia generada por Playwright. El fixture adjunta el perfil, el nombre de proyecto, las capabilities resueltas y el session ID. El segundo AVD deberá crearse y arrancarse antes de una ejecución paralela real. [Guía UiAutomator2](https://appium.github.io/appium-uiautomator2-driver/latest/guides/parallel-tests/) y [límite por proyecto](https://playwright.dev/docs/api/class-testproject#test-project-workers).
-
-
-## Pasos observables y ejecución conjunta
-
-tests/support/observed-step.ts proporciona un step tipado, con box=true para señalar la llamada del escenario. Conserva el error de la aserción y captura evidencia también cuando se agregan errores suaves. Los fallos de captura se registran sin reemplazar la causa original.
-
-El fixture API registra método, ruta, datos sintéticos, respuesta, estado y duración. Cada paso adjunta sus intercambios y el fixture adjunta el historial final, incluida limpieza. No registra cabeceras, cookies ni la petición /auth; la respuesta se limita a 12000 caracteres. El fixture Android adjunta captura, árbol UI y contexto de sesión al paso fallido, además de la evidencia final. No se usa trace de navegador para representar acciones Appium.
-
-config/combined/playwright.config.ts crea un proyecto API y los proyectos Android seleccionados. API tiene un worker; cada dispositivo tiene uno. Así pueden correr API y Android al mismo tiempo, sin compartir el estado de un emulador entre tests. Se usan las mismas fuentes de escenarios y fixtures; no se duplican suites para el reporte.
-
-scripts/quality/ci.mjs reutiliza la orquestación Appium existente. scripts/quality/run.mjs ejecuta una sola invocación Playwright con reporteros HTML/JSON/JUnit y directorio propio por runId. No se fusionan reportes HTML independientes ni se sobrescriben evidencias anteriores. summarize.mjs agrega execution-summary.json con proyecto, etiquetas, estado, errores y rutas de pasos fallidos. Los runners independientes generan la misma estructura de resumen.
-
-Los controles nativos se exponen dentro del viewport antes de pulsar. NativeUi.tap espera varias muestras consecutivas de posición y tamaño estables y usa clickGesture por ID de elemento. No introduce pausas fijas ni reintentos del test; las esperas siguen exigiendo la cantidad exacta. Los errores de sincronización se clasifican por separado de los cierres conocidos de la app.
-
-## Revisión de responsabilidades y patrón
-
-La solución usa Screen Objects y acciones de negocio inyectadas. No implementa Actor/Tasks/Interactions/Questions de Screenplay. Los archivos anteriores contenían varias clases/interfaces; se retiraron shop.screens.ts y shop.contracts.ts para mantener una responsabilidad por archivo.
-
-| Carpeta | Responsabilidad | Ejemplos |
+| ID | Capacidad y condición de negocio | Evidencia y cobertura |
 | --- | --- | --- |
-| src/mobile/models | Datos sin operaciones UI | product.ts, product-case.ts, cart-snapshot.ts, authentication-state.ts |
-| src/mobile/contracts | Interfaces de comportamiento | catalog.contract.ts, product-detail.contract.ts, cart.contract.ts, login.contract.ts |
-| src/mobile/screens/android | Una implementación por pantalla | catalog, product-detail, cart, login |
-| src/mobile/components/android | Cabecera y modal compartidos | header.component.ts, review-dialog.component.ts |
-| src/mobile/actions | Coordinación por interfaces inyectadas | shopping.actions.ts |
-| tests/mobile/data | Referencia y generación reproducible | catalog-products.ts, product-case.factory.ts, cart-cases.ts |
-| tests/mobile/specs | Escenarios por funcionalidad | cart, cart-interactions, catalog, generated-cart, login, navigation, review |
+| BIZ-01 | Entrar al catálogo como invitado, recorrer productos y consultar detalle | Observado en Android; MOB-07 y CAT-01. Login no bloquea la exploración |
+| BIZ-02 | Seleccionar producto, cantidad y variante; agregar al carrito | MOB-01, DETAIL-01 y COLOR-01 sobre Backpack y variantes comprobadas |
+| BIZ-03 | Revisar el carrito, modificar unidades, eliminar y volver sin perder estado | CART-01/02, MOB-03/04; un producto por escenario automatizado |
+| BIZ-04 | Elegir estrellas, recibir confirmación y continuar desde el detalle | REVIEW-01, 1/5 estrellas. No demuestra almacenamiento de reseñas |
+| BIZ-05 | Solicitar checkout: si existe sesión, continuar; sin sesión, presentar login | Rama identificada en CartFragment de la fuente 2.3.0; checkout E2E no ejecutado |
+| BIZ-06 | Tras login desde checkout, continuar con datos de entrega; login desde menú retorna a catálogo | Rama identificada en LoginFragment; no se declara checkout aprobado |
+| BIZ-07 | Completar entrega, pago, revisión y confirmación de pedido en la demo | Capacidad pendiente de exploración/automatización; no se ha enviado una compra real ni se afirma persistencia remota |
+| BIZ-08 | Acumular varios productos/variantes en un pedido | Capacidad de la app y riesgo pendiente. Los tests actuales no acreditan un pedido multiproducto |
 
-contracts es una decisión del proyecto, no una obligación de Playwright o WebdriverIO. TypeScript admite interfaces para datos y comportamiento; las carpetas distinguen su intención. El fixture compone implementaciones y expone interfaces. Se eliminaron todos los .gitkeep, incluido iOS: una carpeta vacía no demuestra soporte implementado.
+**Fuente de referencia:** repositorio público [My Demo App Android, revisión 3e514167](https://github.com/saucelabs/my-demo-app-android/tree/3e514167ec715abf6ab93e148ef6f97b86752c05). En particular [CartFragment](https://github.com/saucelabs/my-demo-app-android/blob/3e514167ec715abf6ab93e148ef6f97b86752c05/app/src/main/java/com/saucelabs/mydemoapp/android/view/fragments/CartFragment.java) y [LoginFragment](https://github.com/saucelabs/my-demo-app-android/blob/3e514167ec715abf6ab93e148ef6f97b86752c05/app/src/main/java/com/saucelabs/mydemoapp/android/view/fragments/LoginFragment.java). La lectura de una rama no sustituye su ejecución.
 
-WebdriverIO sigue siendo el cliente WebDriver, Appium el servidor y UiAutomator2 el driver Android. Playwright Test ejecuta, verifica y reporta. No hay servidor Appium dentro de un Screen Object.
+**Visual de negocio:** [modelo explorable generado con Archify](../.archify/workflow-negocio-20261110-173325/modelo-negocio.html). Distingue exploración, carrito, sesión y checkout; la ruta de reservas aparece como producto separado. Los pasos de checkout están señalados como no ejecutados.
 
-## Productos y reproducción por semilla
+### 1.2 Modelo funcional de reservas
 
-Los 24 productos y precios se fijan desde BaseActivity de la versión 2.3.0, commit 3e514167ec715abf6ab93e148ef6f97b86752c05 del repositorio público de la demo. El esperado no se copia de la respuesta del carrito. productCase calcula total a partir de precio de referencia y cantidad.
+Un consumidor crea una reserva, conserva su identificador, consulta/busca el registro y puede modificarlo o eliminarlo con autorización. Se verifica el rechazo de datos incompletos y de cambios no autorizados. Los ocho escenarios usan su propia preparación/limpieza; el diagrama de capacidades no implica dependencia de orden entre tests.
 
-syntheticProductCases deriva un PRNG desde SHA-256 de la semilla y mezcla el catálogo sin reemplazo. MOBILE_DATA_SEED se registra y se hereda en los workers; MOBILE_SAMPLE_SIZE admite 1..24 (predeterminado 3). Se generan cantidades 1..3 y no se excluyen productos que fallan. Los límites de seguridad de los helpers no se presentan como límites del negocio.
+## 2. ¿Por qué un repositorio si son dos proyectos independientes?
 
-CAT-01 cubre todos los productos de forma determinista. GEN-01 explora compras con @random, fuera de @regression. Smoke conserva dos datos fijos de carrito. La búsqueda del catálogo permite hasta 16 desplazamientos, con límite y comprobación de paquete activo.
+**Respuesta.** Se comparte la infraestructura de desarrollo y reporte; se separan dominio, clientes, fixtures, configuración, datos y escenarios.
 
-## Colores y reseñas
+| Aspecto | Proyecto API | Proyecto APK |
+| --- | --- | --- |
+| Dominio | Reservas | Tienda, carrito y sesión |
+| Fuente | src/api | src/mobile |
+| Escenarios y datos | tests/api | tests/mobile |
+| Configuración | config/api/playwright.config.ts | config/mobile/playwright.config.ts |
+| Preparación | Token de práctica y reservas sintéticas | APK, emulador, capabilities y sesión nativa |
+| Ejecución independiente | test:api | test:mobile:ci |
+| Evidencia | reports/api | reports/mobile |
 
-Las muestras usan takeElementScreenshot del protocolo WebDriver. takeScreenshot resolvía una captura completa y produjo una comparación de regiones incorrectas en el primer intento; ese fallo de automatización se conserva y no se clasifica como defecto de la app. PNGJS decodifica el centro del elemento para comparar la variante elegida antes de agregar con el indicador del carrito; no compara PNG comprimido ni fotografía completa.
+config/combined/playwright.config.ts agrega resultados de ambos como proyectos Playwright distintos. Ningún test móvil llama al cliente Booker. Una ejecución conjunta no convierte los dos productos en una integración.
 
-La imagen anterior/posterior se adjunta aparte. No se exige que cambie sin un criterio visual confirmado. El indicador del carrito se caracteriza como solo lectura conforme a CartItemAdapter de 2.3.0.
+## 3. ¿Qué hace cada herramienta?
 
-ReviewDialog tiene contrato y componente propios. Los casos de 1/5 estrellas comprueban confirmación UI, cierre del modal y regreso al producto sin alterar el carrito. No demuestran almacenamiento ni envío a un backend.
+| Componente | Responsabilidad real | Ejemplo |
+| --- | --- | --- |
+| Playwright Test | Descubrir tests, seleccionar tags, fixtures, aserciones, steps y reportes | config/combined y tests/support/observed-step.ts |
+| Playwright APIRequestContext | Cliente HTTP del proyecto de reservas | src/api/clients/booking.client.ts |
+| WebdriverIO | Cliente W3C WebDriver para solicitar sesiones/acciones nativas | remote en tests/mobile/fixtures/native.fixture.ts |
+| Appium | Servidor independiente en localhost:4723; recibe POST /session y comandos | scripts/mobile/appium.mjs |
+| UiAutomator2 | Driver Android cargado por Appium para operar la APK | appium:automationName en capabilities |
+| Inspector | Cliente gráfico alternativo para inspeccionar UI | No se comparte UDID con un test activo |
+| ADB/gfxinfo | Diagnóstico nativo de proceso, frames, memoria y logs | scripts/mobile/performance.mjs; sin Appium concurrente |
 
-La matriz manual dispone de 40 minutos por job para incluir instalación, arranque y regresión ampliada; smoke sigue siendo la selección predeterminada. El descubrimiento de regresión con ambos perfiles produjo 86 combinaciones (8 API + 39 por dispositivo), sin ejecutar el segundo emulador. No se ha consumido ejecución en GitHub.
+Playwright no abre un navegador para controlar la APK. Un contexto web no sustituye una sesión nativa.
 
-El workflow manual expone seed y sample_size. La semilla predeterminada assessment-2.3.0 se comparte entre jobs para comparar la misma selección; sample_size predeterminado 3. En local, si no se especifica semilla, el runner registra el runId.
+## 4. ¿Cómo se separan responsabilidades y se aplican SOLID?
+
+| Capa | Responsabilidad | Ejemplo |
+| --- | --- | --- |
+| models | Datos sin operaciones de UI | Product, ProductCase, CartSnapshot y AuthenticationState |
+| contracts | Interfaces de comportamiento por responsabilidad | Catalog, ProductDetail, Cart, Login, Header y ReviewDialog |
+| screens/android | Localizadores e interacción de una pantalla | catalog, product-detail, cart y login |
+| components/android | Controles compartidos y modal | HeaderComponent y ReviewDialogComponent |
+| actions | Coordinar un flujo mediante interfaces inyectadas | ShoppingActions recibe Catalog, ProductDetail y Header |
+| fixtures/session | Componer dependencias, abrir/cerrar sesión y conservar evidencia | native.fixture.ts |
+| specs/data | Describir comportamientos y fijar expectativas | Specs por funcionalidad y fábrica por semilla |
+
+**S:** pantalla, datos, sesión y reporte tienen responsabilidades distintas. **I:** las acciones consumen contratos pequeños; no existe una interfaz universal con todas las operaciones. **D:** ShoppingActions depende de interfaces y recibe implementaciones por constructor. **O:** una nueva implementación de plataforma puede satisfacer el contrato sin reescribir la acción. **L:** esa sustitución requiere cumplir las mismas pre/postcondiciones y validarse en el dispositivo; no queda demostrada por compilar.
+
+El patrón implementado es Screen Objects con acciones inyectadas. No se afirma una implementación completa de Screenplay o Clean Architecture. contracts es una convención del proyecto, no un requisito de Playwright; los modelos son datos y los contratos son capacidades.
+
+## 5. ¿Cómo compartir Android e iOS sin duplicar toda la automatización?
+
+**Respuesta de diseño.** Compartir primero las reglas y recorridos; adaptar la interacción de plataforma solo donde difiera. Android/iOS son variantes de infraestructura UI, no dos dominios de negocio independientes.
+
+| Situación comprobada | Diseño sugerido | Qué se comparte |
+| --- | --- | --- |
+| Misma estructura y operaciones; solo cambian selectores | Un Screen Object común recibe un mapa de localizadores validado por plataforma | Comportamiento de pantalla, acciones, datos y escenarios |
+| Misma regla, pero jerarquía/navegación diferentes | Dos implementaciones del mismo contrato, elegidas por una fábrica al crear la sesión | Contratos, modelos, acciones y aserciones de negocio |
+| Gestos, teclado, permisos o Back específicos | Un adaptador de interacciones nativas por plataforma | Intención del escenario y comprobación del estado resultante |
+| Diferencia funcional confirmada por producto | Escenarios/variantes explícitos por capacidad | Solo las expectativas que realmente sean equivalentes |
+
+La composición se decide una vez en el fixture según la plataforma/capabilities. Evitar condicionales Android/iOS repartidos por cada test y evitar una BaseScreen con todas las responsabilidades. Extraer código común después de verificar equivalencia; no por parecido visual.
+
+En React Native puede existir código compartido y aun así diferir el árbol de accesibilidad, agrupación de vistas, teclado o navegación. Establecer identificadores de prueba estables con desarrollo, revisar su exposición real en Inspector y no sustituir etiquetas accesibles para usuarios por identificadores técnicos. Referencias oficiales: [código específico por plataforma](https://reactnative.dev/docs/platform-specific-code) y [accesibilidad](https://reactnative.dev/docs/accessibility).
+
+**Estado actual:** implementaciones Android verificadas. No hay adaptadores iOS, fábrica multiplataforma ni Screen Object común demostrado contra ambos sistemas. Esta APK de referencia es Android nativo; no se presupone React Native ni equivalencia con la app iOS de Sauce Labs.
+
+## 6. ¿Qué versiones se eligieron y por qué?
+
+| Componente | Versión observada/fijada | Decisión y límite |
+| --- | --- | --- |
+| Node / npm | 22.18.0 / 10.9.3 | Usar el entorno existente y un lockfile reproducible; no cambiar herramientas globales |
+| Playwright Test | 1.65.0 | APIRequestContext, fixtures, steps y reporteros comunes con suites independientes |
+| TypeScript | 5.9.3 | NodeNext, modo estricto y comprobación de imports/parámetros sin uso |
+| WebdriverIO | 9.20.0 | Cliente remote para Appium; no añadir un segundo runner móvil |
+| Appium | 3.9.0 | Servidor local fijado y compatible con el Node del PC |
+| UiAutomator2 | 6.0.0 | Mantener compatibilidad comprobada; la alternativa más reciente revisada exigía otro Node/Appium preliminar |
+| Servidor UiAutomator2 Android | 9.0.1 | Dependencia del driver; no se instala como una herramienta global adicional |
+| Android | 13 / API 33, AOSP x86_64 rev. 2 | AVD QA_API33 reproducido localmente; no acredita otras versiones |
+| Emulator / Build Tools | 37.2.13.0 / 35.0.0 | Build Tools aporta apksigner.jar requerido en la conexión real |
+| Java | JBR 25.0.3 local; JDK 21 configurado en CI | Entornos distintos documentados; matriz remota aún no ejecutada |
+| Inspector | 2026.9.2 | Inspección de resource-id/accessibility id reales |
+| PNGJS / tipos | 7.0.0 / 6.0.5 | Comparar píxeles de recortes de elementos, no PNG comprimido ni pantalla completa |
+
+Appium y el driver están en package.json/lockfile. El launcher retira APPIUM_HOME del proceso hijo para cargar el driver del proyecto por npm; no duplica una instalación global. El SDK local está en C:\dev\.tools\android-sdk.
+
+La APK es [My Demo App 2.3.0 build 27](https://github.com/saucelabs/my-demo-app-android/releases/download/2.3.0/mda-2.3.0-27.apk). El manifiesto apps/android-manifest.json fija URL y SHA256; capabilities comprueba el hash antes de crear la sesión. Es una build debug: no se presenta como artefacto release.
+
+## 7. ¿Cómo se ejecuta en paralelo y se lleva a CI?
+
+Un proyecto API tiene un worker; cada proyecto de dispositivo tiene un worker y sesión nueva por test. Los perfiles se seleccionan por nombre y no por workerIndex. Se rechazan UDID o puertos internos duplicados.
+
+| Perfil local | UDID | systemPort / MJPEG | Estado |
+| --- | --- | --- | --- |
+| android-local-primary | emulator-5554 | 8200 / 9100 | Ejecutado |
+| android-local-secondary | emulator-5556 | 8201 / 9101 | Configurado; AVD sin crear/ejecutar |
+
+Un Appium compartido admite sesiones independientes; no se incrementan workers sobre el mismo UDID. El descubrimiento con dos perfiles produjo 86 combinaciones de regresión; no demuestra paralelismo real.
+
+El workflow manual .github/workflows/mobile.yml prepara jobs aislados para API 30/33, con máximo dos jobs, sin cancelar el otro por un fallo y presupuesto de 40 minutos. Permite all/mobile y smoke/regression/catalog/exploratory, con semilla y tamaño de muestra. CI necesita secrets de Booker si incluye API. Siempre conserva logs/reportes; no se ha ejecutado en GitHub.
+
+Los runners esperan /status, conservan el código de salida y cierran solo sus procesos. Smoke mantiene señal rápida; catálogo completo y exploración tienen coste diferente. Compartir repositorio no elimina el consumo del emulador/Appium.
+
+## 8. ¿Cómo se reporta y se diagnostica un fallo?
+
+API registra método/ruta, datos sintéticos, estado/respuesta y duración por step, sin cabeceras de autenticación ni llamada /auth. La limpieza verifica propiedad del registro.
+
+Android adjunta perfil, capabilities, versión, session ID, captura y árbol UI del paso fallido, además del estado final y logs. El wrapper de step conserva la aserción original y sus diferencias; los errores de captura no sustituyen el fallo.
+
+Cada ejecución tiene HTML, JSON, JUnit y execution-summary.json con ruta del paso fallido. No se mezclan intentos para aparentar que la regresión completa pasó tras una comprobación focalizada. Los datos sintéticos tienen semilla y expectativas fijadas antes de interactuar.
+
+El diagnóstico de rendimiento usa datos nativos y un reporte propio. TTID inicial, muestras de frames y tiempos ADB tienen límites distintos, explicados en [alcance](alcance-y-estrategia.md) y [resultados](resultados.md).
+
+## 9. ¿Qué falta para iOS y BrowserStack?
+
+Instalador iOS compatible, proveedor/permisos/cuota, localizadores observados, driver XCUITest y sesiones reales. No basta con cambiar platformName o reutilizar IDs Android. Primero validar un smoke de equivalencia y luego decidir qué implementación compartir.
+
+BrowserStack autenticó, pero rechazó la carga Android con 422 antes de crear sesión; no se ha confirmado la causa particular. Su valor sería acceso a dispositivos reales/iOS y evidencia de sesiones; se evaluará después de la revisión final, sin compra ni consumo adicional ahora. AWS personal y cuota gratuita siguen sin verificar; no se toca la cuenta del banco.

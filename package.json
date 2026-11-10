@@ -37,7 +37,9 @@
     "test:mobile:catalog": "node scripts/mobile/run.mjs --grep @catalog",
     "test:mobile:random": "node scripts/mobile/run.mjs --grep @random",
     "test:all:catalog": "node scripts/quality/ci.mjs catalog",
-    "test:all:random": "node scripts/quality/ci.mjs exploratory"
+    "test:all:random": "node scripts/quality/ci.mjs exploratory",
+    "perf:android": "node scripts/mobile/performance.mjs",
+    "report:performance": "node scripts/mobile/performance-report-server.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.65.0",

@@ -113,3 +113,7 @@ Remove-Item Env:MOBILE_SAMPLE_SIZE
 catalog ejecuta los 24 productos. random elige productos reales sin reemplazo y cantidades 1..3; no descarta los que fallan. La misma semilla/tamaño reproduce la selección. Sin semilla explícita se registra el runId. Ambos comandos seleccionan Android dentro del reporte conjunto; para incluir API y toda la cobertura determinista usar test:all:regression.
 
 test:mobile:catalog y test:mobile:random necesitan Appium iniciado manualmente. Los reportes adjuntan semilla y expectativas. La reseña confirma UI, no persistencia remota; las imágenes de color se adjuntan sin inventar un requisito visual.
+
+## Diagnóstico Android local
+
+Con el emulador listo y Appium cerrado: npm.cmd run perf:android. Requiere QA_API33 a 1080x1920; recoge arranque, scroll, eliminación, memoria y cierre. Abrir el informe con npm.cmd run report:performance y la URL local impresa. No usa Web Vitals; límites y resultados están en los tres documentos. El diagnóstico deja el catálogo restaurado.

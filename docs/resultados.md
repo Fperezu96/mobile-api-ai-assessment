@@ -1,193 +1,155 @@
-# Resultados y pendientes
+# Resultados y respuestas al enunciado
 
-Revisión del 10 de noviembre de 2026, PC Windows de Felipe.
+**Autor:** Felipe Pérez Upegui · **Revisión:** 10 de noviembre de 2026.
 
-## Revisión de estructura y cobertura ampliada
+## 1. ¿Qué mínimos se implementaron y qué evidencia los respalda?
 
-Se separaron modelos, interfaces de comportamiento, cuatro pantallas y dos componentes compartidos. Los specs se agrupan por funcionalidad y se retiraron cinco .gitkeep. No se presenta Screen Objects como Screenplay completo.
+**Respuesta.** Se implementaron y ejecutaron ambos proyectos. La ejecución revela defectos de la demo; implementar un negativo no significa que el producto lo haya aprobado.
 
-### Ejecuciones observadas
-
-| Ejecución | Selección | Aprobados | Fallidos | Interpretación |
-| --- | --- | ---: | ---: | --- |
-| 2026-11-10T21-40-59-483Z | 8 API + 39 Android | 26 | 21 | Incluye cierres de catálogo, login permisivo y el plazo insuficiente de eliminación del primer intento |
-| 2026-11-10T21-59-19-091Z | MOB-04 + tres compras con semilla | 2 | 2 | Eliminación verificada tras ajustar espera; los productos generados conservan sus resultados reales |
-
-API en la regresión: 8/8 aprobadas. Android: 18/39 aprobadas en ese intento. Barrido de catálogo: 5/24 detalles consultados correctamente y 19 cierres/fallos conservados. Sin omisiones ni reintentos automáticos.
-
-Las ocho ampliaciones de cantidad, cero, color y reseña aprobaron. La ejecución inicial focalizada 2026-11-10T21-33-03-546Z registró 6 aprobadas y 2 fallidas por una captura de color incorrecta. Se corrigió el endpoint de screenshot y las dos variantes aprobaron en 2026-11-10T21-38-26-898Z y en la regresión ampliada; no eran defectos de la app.
-
-### Catálogo completo
-
-| Producto | Resultado al consultar detalle |
-| --- | --- |
-| Sauce Labs Backpack | Aprobado |
-| Sauce Labs Backpack (green) | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Backpack (orange) | Aprobado |
-| Sauce Labs Backpack (red) | Aprobado |
-| Sauce Labs Backpack (violet) | Aprobado |
-| Sauce Labs Backpack (yellow) | Aprobado |
-| Sauce Labs Bike Light | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Bolt T-Shirt | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Bolt T-Shirt (blue) | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Bolt T-Shirt (green) | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Bolt T-Shirt (red) | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Bolt T-Shirt (yellow) | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Fleece Jacket | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Fleece Jacket (blue) | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Fleece Jacket (brown) | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Fleece Jacket (green) | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Fleece Jacket (pink) | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Fleece Jacket (red) | Fallido; ver cierre y evidencia del caso |
-| Sauce Labs Onesie | Fallido; ver cierre y evidencia del caso |
-| Test.allTheThings() T-Shirt | Fallido; ver cierre y evidencia del caso |
-| Test.allTheThings() T-Shirt (turquoise) | Fallido; ver cierre y evidencia del caso |
-| Test.allTheThings() T-Shirt (pink) | Fallido; ver cierre y evidencia del caso |
-| Test.allTheThings() T-Shirt (purple) | Fallido; ver cierre y evidencia del caso |
-| Test.allTheThings() T-Shirt (yellow) | Fallido; ver cierre y evidencia del caso |
-
-Los 19 cierres del barrido se agrupan en dos causas confirmadas por logs: 1 NullPointerException y 18 ArrayIndexOutOfBoundsException. Los productos fallidos no se cuentan automáticamente como defectos distintos. Se contrastan los logs Android dentro del intervalo de cada caso, UTC del emulador, y el código público ProductCatalogFragment 2.3.0. La mochila verde presenta el acceso nulo conocido; los índices fuera del arreglo de metadatos afectan otros productos. El desglose técnico queda en artifacts/catalog-findings-2026-11-10T21-40-59-483Z.json y en los adjuntos de cada test.
-
-### Comprobación focalizada y datos sintéticos
-
-Semilla ejecutada: felipe-20261110, muestra 3.
-
-| Caso | Resultado |
-| --- | --- |
-| MOB-04 \| Eliminar el único producto deja el carrito vacío | Aprobado |
-| GEN-01 R1 \| Comprar 1 unidad de Sauce Labs Backpack (yellow) | Aprobado |
-| GEN-01 R2 \| Comprar 2 unidades de Sauce Labs Fleece Jacket (red) | Fallido |
-| GEN-01 R3 \| Comprar 2 unidades de Sauce Labs Bolt T-Shirt (red) | Fallido |
-
-MOB-04 agotó inicialmente una espera de 5 segundos. La captura final mostraba No Items; CartItemAdapter bloquea intencionalmente el hilo UI durante 5 segundos al eliminar. La espera ahora admite 10 segundos y mantiene la aserción de carrito vacío/sin total. El intento original se conserva y la comprobación posterior aprobó. No se declara un defecto funcional por aquel timeout; el bloqueo UI se registra como observación de rendimiento sin SLO acordado.
-
-La fábrica no excluye productos por sus fallos y fija precio/cantidad/total antes de interactuar. Se verificaron misma semilla/misma selección, cambio de selección con otra semilla y rechazo de muestra mayor que 24; evidencia artifacts/product-data-verification.json.
-
-### Colores, imágenes y reseña
-
-Las muestras Blue/Green llegan al carrito con RGB (14,117,221)/(62,220,145); se comprobaron recortes reales de 66x66. La fotografía sigue mostrando la mochila negra al elegir azul, observado visualmente en las capturas; las diferencias de píxeles incluyen el indicador de scroll y no prueban cambio de variante. Se conserva como ambigüedad visual a confirmar, no como incumplimiento de una regla inventada. El indicador del carrito se caracteriza como solo lectura.
-
-Las valoraciones de 1/5 estrellas muestran confirmación, permiten continuar y no agregan el producto al carrito. No hay evidencia de persistencia de reseñas en backend.
-
-### Reproducibilidad y revisión
-
-Reporte completo: npm.cmd run report:all -- 2026-11-10T21-40-59-483Z. Comprobación focalizada: npm.cmd run report:mobile -- 2026-11-10T21-59-19-091Z. Se conservaron HTML/JSON/JUnit, pasos y evidencias por ejecución. La revisión estática incluyó imports/parámetros sin uso; ahora el compilador lo exige en tsconfig. El descubrimiento de dos perfiles produjo 86 combinaciones de regresión, sin ejecutar el segundo AVD. La matriz de GitHub se validó, se amplió a 40 minutos y no se ejecutó.
-
-El feedback de Felipe motivó la separación y la cobertura ampliada. Se registra su reproducción manual informada sin inventar tiempos ni aprobación formal. Invocación y correcciones: artifacts/ai/domain-refactor-invocation.json. Continúan pendientes nube/iOS, visual Archify actualizada y triage de las 45 advertencias de herramientas.
-
-## Referencia conjunta anterior
-
-RunId: 2026-11-10T21-03-49-082Z. API y Android se ejecutaron en una invocación Playwright con reporte HTML/JSON/JUnit y resumen estructurado. Resultado: 14 aprobados, 3 fallidos, 0 omitidos; sin reintentos. Duración automática: 206.2 segundos. Los resultados no representan el tiempo humano de trabajo.
-
-| Proyecto | Escenario | Resultado |
+| Requisito del enunciado | Respuesta y ejemplo | Evidencia/estado |
 | --- | --- | --- |
-| api | API-01 \| Consultar una reserva recién creada devuelve los datos registrados | Aprobado |
-| api | API-02 \| Una reserva sin nombre se rechaza y no queda registrada | Aprobado |
-| api | API-03 \| Buscar reservas por huésped devuelve el registro creado | Aprobado |
-| api | API-04 \| Los cambios de una reserva se conservan al consultarla de nuevo | Aprobado |
-| api | API-05 \| Cambiar una preferencia conserva el resto de la reserva | Aprobado |
-| api | API-06 \| Una reserva eliminada deja de aparecer en las consultas | Aprobado |
-| api | API-07 \| Una actualización sin autorización no modifica la reserva | Aprobado |
-| api | API-08 \| Las búsquedas distinguen dos reservas con datos de prueba diferentes | Aprobado |
-| android-local-primary | MOB-01 D1 \| El carrito conserva 1 unidad de Sauce Labs Backpack | Aprobado |
-| android-local-primary | MOB-01 D2 \| El carrito conserva 2 unidades de Sauce Labs Backpack | Aprobado |
-| android-local-primary | MOB-02 \| Una contraseña incorrecta impide iniciar sesión | Fallido |
-| android-local-primary | MOB-03 \| Volver al catálogo conserva el contenido del carrito | Aprobado |
-| android-local-primary | MOB-04 \| Eliminar el único producto deja el carrito vacío | Aprobado |
-| android-local-primary | MOB-05 \| Abrir Sauce Labs Bike Light muestra su detalle sin cerrar la app | Fallido |
-| android-local-primary | MOB-05 \| Abrir Sauce Labs Backpack (green) muestra su detalle sin cerrar la app | Fallido |
-| android-local-primary | MOB-06 \| Un usuario vacío impide enviar el inicio de sesión | Aprobado |
-| android-local-primary | MOB-07 \| El scroll permite localizar un producto sin modificar el carrito | Aprobado |
+| App instalada Android nativa/híbrida | APK My Demo App 2.3.0 build 27 en QA_API33, Android 13 | Sesiones Appium/UiAutomator2, manifest con SHA256 y capturas; Android ejecutado |
+| Móvil exitoso, dos datos previos | MOB-01 D1/D2: Backpack con 1/2 unidades, USD 29,99/59,98 | Ambos aprobados; cart.spec.ts |
+| Móvil negativo | MOB-02 exige rechazo y ausencia de sesión | Ejecutado y fallido: login permisivo. MOB-06 con usuario vacío aprobó |
+| Interacción nativa | MOB-03 Back y MOB-07 scroll con estado posterior | Ambos aprobados; navigation.spec.ts |
+| API exitosa/negativa | API-01 crear/consultar; API-02 omitir firstname | Ambos aprobados según su oráculo; el 500 es caracterización, no estado documentado |
+| Otros tres escenarios priorizados | CART-01, DETAIL-01 y COLOR-01, con riesgo/impacto | Documentados y automatizados; ver sección 4.2 de alcance |
+| Page/Screen Objects y clientes separados | Pantallas/contratos/modelos y BookingClient | Código revisado; arquitectura separada por producto |
+| Skill previa y agente | Instrucciones en 4d786db, antes del resultado móvil 19c7073 | Invocación y correcciones conservadas; sección 7 |
+| Comandos, reportes y fallos reales | Entradas independientes, salida 0/1, HTML/JSON/JUnit y evidencia por ejecución | Comandos en sección 6; sin ocultar fallos |
+| iOS/BrowserStack | No son requisito para acreditar Android local | iOS no ejecutado; carga BrowserStack bloqueada antes de crear sesión |
 
-Abrir con npm.cmd run report:all -- 2026-11-10T21-03-49-082Z. Evidencia en reports/combined/2026-11-10T21-03-49-082Z. El resumen identifica el proyecto y la ruta del paso fallido. El servidor Appium gestionado por el comando se cerró al terminar; su salida conserva el código de las pruebas.
+## 2. Producto A: ¿qué resultados obtuvieron las API?
 
-Se verificó además la selección de cinco casos smoke y dos negativos API; estos dos negativos aprobaron en la ejecución independiente 2026-11-10T20-57-43-560Z. El descubrimiento conjunto con ambos perfiles produjo 26 combinaciones (8 API y 9 por dispositivo), sin ejecutar el segundo emulador.
+**Respuesta.** Ocho de ocho aprobadas en el proyecto api de la ejecución 2026-11-10T21-40-59-483Z. No se infiere cobertura de la tienda a partir de ellas.
 
-Los intentos conjuntos 2026-11-10T20-51-37-040Z (13 aprobados/4 fallidos) y 2026-11-10T20-56-25-864Z (12/5), y el smoke 2026-11-10T21-01-51-625Z (4/1), se conservan. Incluyeron fallos adicionales de sincronización en el control de cantidad/agregado al carrito. Se ajustó la exposición del control y la espera de posición estable antes de pulsar; no se cambiaron los importes ni las aserciones para hacerlos pasar. MOB-07 aporta evidencia de scroll nativo hacia abajo/arriba y carrito sin cambios.
+| Código | Observado | Resultado |
+| --- | --- | --- |
+| API-01 | POST/GET 200; ID válido y datos completos recuperados | Aprobado |
+| API-02 | HTTP 500 sin reserva creada, conforme a la caracterización definida | Aprobado |
+| API-03 | Listado y filtro devuelven la reserva propia | Aprobado |
+| API-04 | PUT 200 y GET confirman actualización completa | Aprobado |
+| API-05 | PATCH 200 cambia preferencias y conserva otros campos | Aprobado |
+| API-06 | DELETE 201; detalle 404 y ausencia en búsqueda | Aprobado |
+| API-07 | PUT sin autorización 403; estado original conservado | Aprobado |
+| API-08 | Dos huéspedes/IDs distintos; búsquedas aisladas | Aprobado |
 
-El HTML conjunto se abrió con Chrome headless: 17 casos, 14 aprobados y 3 fallidos, sin errores JavaScript del reporte. Se inspeccionó visualmente MOB-02: pasos en español, diff esperado/obtenido, captura en cada paso fallido y adjuntos de contexto/árbol UI. Evidencia local: artifacts/report-review/combined-overview.png, failed-step-detail.png y verification.json. Se verificaron 103 adjuntos y las rutas de los pasos fallidos. Los cinco casos smoke aprobaron dentro de esta regresión; esto no demuestra ausencia de intermitencias futuras.
+**Hallazgos de API.** No se demostró incumplimiento del contrato en estos ocho escenarios. Un 500 por campo ausente merece revisión de diseño, pero la documentación no fija un rechazo 400/422. La revisión desplegada exacta del servidor no se ha probado idéntica al [código público de referencia](https://github.com/mwinteringham/restful-booker/blob/619d03162c050baae7d22fdcf983a22f9da6faed/routes/index.js#L300-L321).
 
-Typecheck, sintaxis de runners, YAML de la matriz y git diff --check fueron comprobados localmente. La matriz de GitHub no se ejecutó. El smoke como selección y el descubrimiento no sustituyen la regresión.
+## 3. Producto B: ¿qué resultados obtuvo Android?
 
-## Referencias anteriores: ejecución independiente
+**Respuesta.** La regresión determinista ejecutó 39 combinaciones Android. En ese intento: 18 aprobadas y 21 fallidas. Se distinguen los defectos de la app de una espera de automatización corregida posteriormente.
 
-API: 8 aprobados, 0 fallos; salida 0, 14,5 segundos en la referencia anterior.
-
-Referencia móvil anterior: 5 aprobados, 3 fallidos, 0 omitidos; salida 1. Ejecución 2026-11-10T20-13-25-414Z, duración automática 167.9 segundos. Este tiempo no equivale a la dedicación humana acumulada.
-
-| Caso | Resultado |
+| Grupo | Resultado observado |
 | --- | --- |
-| MOB-01 D1 — El carrito conserva 1 unidad de Sauce Labs Backpack | Aprobado |
-| MOB-01 D2 — El carrito conserva 2 unidades de Sauce Labs Backpack | Aprobado |
-| MOB-02 — Una contraseña incorrecta impide iniciar sesión | Fallido |
-| MOB-03 — Volver al catálogo conserva el contenido del carrito | Aprobado |
-| MOB-04 — Eliminar el único producto deja el carrito vacío | Aprobado |
-| MOB-05 — Abrir Sauce Labs Bike Light muestra su detalle sin cerrar la app | Fallido |
-| MOB-05 — Abrir Sauce Labs Backpack (green) muestra su detalle sin cerrar la app | Fallido |
-| MOB-06 — Un usuario vacío impide enviar el inicio de sesión | Aprobado |
+| MOB-01 D1/D2 | 2 aprobadas: nombre, cantidad, precio y total |
+| MOB-02 | Falló: credenciales incorrectas habilitan sesión |
+| MOB-03 / MOB-06 / MOB-07 | Back, usuario vacío y scroll aprobados |
+| MOB-04 | Timeout inicial de 5 s; aprobó en comprobación focalizada con espera de 10 s, sin cambiar aserciones |
+| CAT-01 | 5 de 24 detalles aprobados; 19 cierres confirmados |
+| CART-01/02 y DETAIL-01 | 3 aprobadas: recálculo, última unidad y cantidad cero |
+| COLOR-01 Blue/Green y COLOR-02 | 3 aprobadas: variante conservada y caracterización del indicador |
+| REVIEW-01 con 1/5 estrellas | 2 aprobadas: confirmación y continuidad; sin probar persistencia remota |
 
-El reporte está en reports/mobile/2026-11-10T20-13-25-414Z/html. Cada caso adjunta servidor Appium, sesión, captura, árbol UI y buffer de cierres Android. Los logs Appium y el registro de orquestación CI están en artifacts/android-local. El buffer Android incluye historial del dispositivo: correlacionar por hora y proceso, no atribuir todos sus eventos al test actual.
+En el catálogo abren Backpack base, naranja, roja, violeta y amarilla. La verde y los otros 18 productos reproducen cierres. Los nombres describen reproducciones bajo el orden inicial; la causa depende del índice de la lista.
 
-El comando test:mobile:ci se ejecutó en el PC con Appium real. Se comprobó el cierre de su servidor: verificado, /status dejó de estar disponible. La matriz API 30/33 de GitHub solo pasó revisión de configuración/YAML; no se ejecutó remotamente.
+### ¿Cuáles son los defectos y observaciones, sin contarlos una vez por producto?
 
-## Hallazgos conservados
+| ID y clasificación | Pasos mínimos | Esperado y fuente | Observado e impacto | Evidencia |
+| --- | --- | --- | --- | --- |
+| APP-01, autenticación | Menú Login → bob@example.com + contraseña sintética incorrecta → ingresar | Rechazo y ausencia de sesión; criterio explícito del reto | Retorna a catálogo y muestra Log Out. Discrepancia del ejercicio; no se afirma vulnerabilidad de un sistema productivo | MOB-02, capturas del paso y menú |
+| APP-02, estabilidad | Catálogo inicial → Backpack (green) | Abrir detalle sin terminar la app; expectativa derivada del recorrido | NullPointerException al usar el valor nulo de la posición 1. Impide continuar | CAT-01, log del PID y ProductCatalogFragment.java:156 |
+| APP-03, estabilidad | Catálogo inicial → Bike Light, camisetas u otro producto a partir del índice 6 | Abrir detalle del producto; expectativa derivada | 18 reproducciones ArrayIndexOutOfBoundsException, length=6; bloquea gran parte del catálogo. Un defecto agrupado, no 18 bugs nuevos | CAT-01 × 18; log de cada PID/intervalo |
+| OBS-01, ambigüedad visual | Detalle Backpack → elegir azul/verde | Conservar variante; cambio de fotografía sin requisito confirmado | Indicador del carrito coincide con el color, pero la foto continúa negra. Falta confirmar intención visual | COLOR-01; imágenes antes/después y muestras 66×66 |
+| PERF-01, respuesta UI | Carrito con una unidad → Remove Item | Respuesta fluida; referencia técnica Android, sin SLO acordado | Frame de 5017,56 ms. Bloqueo consistente con bucle deliberado de 5 s de la demo | Diagnóstico nativo de sección 4; no se afirma ANR |
 
-### MOB-05: cierres al abrir productos
+Se propone priorizar los tres defectos de app por bloquear acceso/compra conforme al alcance. Su carácter intencional en la demo se declara; no se modifica la APK ni se omiten las reproducciones.
 
-Preparación: APK My Demo App 2.3.0 build 27 y sesión limpia. Abrir la imagen de Bike Light o Backpack (green) desde el catálogo.
+### ¿Qué se corrigió en la automatización?
 
-Esperado: detalle con el nombre y precio seleccionados, sin terminar la app.
+- El primer intento de colores capturó pantalla completa al invocar takeScreenshot sobre un elemento. Se sustituyó por takeElementScreenshot; las dos variantes aprobaron, incluidos los RGB del indicador.
+- MOB-04 agotaba una espera de cinco segundos mientras la app bloqueaba UI durante cinco segundos. La captura final mostraba No Items. Se amplió el plazo a diez segundos y se verificó de nuevo carrito vacío/sin total. El intento inicial permanece fallido en su reporte.
+- La recolección ADB de rendimiento descartó una lectura UI anterior cuando uiautomator no pudo crear un dump nuevo durante el bloqueo. Ahora elimina el archivo previo, exige adquisición nueva y valida postcondiciones. La primera fase de eliminación no se usa como medición válida.
 
-Observado: Bike Light produce ArrayIndexOutOfBoundsException, length=6/index=6; la mochila verde produce NullPointerException al invocar Integer.intValue. Ambos apuntan a ProductCatalogFragment.java:156 en el log Android. El código público de referencia contiene fallos intencionales de demostración; se reportan como defectos conocidos de la demo, sin corregir ni modificar la APK.
+## 4. No funcionales: ¿qué se midió y qué puede concluirse?
 
-Evidencia: capturas, árboles UI, logs Android adjuntos a MOB-05 y crash-bikelight-first-run.log. Los dos productos permanecen como casos de regresión fallidos, sin skips ni reintentos.
+**Respuesta.** Diagnóstico local de la APK, ejecución 2026-11-10T22-30-15-267Z, 10 de noviembre de 2026 a las 17:30 de Bogotá. Android 13/API 33, x86_64, 1080×1920, 420 dpi, aproximadamente 60 Hz; APK debug en emulador. No es Web Vitals ni Android Vitals de campo.
 
-### MOB-02: contraseña incorrecta sin rechazo
+| Medición | Resultado observado | Interpretación y límite |
+| --- | --- | --- |
+| Arranque frío de primera actividad | Cinco muestras: 1740, 1130, 937, 743 y 998 ms; mediana 998 ms | TotalTime de Splash. No demuestra TTFD del catálogo ni lentitud global |
+| Scroll controlado del catálogo | HWUI: 52 janky de 382 frames, ≈13,6 % | Diagnóstico local de esta fase; no tasa de usuarios reales |
+| Buffer CSV del scroll | 118 muestras; P95 92,88 ms; máximo 404,32 ms; ninguna >700 ms | Buffer parcial, distinto del contador HWUI; no se equiparan sus porcentajes |
+| Eliminar un producto | 7 frames en la fase; un frame >700 ms; máximo 5017,56 ms | Evidencia de congelamiento focal. Un frame largo no acredita un ANR |
+| Tiempo observado por ADB al eliminar | 7530,36 ms; se confirmó carrito vacío | Incluye comando, adquisición UI y comunicación; no es latencia pura de toque |
+| Memoria tras navegar | PSS 105733 KiB, ≈103,25 MiB | Instantánea, no prueba de fuga ni incumplimiento de un límite |
+| Abrir Backpack verde | Catálogo ausente después del cierre; NullPointerException del PID 21152 | Diagnóstico de estabilidad separado de las métricas de renderizado |
 
-Preparación: formulario de login, usuario de práctica bob@example.com y contraseña sintética incorrecta.
+**Por qué esos tiempos.** A 60 Hz hay unos 16,67 ms por refresco; Android identifica frames sobre 700 ms como congelados. No se aplican umbrales web LCP/INP a la APK. El P95 de una muestra pequeña es descriptivo, no un percentil de población.
 
-Esperado según el criterio del ejercicio: rechazo visible y ausencia de sesión válida. Se retiró la exigencia adicional de permanecer en el formulario, que no estaba documentada.
+**Conclusión para la sustentación.** Hay evidencia de un problema focal de respuesta al eliminar y de cierres reproducibles. No hay fundamento para afirmar que toda la app es lenta por su tiempo inicial de Splash. Para atribuir trabajo de CPU/hilos con mayor detalle se requiere Perfetto/Macrobenchmark, build release, dispositivo físico y más muestras. El código de referencia contiene el bloqueo deliberado; gfxinfo por sí solo no identifica el método causante.
 
-Observado: vuelve al catálogo y el menú ofrece cerrar sesión. La demo tiene autenticación permisiva; no se afirma incumplimiento de un contrato de autenticación formal ni una vulnerabilidad de un sistema real. Se conserva la discrepancia y su expectativa estricta. MOB-06 verifica por separado el rechazo documentado de usuario vacío.
+**Evidencia:** reports/performance/2026-11-10T22-30-15-267Z/index.html, summary.json, catalog-scroll-gfxinfo.txt, cart-remove-gfxinfo.txt, crash-current-pid.txt y capturas/XML. La hora del emulador difiere del host; el cierre se correlaciona por PID y reloj del dispositivo, no mezclando timestamps.
 
-## Correcciones de automatización y entorno
+Referencias: [arranque](https://developer.android.com/topic/performance/issues/launch-time), [renderizado y frames congelados](https://developer.android.com/topic/performance/issues/render), [límites de gfxinfo](https://developer.android.com/topic/performance/appstartup/analysis-optimization), [Web Vitals](https://web.dev/articles/vitals).
 
-La primera conexión falló por ausencia de apksigner.jar. Se instalaron Build Tools 35 y se reinició Appium para actualizar su detección del SDK. El doctor del driver no había marcado ese requisito específico como obligatorio.
+## 5. ¿Qué ejecuciones se conservan y qué significan sus totales?
 
-Se corrigió la sincronización de un título fuera de pantalla al volver. Se cambió la pulsación del control de cantidad a un gesto nativo por ID; la espera sigue exigiendo el valor exacto. Los dos datos positivos ahora usan Backpack con cantidades 1 y 2. Bike Light y la mochila verde no se eliminaron de la cobertura: se conservaron en MOB-05.
+| ID de ejecución, UTC | Selección | Resultado | Interpretación |
+| --- | --- | --- | --- |
+| 2026-11-10T21-03-49-082Z | Referencia anterior: 8 API + 9 Android | 14 aprobadas / 3 fallidas | Cobertura anterior, no estado de la ampliación |
+| 2026-11-10T21-33-03-546Z | Ocho ampliaciones móviles | 6 / 2 | Fallos de captura de color, corregidos; no defectos de la app |
+| 2026-11-10T21-38-26-898Z | Dos variantes de color | 2 / 0 | Confirma corrección del endpoint de screenshot |
+| 2026-11-10T21-40-59-483Z | 8 API + 39 Android | 26 / 21 | 19 cierres, login permisivo y timeout inicial de eliminación |
+| 2026-11-10T21-59-19-091Z | MOB-04 + tres compras por semilla | 2 / 2 | Eliminación y compra de Backpack amarilla aprobaron; chaqueta roja/camiseta roja reprodujeron cierres |
+| 2026-11-10T22-26-59-208Z | Primer protocolo ADB | Recolección preliminar | Se descarta eliminación/cierre por adquisición UI obsoleta; no se mezcla con medición final |
+| 2026-11-10T22-30-15-267Z | Diagnóstico ADB corregido | Recolección validada, 96 s | Arranque, scroll, eliminación y cierre corroborados; no constituye un gate de rendimiento |
 
-El panel de notificaciones apareció tras un cierre de la app y la búsqueda posterior sobre la pantalla del sistema; no se atribuye sin evidencia a intervención manual. El scroll ahora comprueba el paquete activo, y la preparación cierra un panel del sistema si había quedado abierto. La carrera de arranque entre suite y servidor se resolvió esperando /status.
+No se suman reejecuciones como nuevos casos ni se reescribe la regresión completa tras un resultado focalizado. No hubo skips ni reintentos automáticos para ocultar fallos. Un reporte funcional puede terminar con código 1 por defectos reales; que el recolector de diagnóstico termine con 0 significa que recolectó datos válidos, no que la app haya pasado un SLO.
 
-Se conservaron todas las ejecuciones por ID, incluidas las fallidas por preparación. No son pruebas aprobadas ni se confunden con defectos nuevos de la app.
+La semilla felipe-20261110 generó Backpack amarilla (1), Fleece Jacket roja (2) y Bolt T-Shirt roja (2). La misma semilla repitió la selección; otra cambió los casos y una muestra mayor de 24 se rechazó. Evidencia: artifacts/product-data-verification.json.
 
-## Evidencia de IA y revisión
+## 6. ¿Cómo revisar y reproducir los resultados?
 
-Instrucciones previas: .agents/skills/mobile-native-tests/SKILL.md, commit 4d786db. Se leyeron y aplicaron antes de implementar el caso de carrito.
+~~~powershell
+npm.cmd run report:all -- 2026-11-10T21-40-59-483Z
+npm.cmd run report:mobile -- 2026-11-10T21-59-19-091Z
+npm.cmd run perf:android
+npm.cmd run report:performance
+~~~
 
-Invocación operacional del agente: aplicar mobile-native-tests para implementar el carrito parametrizado con Screen Objects, acciones inyectadas, expectativas previas y evidencia nativa, y revisar los resultados sin ocultar fallos. No es una cita literal del usuario ni una aprobación humana.
+El HTML funcional conserva proyectos, tags, pasos descriptivos, diff esperado/obtenido y adjuntos. El diagnóstico nativo tiene su propio HTML/JSON y archivos crudos. La revisión visual del reporte funcional ampliado pasó sin errores JavaScript; capturas en artifacts/report-review/2026-11-10T21-40-59-483Z.
 
-Herramienta: Codex en ChatGPT Work, operando el PC autorizado. Modelo exacto: no expuesto de forma verificable en esta interfaz. No se inventa el identificador. Se conservaron cambios en Git, reportes y registro local artifacts/ai/native-skill-invocation.json. La revisión del agente contrastó código y ejecución; no sustituye revisión humana.
+Se revisaron TypeScript estricto, imports/parámetros sin uso, sintaxis de scripts y YAML. El descubrimiento de dos perfiles produjo 86 combinaciones; solo el primario fue ejecutado. El workflow manual está configurado, pero no se ejecutó en GitHub.
 
-## API y contrato
+## 7. ¿Cómo se utilizó IA y qué revisión se hizo?
 
-Los ocho escenarios de reservas siguen juntos en bookings.spec.ts. API-02 caracteriza el 500 explícito del código público al omitir firstname y verifica ausencia de registro. La documentación exige el campo, pero no especifica ese estado de rechazo. No se clasifica como incumplimiento contractual.
+**Respuesta.** Se creó y conservó .agents/skills/mobile-native-tests/SKILL.md en 4d786db antes de utilizarla. El agente implementó el caso positivo parametrizado y produjo el resultado móvil en 19c7073; las ampliaciones estructurales y de cobertura quedaron en 64f59b6.
 
-Referencia: [implementación de Booker](https://github.com/mwinteringham/restful-booker/blob/619d03162c050baae7d22fdcf983a22f9da6faed/routes/index.js#L300-L321). La revisión exacta desplegada no está demostrada.
+Invocación operacional: implementar carrito nativo con Screen Objects, acciones inyectadas, datos/expectativas previas, sesiones independientes y evidencia; ejecutar, revisar fallos y corregir automatización sin debilitar aserciones. Es una descripción de la invocación, no una cita literal del usuario.
 
-## Riesgos y pendientes
+**Herramienta:** Codex en ChatGPT Work sobre el PC autorizado. **Modelo exacto:** no expuesto verificablemente en esta interfaz. No se inventa un identificador.
 
-- npm audit informó 45 avisos en herramientas de desarrollo: 1 bajo, 15 moderados, 26 altos y 3 críticos. Pendiente de triage de alcance y actualización compatible; no se aplicó una corrección forzada ni una degradación automática de Appium. El servidor se limita a localhost. Informe local: artifacts/npm-audit-native.json.
-- BrowserStack autentica, pero rechaza la carga con BROWSERSTACK_UNPROCESSABLE_ENTITY/422. Su guía contempla cuota agotada o restricción de detección; no se confirmó cuál aplica.
-- AWS: acceso personal y minutos gratuitos no verificados. No se accedió ni modificó la cuenta del banco.
-- iOS y matriz remota no ejecutados. Una ejecución Android local no demuestra compatibilidad iOS ni ejecución paralela real.
-- Mediciones de rendimiento completas, actualización de la visual Archify, revisión humana, tiempo humano total y acceso del evaluador al repositorio privado pendientes.
+Felipe revisó manualmente los cierres y pidió separar modelos/contratos/pantallas, ampliar datos y formalizar documentación. La revisión del agente contrastó código, reportes y logs; no sustituye aprobación humana final. Invocaciones/correcciones en artifacts/ai/native-skill-invocation.json y domain-refactor-invocation.json. Captura de elementos y espera de eliminación son correcciones de automatización; los defectos de la demo permanecen visibles.
 
-## Preparación del fixture para varios emuladores
+## 8. ¿Qué otras tres skills se proponen y cuál se construiría primero?
 
-Typecheck aprobado con la opción deviceProfile. El descubrimiento de android-local-primary y android-local-secondary mostró inicialmente 16 combinaciones: ocho escenarios por perfil, sin sesiones Appium. La selección de un nombre repetido se rechazó con salida 1 antes de iniciar pruebas. Esto valida configuración y descubrimiento; no acredita ejecución simultánea en dos emuladores.
+| Propuesta | Propósito y usuario | Entradas → salidas | Verificación y prioridad |
+| --- | --- | --- | --- |
+| Triage de fallos | Ayudar a QA a separar app, automatización y entorno en cada producto | Reportes/logs/capturas → diagnóstico con fuente, impacto y duda pendiente | Contrastar con reproducción y revisión humana; P1, primera |
+| Revisión de matriz | Ayudar a QA/DevOps a elegir plataformas sin duplicar estado o exceder cuota | Compatibilidad, capacidades, cuota → matriz acotada y configuración | Verificar puertos, sesiones y resultados reales por plataforma; P2 |
+| Preparación de entrega | Ayudar a QA/lead a mantener respuestas verificables al enunciado | Requisitos, código, resultados → actualización de los tres documentos y evidencia faltante | Cada afirmación debe apuntar a prueba/fuente; P2 |
 
-La regresión completa indicada arriba corresponde al entorno local previamente verificado. La comprobación del fixture parametrizado sobre el perfil primario se registró en una ejecución smoke separada, sin sustituir ni ocultar los tres fallos conocidos de la regresión.
+Se construiría primero triage: ya hay cierres, un login permisivo y problemas de captura/espera que requieren clasificación distinta. Medir tiempo hasta diagnóstico correcto y concordancia con revisión humana antes/después; no inventar una mejora porcentual.
 
-Comprobación posterior del fixture parametrizado: 2026-11-10T20-23-42-320Z, 2 aprobados, 0 fallos, 0 omitidos; salida 0. test:mobile:ci inició y cerró su Appium; /status dejó de responder al terminar. Solo se usó android-local-primary. Los 16 escenarios descubiertos para dos perfiles no se cuentan como ejecutados ni aprobados.
+Checksum, detección de puertos, extracción de estadísticas y validación de esquemas se resuelven con scripts deterministas; no necesitan otra skill o una inferencia de IA.
 
-La revisión visual del HTML ampliado se realizó con Chrome headless: sin errores JavaScript del reporte, con escenario, pasos y diff original visibles. Evidencia local: artifacts/report-review/2026-11-10T21-40-59-483Z/verification.json y sus capturas. La comprobación focalizada posterior no sustituye ni reescribe el resultado del intento de regresión completo.
+## 9. ¿Qué queda pendiente antes de entregar o ampliar a iOS?
+
+Revisión final del README por Felipe, acceso del evaluador al repositorio privado, tiempo humano efectivamente invertido, y revisión humana de conclusiones. Los tiempos automáticos de la tabla no equivalen a horas humanas; no se afirma haber cumplido una dedicación específica.
+
+Checkout completo, multiproducto, segundo plano, build release/dispositivo físico y diagnóstico Perfetto siguen sin ejecución. iOS requiere instalador/proveedor, localizadores y sesión real; BrowserStack continúa bloqueado por carga 422. No se compró cuota ni se tocó la cuenta AWS del banco.
+
+.gitignore ya existe: excluye credenciales, instaladores y evidencia generada. Se comprueba también para reports/performance; no se publica evidencia sensible. npm audit registró 45 avisos en herramientas de desarrollo; queda pendiente triage compatible, sin corrección forzada.
+
+**Recomendación:** presentar las capacidades y hallazgos con sus límites. No declarar la APK aprobada para todos los productos o plataformas. Las API tienen ocho verificaciones aprobadas; los defectos de la demo y las brechas de cobertura móvil se entregan de forma explícita.
