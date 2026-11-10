@@ -9,7 +9,7 @@ const response = await fetch('https://api-cloud.browserstack.com/app-automate/pl
   headers: { Authorization: 'Basic ' + Buffer.from(user + ':' + key).toString('base64') },
   signal: AbortSignal.timeout(20000),
 });
-const result = { checkedAt: new Date().toISOString(), service: 'App Automate', httpStatus: response.status(), authenticated: response.ok };
+const result = { checkedAt: new Date().toISOString(), service: 'App Automate', httpStatus: response.status, authenticated: response.ok };
 await mkdir('artifacts/browserstack', { recursive: true });
 await writeFile('artifacts/browserstack/connection.json', JSON.stringify(result, null, 2));
 console.log(JSON.stringify(result, null, 2));

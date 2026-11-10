@@ -1,0 +1,384 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "architecture",
+  "quality": "showcase",
+  "startedAt": "2026-11-10T18:18:24.030Z",
+  "specification": {
+    "path": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\candidate.json",
+    "sha256": "37c042b7daa9b924f53f1918f6ac128bb10868243aaf0cdc3088840f755c5aff",
+    "bytes": 4409
+  },
+  "artifact": {
+    "path": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.html",
+    "sha256": "efbd847a86bd434855fcb800ada4f2324f9dbf6d593d83447b14e389c1d8941f",
+    "bytes": 845680
+  },
+  "stages": {
+    "validate": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": null,
+      "execution": "embedded-in-deliver",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\FelipePérez\\.codex\\skills\\archify\\bin\\archify.mjs",
+        "deliver",
+        "architecture",
+        "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\candidate.json",
+        "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "C:\\dev\\mobile-api-ai-assessment",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": true,
+        "command": "validate",
+        "specification": {
+          "sha256": "37c042b7daa9b924f53f1918f6ac128bb10868243aaf0cdc3088840f755c5aff",
+          "bytes": 4409
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        }
+      }
+    },
+    "deliver": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 844,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\FelipePérez\\.codex\\skills\\archify\\bin\\archify.mjs",
+        "deliver",
+        "architecture",
+        "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\candidate.json",
+        "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "C:\\dev\\mobile-api-ai-assessment",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "receiptId": "d0d5237e-83a1-4613-9994-b047a70da902",
+        "ok": true,
+        "command": "deliver",
+        "type": "architecture",
+        "input": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\candidate.json",
+        "output": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.html",
+        "specification": {
+          "sha256": "37c042b7daa9b924f53f1918f6ac128bb10868243aaf0cdc3088840f755c5aff",
+          "bytes": 4409
+        },
+        "artifact": {
+          "sha256": "efbd847a86bd434855fcb800ada4f2324f9dbf6d593d83447b14e389c1d8941f",
+          "bytes": 845680
+        },
+        "validation": {
+          "checksPassed": 9,
+          "checkCount": 9,
+          "compositionProfile": "showcase",
+          "compositionStatus": "pass",
+          "errors": 0,
+          "warnings": 0
+        },
+        "evidence": {
+          "verified": true,
+          "repository": "https://github.com/Fperezu96/mobile-api-ai-assessment",
+          "revision": "87b6bd113f267daf05aba7c350d56c27477d5355",
+          "references": 9
+        },
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      }
+    },
+    "check": {
+      "status": "pass",
+      "exitCode": 0,
+      "durationMs": 305,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\FelipePérez\\.codex\\skills\\archify\\bin\\archify.mjs",
+        "check",
+        "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.html",
+        "--require-provenance"
+      ],
+      "receipt": {
+        "ok": true,
+        "file": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.html",
+        "artifact": {
+          "sha256": "efbd847a86bd434855fcb800ada4f2324f9dbf6d593d83447b14e389c1d8941f",
+          "bytes": 845680
+        },
+        "checks": [
+          {
+            "name": "single_svg",
+            "ok": true,
+            "details": [
+              "found 1 <svg> block(s)"
+            ]
+          },
+          {
+            "name": "finite_svg",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "orthogonal_arrows",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "label_route_clearance",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_crossings",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "relationship_corridors",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "container_border_runs",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "route_rhythm",
+            "ok": true,
+            "details": []
+          },
+          {
+            "name": "legend_clearance",
+            "ok": true,
+            "details": []
+          }
+        ],
+        "composition": {
+          "schemaVersion": 1,
+          "profile": "showcase",
+          "status": "pass",
+          "summary": {
+            "errors": 0,
+            "warnings": 0
+          },
+          "metrics": {
+            "properCrossings": 0,
+            "resolvedCrossovers": 0,
+            "ambiguousCorridors": 0,
+            "arrowheadCollisions": 0,
+            "containerBorderRuns": 0,
+            "labelRouteClearanceIssues": 0,
+            "labelCanvasOverflowIssues": 0,
+            "minLabelRouteClearance": 18,
+            "desktopReadabilityIssues": 0,
+            "viewportHeightIssues": 0,
+            "minProjectedNodeTextPx": 7.5,
+            "maxBends": 1,
+            "routesOverSuggestedBends": 0,
+            "maxStretch": 1,
+            "routesOverSuggestedStretch": 0,
+            "minSegmentPx": 96,
+            "minInteriorSegmentPx": null,
+            "shortSegmentCount": 0,
+            "shortEndpointSegmentCount": 0,
+            "shortInteriorSegmentCount": 0,
+            "microSegmentCount": 0
+          },
+          "suggestedLimits": {
+            "bendsPerRelationship": 2,
+            "stretch": 1.35,
+            "segmentPx": 16,
+            "microSegmentPx": 8
+          },
+          "routeReview": {
+            "crossings": [],
+            "detours": []
+          },
+          "leadingSpace": {
+            "measured": true,
+            "emptyTopPx": 70,
+            "emptyTopRatio": 0.128,
+            "occupiedTop": 70,
+            "viewBoxTop": 0,
+            "canvasHeight": 548,
+            "typicalNodeHeight": 70,
+            "reviewSuggested": false
+          },
+          "desktopReadability": {
+            "budgetBasis": "recognized-declared-wide",
+            "readerContract": "declared-wide-v1",
+            "availableDiagramWidth": 1181.25,
+            "actualBudgetPx": 1181.25,
+            "actualReaderWidth": 1211.25,
+            "desiredReaderWidth": 1211.25,
+            "viewportCap": 1376,
+            "limit": "source-size",
+            "requestedTargetPx": 7.5,
+            "requestedTargetMet": true,
+            "hardFloorPx": 6,
+            "hardFloorMet": true,
+            "minimumOwner": {
+              "kind": "edge",
+              "id": "run-api",
+              "from": "qa",
+              "to": "api"
+            },
+            "minimumSourceTextPx": 8,
+            "minimumProjectedTextPx": 7.5,
+            "semanticTextCount": 21
+          },
+          "issues": []
+        },
+        "provenance": "current",
+        "deliveryReceiptId": "d0d5237e-83a1-4613-9994-b047a70da902"
+      }
+    },
+    "browser-check": {
+      "status": "fail",
+      "exitCode": 1,
+      "durationMs": 481,
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "C:\\Users\\FelipePérez\\.codex\\skills\\archify\\bin\\archify.mjs",
+        "browser-check",
+        "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.html",
+        "--json",
+        "--require-provenance"
+      ],
+      "execution": "in-process",
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "browser-check",
+        "evidenceKind": "automated-browser",
+        "status": "fail",
+        "visualReview": "not-requested",
+        "provenance": "current",
+        "deliveryReceiptId": "d0d5237e-83a1-4613-9994-b047a70da902",
+        "artifact": {
+          "path": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.html",
+          "sha256": "efbd847a86bd434855fcb800ada4f2324f9dbf6d593d83447b14e389c1d8941f",
+          "bytes": 845680
+        },
+        "state": {
+          "detail": "read",
+          "motion": "still"
+        },
+        "chrome": {
+          "status": "available",
+          "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        "diagnostics": [
+          {
+            "code": "viewer/browser-check-runtime",
+            "severity": "error",
+            "message": "browser-check could not complete its Chrome inspection.",
+            "subject": {
+              "artifact": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.html"
+            },
+            "evidence": {
+              "reason": "Chrome DevTools write pipe failed: stream closed\nChrome process: still running.\nWindows browser startup may have relaunched before connecting to the DevTools pipe. Retry from a non-elevated PowerShell opened normally, outside an elevated or compatibility-mode parent. Archify does not disable browser de-elevation or the sandbox to preserve pipe handles.\nChrome transport: Node v22.18.0, libuv 1.51.0, win32; pid=23588, exitCode=null, signalCode=null.\nChrome read pipe: readable=true, ended=false, destroyed=false, receivedBytes=0, messages=0, bufferedBytes=0.\nChrome write pipe: writable=false, ended=true, destroyed=true, completedWrites=1, writtenBytes=50, bufferedBytes=0."
+            },
+            "supportedFixes": [
+              "resolve the reported Chrome inspection error, then rerun browser-check"
+            ]
+          }
+        ],
+        "containment": {
+          "status": "fail",
+          "policy": "fit-or-reader-declared-readable-vertical-scroll",
+          "viewports": []
+        },
+        "themeStates": {
+          "status": "fail",
+          "viewports": []
+        },
+        "readability": {
+          "status": "fail",
+          "minimumProjectedNodeTextPx": 6,
+          "viewports": []
+        },
+        "viewerChrome": {
+          "status": "fail",
+          "viewports": []
+        },
+        "captures": {
+          "status": "not-requested",
+          "screenshots": [],
+          "contactSheet": null
+        },
+        "sidecars": {
+          "receipt": "arquitectura.browser-check.json",
+          "files": []
+        },
+        "error": "Chrome DevTools write pipe failed: stream closed\nChrome process: still running.\nWindows browser startup may have relaunched before connecting to the DevTools pipe. Retry from a non-elevated PowerShell opened normally, outside an elevated or compatibility-mode parent. Archify does not disable browser de-elevation or the sandbox to preserve pipe handles.\nChrome transport: Node v22.18.0, libuv 1.51.0, win32; pid=23588, exitCode=null, signalCode=null.\nChrome read pipe: readable=true, ended=false, destroyed=false, receivedBytes=0, messages=0, bufferedBytes=0.\nChrome write pipe: writable=false, ended=true, destroyed=true, completedWrites=1, writtenBytes=50, bufferedBytes=0."
+      }
+    }
+  },
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "diagnostics": [
+    {
+      "code": "viewer/browser-check-runtime",
+      "severity": "error",
+      "message": "browser-check could not complete its Chrome inspection.",
+      "subject": {
+        "artifact": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.html"
+      },
+      "evidence": {
+        "reason": "Chrome DevTools write pipe failed: stream closed\nChrome process: still running.\nWindows browser startup may have relaunched before connecting to the DevTools pipe. Retry from a non-elevated PowerShell opened normally, outside an elevated or compatibility-mode parent. Archify does not disable browser de-elevation or the sandbox to preserve pipe handles.\nChrome transport: Node v22.18.0, libuv 1.51.0, win32; pid=23588, exitCode=null, signalCode=null.\nChrome read pipe: readable=true, ended=false, destroyed=false, receivedBytes=0, messages=0, bufferedBytes=0.\nChrome write pipe: writable=false, ended=true, destroyed=true, completedWrites=1, writtenBytes=50, bufferedBytes=0."
+      },
+      "supportedFixes": [
+        "resolve the reported Chrome inspection error, then rerun browser-check"
+      ]
+    }
+  ],
+  "evidence": {
+    "receipt": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.finalize.json",
+    "summaryReceipt": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.finalize-summary.json",
+    "browserCheckReceipt": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.browser-check.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "browser-check",
+  "finishedAt": "2026-11-10T18:18:25.985Z",
+  "durationMs": 1955,
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-10T18:18:24.237Z",
+    "source": "network",
+    "noticeRequired": false,
+    "noticeText": null
+  }
+}

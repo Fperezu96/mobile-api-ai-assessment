@@ -12,11 +12,13 @@
                     "test:api:smoke":  "playwright test -c config/api/playwright.config.ts --grep @smoke",
                     "report:api":  "playwright show-report reports/api/html",
                     "browserstack:check":  "node --env-file-if-exists=.env scripts/browserstack/check.mjs",
-                    "app:download":  "node scripts/browserstack/download-android.mjs"
+                    "app:download":  "node scripts/browserstack/download-android.mjs",
+                    "browserstack:android:connect":  "node --env-file-if-exists=.env scripts/browserstack/android-connection.mjs"
                 },
     "devDependencies":  {
                             "@playwright/test":  "1.65.0",
+                            "@types/node":  "22.18.0",
                             "typescript":  "5.9.3",
-                            "@types/node":  "22.18.0"
+                            "webdriverio":  "9.20.0"
                         }
 }

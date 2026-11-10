@@ -9,11 +9,11 @@ async function evidence(info: TestInfo, name: string, response: APIResponse) {
   });
 }
 
-test('API-01 @smoke @regression Crear y consultar una reserva conserva sus datos', async ({ bookings, bookingData }, info) => {
-  await test.step('Dado un huésped sintético y fechas válidas', async () => {
-    await info.attach('Datos esperados antes de ejecutar', { body: JSON.stringify(bookingData), contentType: 'application/json' });
+test('API-01 | Consultar una reserva recién creada devuelve los datos registrados', { tag: ['@smoke', '@regression'] }, async ({ bookings, bookingData }, info) => {
+  await test.step('Definir los datos de la reserva', async () => {
+    await info.attach('Datos de la reserva', { body: JSON.stringify(bookingData), contentType: 'application/json' });
   });
-  const created = await test.step('Cuando creo la reserva', async () => {
+  const created = await test.step('Registrar la reserva y conservar su identificador', async () => {
     const response = await bookings.create(bookingData);
     await evidence(info, 'Respuesta de creación', response);
     expect(response.status()).toBe(200);
@@ -24,7 +24,7 @@ test('API-01 @smoke @regression Crear y consultar una reserva conserva sus datos
     info.annotations.push({ type: 'cleanup-pending', description: 'Reserva sintética creada: ' + result.bookingid + '. Limpieza autenticada pendiente.' });
     return result;
   });
-  await test.step('Entonces al consultarla recupero los mismos datos', async () => {
+  await test.step('Consultar la reserva y comparar la información registrada', async () => {
     const response = await bookings.findById(created.bookingid);
     await evidence(info, 'Respuesta de consulta', response);
     expect(response.status()).toBe(200);
@@ -32,24 +32,24 @@ test('API-01 @smoke @regression Crear y consultar una reserva conserva sus datos
   });
 });
 
-test('API-02 @regression Rechazar una reserva sin nombre obligatorio', async ({ bookings, bookingData }, info) => {
+test('API-02 | No se permite crear una reserva sin el nombre del huésped', { tag: ['@regression'] }, async ({ bookings, bookingData }, info) => {
   const invalid = { ...bookingData } as Partial<typeof bookingData>;
   delete invalid.firstname;
-  await test.step('Dado que falta firstname que el contrato declara obligatorio', async () => {
+  await test.step('Preparar los datos de la reserva sin el nombre del huésped', async () => {
     await info.attach('Petición inválida', { body: JSON.stringify(invalid), contentType: 'application/json' });
   });
-  const response = await test.step('Cuando intento crear la reserva', async () => {
+  const response = await test.step('Enviar la solicitud de creación', async () => {
     const result = await bookings.create(invalid);
     await evidence(info, 'Respuesta de rechazo', result);
     return result;
   });
-  await test.step('Entonces recibo un rechazo controlado y no una reserva válida', async () => {
-    // The contract lists firstname as required but does not specify its error status.
-    // 400/422 is our predeclared quality expectation; never accept 500 to force green.
+  await test.step('Comprobar que se rechaza la solicitud y no se crea una reserva', async () => {
+    // El contrato exige firstname, pero no especifica el estado HTTP de error.
+    // Esperamos un error de entrada y conservamos el fallo si el servidor responde 500.
     expect.soft([400, 422]).toContain(response.status());
     const text = await response.text();
     let payload: Record<string, unknown> = {};
-    try { payload = JSON.parse(text) as Record<string, unknown>; } catch { /* Text errors are allowed. */ }
+    try { payload = JSON.parse(text) as Record<string, unknown>; } catch { /* La respuesta de error puede ser texto. */ }
     expect(payload.bookingid).toBeUndefined();
   });
 });

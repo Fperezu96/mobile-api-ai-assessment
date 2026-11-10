@@ -1,7 +1,7 @@
 import type { APIRequestContext } from '@playwright/test';
 import type { Booking } from '../models/booking.js';
 
-// Transport adapter: the test owns HTTP and business expectations.
+// Adaptador de transporte: la prueba define las expectativas HTTP y de negocio.
 export class BookingClient {
   constructor(private readonly http: APIRequestContext) {}
   create(booking: Partial<Booking>) { return this.http.post('/booking', { data: booking }); }

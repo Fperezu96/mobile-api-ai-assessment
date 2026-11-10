@@ -1,61 +1,58 @@
-# Mobile API AI Assessment
+# Automatización móvil y API
 
-Repositorio de pruebas de Felipe Pérez Upegui para automatización de aplicaciones móviles nativas y API, con desarrollo asistido por IA y resultados verificables.
+Proyecto de Felipe Pérez Upegui para validar una aplicación móvil nativa y una API independiente, con escenarios legibles, código mantenible y evidencia de ejecución.
 
-## Estado del proyecto
+## Estado actual
 
-Etapa 1 completada: repositorio local creado en C:\dev\mobile-api-ai-assessment y sincronizado con su remoto privado en GitHub. La arquitectura, las versiones y la implementación se desarrollarán por etapas con revisión de decisiones. La base API ya contiene escenarios ejecutables; la capa móvil sigue en preparación.
+La base API está implementada y se ejecutó en Windows. Crear y consultar una reserva aprobó; omitir el nombre del huésped devolvió HTTP 500 y mantiene el caso negativo fallido. BrowserStack reconoce la cuenta y permite consultar dispositivos, pero rechazó la carga del APK con HTTP 422 tanto desde archivo como desde su URL oficial. Todavía no hay sesión móvil ni pruebas Android o iOS ejecutadas.
 
-Repositorio: https://github.com/Fperezu96/mobile-api-ai-assessment
+La estructura móvil está preparada para WebdriverIO y Appium. Los contratos, acciones y Screen Objects se implementarán después de resolver la carga del instalador y revisar el primer flujo. El prototipo anterior sirve de referencia, no de evidencia de esta base.
 
-El prototipo anterior se conserva como referencia externa y no se considera la implementación aprobada de este repositorio.
+## Preparar y ejecutar
 
-## Alcance
-
-- App móvil instalada y escenarios de negocio de carrito, autenticación inválida y navegación.
-- Android local y Android e iOS en BrowserStack App Automate.
-- API independiente con Playwright Test y TypeScript contra Restful Booker.
-- Skill versionada antes de su uso con un agente, revisión humana y evidencia de cambios.
-- Reportes y documentación viva vinculados a escenarios, datos y ejecuciones reales.
-
-TypeScript unificado está aprobado. El runner móvil, la capa BDD, el diseño de pasos y las versiones siguen pendientes de evaluación de compatibilidad.
-
-## Trabajar con este repositorio
-
-Abrir PowerShell en la carpeta del proyecto:
+Requisitos comprobados: Node 22.18.0 y npm 10.9.3 en Windows. Las dependencias están fijadas en package-lock.json; no hace falta cambiar Node global ni descargar navegadores para las pruebas API.
 
 ```powershell
 Set-Location C:\dev\mobile-api-ai-assessment
-git status
-git log --oneline
+npm.cmd ci
+npm.cmd run typecheck
+npm.cmd run test:api:smoke
+npm.cmd run test:api
+npm.cmd run report:api
 ```
 
-Después de configurar el remoto, otro desarrollador puede obtener la base:
+Smoke ejecuta el escenario positivo. La suite completa agrega el negativo y termina con salida 1 si reproduce el HTTP 500 documentado. El reporte muestra los pasos de negocio, datos y respuestas.
+
+## Conectar BrowserStack
+
+Copiar .env.example a .env si todavía no existe y completar BROWSERSTACK_USERNAME y BROWSERSTACK_ACCESS_KEY únicamente en el archivo local.
 
 ```powershell
-git clone https://github.com/Fperezu96/mobile-api-ai-assessment.git
-Set-Location mobile-api-ai-assessment
-code .
+npm.cmd run browserstack:check
+npm.cmd run app:download
+npm.cmd run browserstack:android:connect
 ```
 
-API: npm.cmd ci, npm.cmd run typecheck, npm.cmd run test:api:smoke, npm.cmd run test:api y npm.cmd run report:api. Consultar docs/api-execution.md. BrowserStack: completar .env local y ejecutar npm.cmd run browserstack:check. La ejecución móvil aún está pendiente.
+La conexión comprueba acceso a App Automate. El segundo comando descarga el APK oficial y valida su SHA256. El tercero intenta cargar la app y abrir el catálogo en un dispositivo Android real. Es una comprobación de entorno; no valida el carrito ni reemplaza los escenarios funcionales. La alternativa de carga desde URL es `npm.cmd run browserstack:android:connect -- --public-url`; también devolvió HTTP 422 en la ejecución registrada.
 
-## Documentación
+## Reportes y evidencia
 
-- [Alcance y requisitos](docs/requirements.md)
-- [Etapas y criterios de salida](docs/roadmap.md)
-- [Registro de decisiones técnicas](docs/decisions/README.md)
-- [Decisión aprobada sobre TypeScript](docs/decisions/0001-typescript.md)
-- [Entorno inicial observado](docs/environment-baseline.md)
-- [Verificación del repositorio](docs/repository-setup.md)
+- API: reports/api/html, reports/api/results.json y reports/api/junit.xml.
+- BrowserStack: artifacts/browserstack, con un directorio por intento y resultado sin credenciales.
+- Arquitectura: [visual Archify](.archify/architecture-mobile-api-20261110-132500/arquitectura.html). Descargar o abrir el HTML localmente; GitHub muestra su código.
 
-## Reglas de trabajo
+La validación automática de Archify en Chrome está pendiente por el contexto elevado de ejecución. El HTML se generó y pasó sus controles de estructura, pero no se presenta como validación completa.
 
-Cambios pequeños con commits descriptivos. Mantener main como base revisada y trabajar la arquitectura en una rama independiente. Conservar las decisiones y los cambios del agente para la sustentación. No declarar un caso aprobado sin ejecutarlo.
+## Documentación del proyecto
 
-No versionar credenciales, instaladores, datos privados ni resultados generados. La documentación debe distinguir claramente lo implementado, ejecutado, bloqueado y pendiente.
+- [Alcance y estrategia](docs/alcance-y-estrategia.md): requisitos, escenarios y criterios.
+- [Arquitectura](docs/arquitectura.md): estructura, versiones, decisiones y revisión de código.
+- [Resultados](docs/resultados.md): ejecuciones, hallazgos, bloqueos y siguiente paso.
 
-## Arquitectura y revisión
+Estos documentos se actualizan con las conclusiones vigentes. Las decisiones anteriores se consultan en Git; no se crea un informe nuevo por cada avance.
 
-- [Estado de arquitectura](docs/architecture-status.md)
-- [Revisión API](docs/reviews/0002-api-review.md)
+## Repositorio y trabajo
+
+[GitHub privado](https://github.com/Fperezu96/mobile-api-ai-assessment). Carpeta local: C:\dev\mobile-api-ai-assessment. Trabajar en ramas pequeñas, revisar código y reporte antes de integrar y mantener comentarios en español que expliquen motivos.
+
+Los secretos, instaladores y resultados generados están excluidos de Git. Para la sustentación, la skill deberá guardarse antes de usarla en el primer escenario móvil y se conservarán invocación, cambios y revisión humana.
