@@ -4,7 +4,9 @@ Repositorio de pruebas de Felipe Pérez Upegui para automatización de aplicacio
 
 ## Estado del proyecto
 
-Etapa actual: creación del repositorio local y remoto. La arquitectura, las versiones y la implementación se desarrollarán por etapas con revisión de decisiones. Este repositorio inicial no contiene suites ejecutables ni resultados de pruebas.
+Etapa 1 completada: repositorio local creado en C:\dev\mobile-api-ai-assessment y sincronizado con su remoto privado en GitHub. La arquitectura, las versiones y la implementación se desarrollarán por etapas con revisión de decisiones. Este repositorio inicial no contiene suites ejecutables ni resultados de pruebas.
+
+Repositorio: https://github.com/Fperezu96/mobile-api-ai-assessment
 
 El prototipo anterior se conserva como referencia externa y no se considera la implementación aprobada de este repositorio.
 
@@ -45,6 +47,7 @@ Por ahora no se requiere npm install. Los comandos de instalación, Android loca
 - [Registro de decisiones técnicas](docs/decisions/README.md)
 - [Decisión aprobada sobre TypeScript](docs/decisions/0001-typescript.md)
 - [Entorno inicial observado](docs/environment-baseline.md)
+- [Verificación del repositorio](docs/repository-setup.md)
 
 ## Reglas de trabajo
 
