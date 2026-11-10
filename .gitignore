@@ -1,0 +1,33 @@
+# Dependencies and tools
+node_modules/
+.appium/
+
+# Local secrets and editor data
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Application installers
+*.apk
+*.aab
+*.ipa
+*.app/
+
+# Generated evidence and reports
+reports/
+artifacts/
+test-results/
+playwright-report/
+allure-results/
+allure-report/
+*.log
+
+# Generated builds
+dist/
+coverage/
