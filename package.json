@@ -1,0 +1,22 @@
+{
+    "name":  "mobile-api-ai-assessment",
+    "version":  "0.1.0",
+    "private":  true,
+    "type":  "module",
+    "engines":  {
+                    "node":  "\u003e=22.18.0 \u003c23"
+                },
+    "scripts":  {
+                    "typecheck":  "tsc --noEmit",
+                    "test:api":  "playwright test -c config/api/playwright.config.ts",
+                    "test:api:smoke":  "playwright test -c config/api/playwright.config.ts --grep @smoke",
+                    "report:api":  "playwright show-report reports/api/html",
+                    "browserstack:check":  "node --env-file-if-exists=.env scripts/browserstack/check.mjs",
+                    "app:download":  "node scripts/browserstack/download-android.mjs"
+                },
+    "devDependencies":  {
+                            "@playwright/test":  "1.65.0",
+                            "typescript":  "5.9.3",
+                            "@types/node":  "22.18.0"
+                        }
+}

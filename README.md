@@ -4,7 +4,7 @@ Repositorio de pruebas de Felipe Pérez Upegui para automatización de aplicacio
 
 ## Estado del proyecto
 
-Etapa 1 completada: repositorio local creado en C:\dev\mobile-api-ai-assessment y sincronizado con su remoto privado en GitHub. La arquitectura, las versiones y la implementación se desarrollarán por etapas con revisión de decisiones. Este repositorio inicial no contiene suites ejecutables ni resultados de pruebas.
+Etapa 1 completada: repositorio local creado en C:\dev\mobile-api-ai-assessment y sincronizado con su remoto privado en GitHub. La arquitectura, las versiones y la implementación se desarrollarán por etapas con revisión de decisiones. La base API ya contiene escenarios ejecutables; la capa móvil sigue en preparación.
 
 Repositorio: https://github.com/Fperezu96/mobile-api-ai-assessment
 
@@ -38,7 +38,7 @@ Set-Location mobile-api-ai-assessment
 code .
 ```
 
-Por ahora no se requiere npm install. Los comandos de instalación, Android local, Android en BrowserStack, iOS en BrowserStack, API, smoke, regresión y reportes se añadirán cuando sus configuraciones estén definidas y verificadas.
+API: npm.cmd ci, npm.cmd run typecheck, npm.cmd run test:api:smoke, npm.cmd run test:api y npm.cmd run report:api. Consultar docs/api-execution.md. BrowserStack: completar .env local y ejecutar npm.cmd run browserstack:check. La ejecución móvil aún está pendiente.
 
 ## Documentación
 
@@ -54,3 +54,8 @@ Por ahora no se requiere npm install. Los comandos de instalación, Android loca
 Cambios pequeños con commits descriptivos. Mantener main como base revisada y trabajar la arquitectura en una rama independiente. Conservar las decisiones y los cambios del agente para la sustentación. No declarar un caso aprobado sin ejecutarlo.
 
 No versionar credenciales, instaladores, datos privados ni resultados generados. La documentación debe distinguir claramente lo implementado, ejecutado, bloqueado y pendiente.
+
+## Arquitectura y revisión
+
+- [Estado de arquitectura](docs/architecture-status.md)
+- [Revisión API](docs/reviews/0002-api-review.md)

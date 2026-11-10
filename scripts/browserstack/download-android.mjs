@@ -1,0 +1,10 @@
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+const app = JSON.parse(await readFile('apps/android-manifest.json', 'utf8'));
+await mkdir('apps/downloads', { recursive: true });
+const response = await fetch(app.url, { signal: AbortSignal.timeout(120000) });
+if (!response.ok) throw new Error('Download failed: HTTP ' + response.status);
+const bytes = Buffer.from(await response.arrayBuffer());
+if (createHash('sha256').update(bytes).digest('hex') !== app.sha256) throw new Error('APK checksum mismatch');
+await writeFile('apps/downloads/' + app.filename, bytes);
+console.log('APK ' + app.version + ' downloaded; SHA256 verified.');
