@@ -45,7 +45,7 @@ El cliente WebdriverIO no implica tener Appium local instalado. La suite móvil 
 
 Se conserva del prototipo el dinero en centavos, expectativas previas e independencia. Deben resolverse sus dependencias Android, falta de perfil iOS, ausencia de pasos de negocio en reportes, mezcla de responsabilidades en hooks y pérdida de historial al reemplazar resultados.
 
-En la API actual se revisaron tipos, inyección, datos únicos y aserciones. Se eliminó una dependencia innecesaria del fixture de datos y el negativo verifica también ausencia de bookingid aunque falle el estado HTTP. La limpieza autenticada verifica propiedad y ausencia posterior; quedan histórico de reportes y controles de estilo.
+En la API actual se revisaron tipos, inyección, datos únicos y aserciones. Se eliminó una dependencia innecesaria del fixture de datos y el negativo verifica el estado implementado, ausencia de bookingid y búsqueda vacía posterior. La limpieza autenticada verifica propiedad y ausencia posterior; quedan histórico de reportes y controles de estilo.
 
 Los comentarios del código van en español y explican decisiones. Los nombres oficiales de APIs y librerías se conservan. La revisión del agente no sustituye la revisión humana.
 
@@ -61,4 +61,14 @@ Para completar esa comprobación, ejecutar el finalize desde PowerShell abierto 
 
 El cliente incorpora listado, filtros, PUT, PATCH y DELETE. Cada escenario usa datos UUID completos y comprueba el estado previo y posterior. Los fixtures verifican ausencia antes de crear y limpian solo registros propios. La lectura posterior comprueba consistencia observable, no durabilidad tras reinicios.
 
-La autenticación usa credenciales locales sin adjuntar tokens. Las trazas API están desactivadas para evitar publicar cookies. El negativo de campo obligatorio lleva @quality-policy: 400/422 es un criterio de calidad explícito, no un código prometido por la documentación.
+La autenticación usa credenciales locales sin adjuntar tokens. Las trazas API están desactivadas para evitar publicar cookies. El negativo de campo obligatorio lleva @characterization: comprueba el 500 implementado y la ausencia de registro; la documentación no fija ese código de rechazo. Recomendar 4xx queda como observación de diseño no bloqueante.
+
+## Alternativas de acceso móvil evaluadas
+
+Consulta del 10 de noviembre de 2026. Se mantiene WebdriverIO con Appium; cambiar de proveedor no requiere cambiar el lenguaje, aunque sí adaptar configuración, carga de instaladores y evidencia. No se ha contratado ni provisionado otra plataforma.
+
+- Android local: emulador de Android Studio o dispositivo propio, sin mensualidad de nube. Requiere SDK y entorno Appium; aún no verificado.
+- iOS local: la vía habitual con simulador requiere Mac y Xcode. Requiere una compilación para simulador; para dispositivos reales, una IPA y firma compatibles. El APK Android no sirve para iOS.
+- AWS Device Farm: alternativa para dispositivos reales Android e iOS y Appium Node.js/WebdriverIO. Publica una promoción de prueba única de 1.000 minutos-dispositivo y después USD 0,17/minuto-dispositivo; la elegibilidad y saldo de Felipe no están comprobados. La promoción es temporal y no es una cuota mensual gratuita. Puede usarse pago por consumo sin mensualidad. Requiere integración y controles de consumo antes de ejecutar.
+
+Fuentes: [AWS precios](https://aws.amazon.com/device-farm/pricing/), [integración Appium](https://docs.aws.amazon.com/devicefarm/latest/developerguide/test-types-appium-integrate.html), [requisitos XCUITest](https://appium.github.io/appium-xcuitest-driver/12.22/getting-started/system-requirements/) y [emulador Android](https://developer.android.com/studio/run/emulator).

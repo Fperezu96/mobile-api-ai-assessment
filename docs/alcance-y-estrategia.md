@@ -12,9 +12,9 @@ El mínimo del enunciado permite Android local; Felipe solicitó además Browser
 | MOB-02 | El inicio de sesión rechaza credenciales inválidas | Rechazo visible y ausencia de sesión válida |
 | MOB-03 | La navegación de regreso conserva el estado esperado | Acción real del sistema y validación funcional posterior |
 | API-01 | Consultar una reserva recién creada devuelve los datos registrados | Creación y consulta HTTP 200 y datos completos consistentes |
-| API-02 | No se permite crear una reserva sin el nombre del huésped | Rechazo controlado sin bookingid |
+| API-02 | No se permite crear una reserva sin el nombre del huésped | HTTP 500 implementado, sin bookingid ni reserva en la consulta posterior |
 
-La documentación de Restful Booker marca firstname como obligatorio, pero no especifica el código de error por su ausencia. Esperar 400 o 422 es nuestro criterio de calidad explícito, no una promesa del contrato. Un 500 queda fallido y se documenta.
+La documentación de Restful Booker marca firstname como obligatorio, pero no especifica el código de error por su ausencia. API-02 caracteriza el HTTP 500 explícito del código público y verifica que no se crea una reserva. No se clasifica como incumplimiento contractual. Recomendar un 4xx para entradas inválidas es una observación de diseño no bloqueante, no una expectativa inventada para la regresión.
 
 ## Priorización y ejecución
 

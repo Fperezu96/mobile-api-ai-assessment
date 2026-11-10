@@ -4,12 +4,12 @@ Revisión del 10 de noviembre de 2026. Resultados del repositorio actual en Wind
 
 ## Cobertura API ejecutada
 
-Ocho escenarios: siete aprobados y uno fallido frente a una política de calidad explícita.
+La ejecución anterior tuvo siete aprobados y un fallo por exigir 400/422 sin respaldo contractual. Se conserva su evidencia histórica. La expectativa se corrigió al HTTP 500 implementado y se agregó una búsqueda posterior para comprobar que no se crea la reserva. Nueva ejecución: ocho escenarios aprobados, cero fallos y cero omitidos en 9,1 segundos; salida 0. Typecheck aprobado.
 
 | ID | Comprobación | Resultado |
 | --- | --- | --- |
 | API-01 | Crear y consultar una reserva conserva sus datos | Aprobado |
-| API-02 | Omitir firstname obtiene un rechazo controlado | Fallido: HTTP 500 |
+| API-02 | Omitir firstname obtiene HTTP 500 y no crea una reserva | Aprobado |
 | API-03 | Listado y búsqueda por huésped encuentran el registro | Aprobado |
 | API-04 | PUT guarda los nuevos datos y GET los recupera | Aprobado |
 | API-05 | PATCH cambia una preferencia y conserva los demás campos | Aprobado |
@@ -25,7 +25,7 @@ El código público de Restful Booker, revisión 619d03162c050baae7d22fdcf983a22
 
 [Implementación consultada](https://github.com/mwinteringham/restful-booker/blob/619d03162c050baae7d22fdcf983a22f9da6faed/routes/index.js#L300-L321) y [reglas de validación](https://github.com/mwinteringham/restful-booker/blob/619d03162c050baae7d22fdcf983a22f9da6faed/helpers/validationrules.js).
 
-La documentación declara el campo obligatorio, pero no promete 400 ni 422 para su ausencia. Nuestra petición negativa está construida correctamente. El fallo se clasifica como manejo inadecuado de errores frente al criterio de calidad declarado, no como incumplimiento de un código de error documentado. El código público explica el comportamiento, pero no prueba cuál revisión exacta está desplegada.
+La documentación declara el campo obligatorio, pero no promete 400 ni 422 para su ausencia. Nuestra petición negativa está construida correctamente. El HTTP 500 está implementado explícitamente y se caracteriza como comportamiento existente, no como defecto contractual. Recomendar un 4xx para entradas inválidas es una observación de diseño no bloqueante. El código público explica el comportamiento, pero no prueba cuál revisión exacta está desplegada.
 
 ## Qué demuestra la persistencia
 

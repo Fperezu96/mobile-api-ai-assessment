@@ -4,7 +4,7 @@ Proyecto de Felipe Pérez Upegui para validar una aplicación móvil nativa y un
 
 ## Estado actual
 
-La API cubre creación, listado, filtros, PUT, PATCH, eliminación, autorización e independencia de fixtures. Se ejecutaron ocho casos: siete aprobaron y el negativo de calidad conserva el fallo HTTP 500. BrowserStack reconoce la cuenta y permite consultar dispositivos, pero rechazó la carga del APK con HTTP 422 tanto desde archivo como desde su URL oficial. Todavía no hay sesión móvil ni pruebas Android o iOS ejecutadas.
+La API cubre creación, listado, filtros, PUT, PATCH, eliminación, autorización e independencia de fixtures. La expectativa del negativo se corrigió al HTTP 500 implementado y ahora verifica también que no se cree una reserva. La nueva ejecución terminó con ocho casos aprobados y typecheck aprobado. BrowserStack reconoce la cuenta y permite consultar dispositivos, pero rechazó la carga del APK con HTTP 422 tanto desde archivo como desde su URL oficial. Todavía no hay sesión móvil ni pruebas Android o iOS ejecutadas.
 
 La estructura móvil está preparada para WebdriverIO y Appium. Los contratos, acciones y Screen Objects se implementarán después de resolver la carga del instalador y revisar el primer flujo. El prototipo anterior sirve de referencia, no de evidencia de esta base.
 
@@ -22,7 +22,7 @@ npm.cmd run test:api
 npm.cmd run report:api
 ```
 
-Smoke ejecuta el escenario positivo; test:api:crud cubre listado, filtros, PUT, PATCH y eliminación. La suite completa agrega el negativo y termina con salida 1 si reproduce el HTTP 500 documentado. El reporte muestra los pasos de negocio, datos y respuestas.
+Smoke ejecuta el escenario positivo; test:api:crud cubre listado, filtros, PUT, PATCH y eliminación. La suite completa agrega el negativo: HTTP 500 implementado y ausencia de reserva. La documentación no fija ese código de error. El reporte muestra los pasos de negocio, datos y respuestas.
 
 ## Conectar BrowserStack
 

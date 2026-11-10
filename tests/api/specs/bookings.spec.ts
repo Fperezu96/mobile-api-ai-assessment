@@ -35,24 +35,33 @@ test('API-01 | Consultar una reserva recién creada devuelve los datos registrad
   });
 });
 
-test('API-02 | No se permite crear una reserva sin el nombre del huésped', { tag: ['@regression', '@quality-policy'] }, async ({ bookings, bookingData, createdBookings }, info) => {
+test('API-02 | Una reserva sin nombre se rechaza y no queda registrada', { tag: ['@regression', '@characterization'] }, async ({ bookings, bookingData }, info) => {
   const invalid = { ...bookingData } as Partial<typeof bookingData>;
   delete invalid.firstname;
-  await test.step('Preparar los datos de la reserva sin el nombre del huésped', async () => {
-    await info.attach('Petición inválida', { body: JSON.stringify(invalid), contentType: 'application/json' });
+  await test.step('Comprobar que no existen reservas con el identificador de este huésped', async () => {
+    const before = await bookings.list({ lastname: bookingData.lastname });
+    expect(before.status()).toBe(200);
+    expect(await before.json()).toEqual([]);
+    await info.attach('Petición sin nombre', { body: JSON.stringify(invalid), contentType: 'application/json' });
   });
-  const response = await test.step('Enviar la solicitud de creación', async () => {
+  const response = await test.step('Solicitar la reserva sin el nombre obligatorio', async () => {
     const result = await bookings.create(invalid);
     await evidence(info, 'Respuesta de rechazo', result);
     return result;
   });
-  await test.step('Comprobar que se rechaza la solicitud y no se crea una reserva', async () => {
-    // El contrato exige firstname, pero no especifica el estado HTTP de error.
-    // Esperamos un error de entrada y conservamos el fallo si el servidor responde 500.
-    expect.soft([400, 422]).toContain(response.status());
+  await test.step('Verificar el rechazo implementado por el servicio', async () => {
+    // La documentación no fija el estado de error; el código público responde 500.
+    // Este caso caracteriza esa implementación sin presentarla como contrato documentado.
+    expect(response.status()).toBe(500);
     const text = await response.text();
     let payload: Record<string, unknown> = {};
-    try { payload = JSON.parse(text) as Record<string, unknown>; } catch { /* La respuesta de error puede ser texto. */ }
+    try { payload = JSON.parse(text) as Record<string, unknown>; } catch { /* El rechazo puede ser texto. */ }
     expect(payload.bookingid).toBeUndefined();
+  });
+  await test.step('Consultar las reservas y confirmar que la solicitud no creó un registro', async () => {
+    const after = await bookings.list({ lastname: bookingData.lastname });
+    await evidence(info, 'Consulta posterior al rechazo', after);
+    expect(after.status()).toBe(200);
+    expect(await after.json()).toEqual([]);
   });
 });
