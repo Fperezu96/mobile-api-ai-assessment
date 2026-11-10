@@ -26,5 +26,23 @@ export class NativeUi {
     }
     await element.waitForDisplayed({ timeout: 10000 });
   }
+  async tap(name: string): Promise<void> {
+    await this.show(name);
+    await this.element(name).waitForEnabled({timeout: 10000});
+    let previous = '';
+    let stableSamples = 0;
+    // Esperar a que termine el desplazamiento evita pulsar coordenadas en movimiento.
+    await this.driver.waitUntil(async () => {
+      const element = await this.element(name);
+      const location = await element.getLocation();
+      const size = await element.getSize();
+      const bounds = JSON.stringify({location, size});
+      stableSamples = bounds === previous ? stableSamples + 1 : 0;
+      previous = bounds;
+      return stableSamples >= 2 && size.width > 0 && size.height > 0;
+    }, {timeout: 10000, interval: 200, timeoutMsg: 'El control nativo no estabilizó su posición: ' + name});
+    const element = await this.element(name);
+    await this.driver.execute('mobile: clickGesture', {elementId: element.elementId});
+  }
   async show(name: string): Promise<void> { await this.showSelector(resourceSelector(name)); }
 }

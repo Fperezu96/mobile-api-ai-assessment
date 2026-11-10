@@ -1,3 +1,4 @@
+import {summarizeRun} from '../quality/summarize.mjs';
 import {waitForAppium} from './wait-for-appium.mjs';
 import {spawn} from 'node:child_process';
 import path from 'node:path';
@@ -16,4 +17,7 @@ if(!listOnly){
 }
 const child=spawn(process.execPath,['node_modules/@playwright/test/cli.js','test','-c','config/mobile/playwright.config.ts',...args],{env:{...process.env,MOBILE_RUN_ID:runId},stdio:'inherit'});
 child.on('error',error=>{console.error(error.message);process.exitCode=1});
-child.on('exit',code=>{process.exitCode=code ?? 1});
+child.on('exit',code=>{
+  process.exitCode=code ?? 1;
+  if(!args.includes('--list')){try{summarizeRun(root);}catch(error){console.error('No se pudo generar el resumen:',String(error));process.exitCode=code || 1;}}
+});

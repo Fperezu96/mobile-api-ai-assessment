@@ -1,3 +1,4 @@
+import { observedStep, errorDetails, type ObservedStep } from '../../support/observed-step.js';
 import { selectedDeviceProfiles, type MobileOptions } from '../../../config/mobile/device-profile.js';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
@@ -19,7 +20,14 @@ type NativeApp = {
   login: LoginScreen;
   shopping: ShoppingActions;
 };
-export const test = base.extend<MobileOptions & {app: NativeApp}>({
+export const test = base.extend<MobileOptions & {app: NativeApp; step: ObservedStep}>({
+  step: async ({app}, use, info) => {
+    await use(observedStep(info, async (current, error) => {
+      await current.attach('Error y contexto del paso', {body: JSON.stringify({error: errorDetails(error), project: info.project.name, sessionId: app.driver.sessionId, package: await app.driver.getCurrentPackage()}, null, 2), contentType: 'application/json'});
+      await current.attach('Pantalla en el paso fallido', {body: Buffer.from(await app.driver.takeScreenshot(), 'base64'), contentType: 'image/png'});
+      await current.attach('Árbol UI en el paso fallido', {body: await app.driver.getPageSource(), contentType: 'application/xml'});
+    }));
+  },
   deviceProfile: [selectedDeviceProfiles()[0], {option: true}],
   app: async ({deviceProfile}, use, info) => {
     const capabilities = androidCapabilities(deviceProfile);

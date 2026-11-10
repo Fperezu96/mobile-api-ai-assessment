@@ -1,3 +1,5 @@
+import { observedStep, errorDetails, type ObservedStep } from '../../support/observed-step.js';
+import type { HttpExchange } from '../../../src/api/clients/booking.client.js';
 import { randomUUID } from 'node:crypto';
 import { test as base, expect } from '@playwright/test';
 import { BookingClient } from '../../../src/api/clients/booking.client.js';
@@ -11,10 +13,29 @@ export const newBookingData = (): Booking => ({
 });
 type Registry = Map<number, Pick<Booking, 'firstname' | 'lastname'>>;
 export const test = base.extend<{
-  authToken: string; bookings: BookingClient; bookingData: Booking;
+  step: ObservedStep; httpLog: HttpExchange[]; authToken: string; bookings: BookingClient; bookingData: Booking;
   createdBookings: Registry;
   prepareBooking: (data?: Booking) => Promise<CreatedBooking>;
 }>({
+  httpLog: async ({}, use, info) => {
+    const log: HttpExchange[] = [];
+    await use(log);
+    await info.attach('Historial HTTP sin autenticación', {body: JSON.stringify(log, null, 2), contentType: 'application/json'});
+  },
+  step: async ({httpLog}, use, info) => {
+    const run = observedStep(info, async (current, error) => {
+      await current.attach('Error del paso', {body: JSON.stringify(errorDetails(error), null, 2), contentType: 'application/json'});
+    });
+    await use(async (title, body) => {
+      const start = httpLog.length;
+      return run(title, async current => {
+        try { return await body(current); }
+        finally {
+          if (httpLog.length > start) await current.attach('Peticiones y respuestas del paso', {body: JSON.stringify(httpLog.slice(start), null, 2), contentType: 'application/json'});
+        }
+      });
+    });
+  },
   authToken: async ({}, use) => {
     const username = process.env.BOOKER_USERNAME;
     const password = process.env.BOOKER_PASSWORD;
@@ -29,7 +50,7 @@ export const test = base.extend<{
     if (!result.token) throw new Error('Restful Booker no entregó un token válido');
     await use(result.token);
   },
-  bookings: async ({ request, authToken }, use) => { await use(new BookingClient(request, authToken)); },
+  bookings: async ({ request, authToken, httpLog }, use) => { await use(new BookingClient(request, authToken, exchange => httpLog.push(exchange))); },
   bookingData: async ({}, use) => { await use(newBookingData()); },
   createdBookings: async ({ bookings }, use, info) => {
     const registry: Registry = new Map();

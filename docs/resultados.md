@@ -2,11 +2,45 @@
 
 Revisión del 10 de noviembre de 2026, PC Windows de Felipe.
 
-## Ejecución verificable
+## Ejecución conjunta vigente
 
-API: 8 aprobados, 0 fallos; salida 0, 14,5 segundos en la última ejecución.
+RunId: 2026-11-10T21-03-49-082Z. API y Android se ejecutaron en una invocación Playwright con reporte HTML/JSON/JUnit y resumen estructurado. Resultado: 14 aprobados, 3 fallidos, 0 omitidos; sin reintentos. Duración automática: 206.2 segundos. Los resultados no representan el tiempo humano de trabajo.
 
-Regresión móvil: 5 aprobados, 3 fallidos, 0 omitidos; salida 1. Ejecución 2026-11-10T20-13-25-414Z, duración automática 167.9 segundos. Este tiempo no equivale a la dedicación humana acumulada.
+| Proyecto | Escenario | Resultado |
+| --- | --- | --- |
+| api | API-01 | Consultar una reserva recién creada devuelve los datos registrados | Aprobado |
+| api | API-02 | Una reserva sin nombre se rechaza y no queda registrada | Aprobado |
+| api | API-03 | Buscar reservas por huésped devuelve el registro creado | Aprobado |
+| api | API-04 | Los cambios de una reserva se conservan al consultarla de nuevo | Aprobado |
+| api | API-05 | Cambiar una preferencia conserva el resto de la reserva | Aprobado |
+| api | API-06 | Una reserva eliminada deja de aparecer en las consultas | Aprobado |
+| api | API-07 | Una actualización sin autorización no modifica la reserva | Aprobado |
+| api | API-08 | Las búsquedas distinguen dos reservas con datos de prueba diferentes | Aprobado |
+| android-local-primary | MOB-01 D1 | El carrito conserva 1 unidad de Sauce Labs Backpack | Aprobado |
+| android-local-primary | MOB-01 D2 | El carrito conserva 2 unidades de Sauce Labs Backpack | Aprobado |
+| android-local-primary | MOB-02 | Una contraseña incorrecta impide iniciar sesión | Fallido |
+| android-local-primary | MOB-03 | Volver al catálogo conserva el contenido del carrito | Aprobado |
+| android-local-primary | MOB-04 | Eliminar el único producto deja el carrito vacío | Aprobado |
+| android-local-primary | MOB-05 | Abrir Sauce Labs Bike Light muestra su detalle sin cerrar la app | Fallido |
+| android-local-primary | MOB-05 | Abrir Sauce Labs Backpack (green) muestra su detalle sin cerrar la app | Fallido |
+| android-local-primary | MOB-06 | Un usuario vacío impide enviar el inicio de sesión | Aprobado |
+| android-local-primary | MOB-07 | El scroll permite localizar un producto sin modificar el carrito | Aprobado |
+
+Abrir con npm.cmd run report:all -- 2026-11-10T21-03-49-082Z. Evidencia en reports/combined/2026-11-10T21-03-49-082Z. El resumen identifica el proyecto y la ruta del paso fallido. El servidor Appium gestionado por el comando se cerró al terminar; su salida conserva el código de las pruebas.
+
+Se verificó además la selección de cinco casos smoke y dos negativos API; estos dos negativos aprobaron en la ejecución independiente 2026-11-10T20-57-43-560Z. El descubrimiento conjunto con ambos perfiles produjo 26 combinaciones (8 API y 9 por dispositivo), sin ejecutar el segundo emulador.
+
+Los intentos conjuntos 2026-11-10T20-51-37-040Z (13 aprobados/4 fallidos) y 2026-11-10T20-56-25-864Z (12/5), y el smoke 2026-11-10T21-01-51-625Z (4/1), se conservan. Incluyeron fallos adicionales de sincronización en el control de cantidad/agregado al carrito. Se ajustó la exposición del control y la espera de posición estable antes de pulsar; no se cambiaron los importes ni las aserciones para hacerlos pasar. MOB-07 aporta evidencia de scroll nativo hacia abajo/arriba y carrito sin cambios.
+
+El HTML conjunto se abrió con Chrome headless: 17 casos, 14 aprobados y 3 fallidos, sin errores JavaScript del reporte. Se inspeccionó visualmente MOB-02: pasos en español, diff esperado/obtenido, captura en cada paso fallido y adjuntos de contexto/árbol UI. Evidencia local: artifacts/report-review/combined-overview.png, failed-step-detail.png y verification.json. Se verificaron 103 adjuntos y las rutas de los pasos fallidos. Los cinco casos smoke aprobaron dentro de esta regresión; esto no demuestra ausencia de intermitencias futuras.
+
+Typecheck, sintaxis de runners, YAML de la matriz y git diff --check fueron comprobados localmente. La matriz de GitHub no se ejecutó. El smoke como selección y el descubrimiento no sustituyen la regresión.
+
+## Referencias anteriores: ejecución independiente
+
+API: 8 aprobados, 0 fallos; salida 0, 14,5 segundos en la referencia anterior.
+
+Referencia móvil anterior: 5 aprobados, 3 fallidos, 0 omitidos; salida 1. Ejecución 2026-11-10T20-13-25-414Z, duración automática 167.9 segundos. Este tiempo no equivale a la dedicación humana acumulada.
 
 | Caso | Resultado |
 | --- | --- |
@@ -77,8 +111,8 @@ Referencia: [implementación de Booker](https://github.com/mwinteringham/restful
 
 ## Preparación del fixture para varios emuladores
 
-Typecheck aprobado con la opción deviceProfile. El descubrimiento de android-local-primary y android-local-secondary mostró 16 combinaciones: ocho escenarios por perfil, sin sesiones Appium. La selección de un nombre repetido se rechazó con salida 1 antes de iniciar pruebas. Esto valida configuración y descubrimiento; no acredita ejecución simultánea en dos emuladores.
+Typecheck aprobado con la opción deviceProfile. El descubrimiento de android-local-primary y android-local-secondary mostró inicialmente 16 combinaciones: ocho escenarios por perfil, sin sesiones Appium. La selección de un nombre repetido se rechazó con salida 1 antes de iniciar pruebas. Esto valida configuración y descubrimiento; no acredita ejecución simultánea en dos emuladores.
 
-La regresión completa indicada arriba corresponde al entorno local previamente verificado. La comprobación del fixture parametrizado sobre el perfil primario se registrará en una ejecución smoke separada, sin sustituir ni ocultar los tres fallos conocidos de la regresión.
+La regresión completa indicada arriba corresponde al entorno local previamente verificado. La comprobación del fixture parametrizado sobre el perfil primario se registró en una ejecución smoke separada, sin sustituir ni ocultar los tres fallos conocidos de la regresión.
 
 Comprobación posterior del fixture parametrizado: 2026-11-10T20-23-42-320Z, 2 aprobados, 0 fallos, 0 omitidos; salida 0. test:mobile:ci inició y cerró su Appium; /status dejó de responder al terminar. Solo se usó android-local-primary. Los 16 escenarios descubiertos para dos perfiles no se cuentan como ejecutados ni aprobados.

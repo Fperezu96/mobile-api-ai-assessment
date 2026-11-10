@@ -32,7 +32,7 @@ try {
     await pause(500);
   }
   if(!ready)throw new Error('Appium no estuvo listo en el tiempo permitido.');
-  const args=['scripts/mobile/run.mjs',...(suite==='smoke'?['--grep','@smoke']:[])];
+  const args=[process.env.TEST_TARGET === 'all' ? 'scripts/quality/run.mjs' : 'scripts/mobile/run.mjs',...(suite==='smoke'?['--grep','@smoke']:[])];
   process.exitCode=await run(process.execPath,args);
 } catch(error) {
   console.error(String(error));

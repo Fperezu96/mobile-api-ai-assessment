@@ -2,6 +2,11 @@ name: Pruebas móviles por dispositivo
 on:
   workflow_dispatch:
     inputs:
+      target:
+        description: Suites incluidas en el reporte
+        type: choice
+        options: [all, mobile]
+        default: all
       suite:
         description: Alcance de la ejecución
         type: choice
@@ -20,6 +25,9 @@ jobs:
       matrix:
         api: [30, 33]
     env:
+      TEST_TARGET: ${{ inputs.target }}
+      BOOKER_USERNAME: ${{ secrets.BOOKER_USERNAME }}
+      BOOKER_PASSWORD: ${{ secrets.BOOKER_PASSWORD }}
       MOBILE_SUITE: ${{ inputs.suite }}
       ANDROID_UDID: emulator-5554
       ANDROID_DEVICE_NAME: android-api-${{ matrix.api }}
@@ -64,6 +72,7 @@ jobs:
         with:
           name: android-api-${{ matrix.api }}-${{ inputs.suite }}
           path: |
+            reports/combined/
             reports/mobile/
             artifacts/android-local/
           retention-days: 7

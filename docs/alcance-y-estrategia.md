@@ -7,11 +7,12 @@ El reto exige app instalada, Page/Screen Objects, API con Playwright Test TypeSc
 | Escenario | Comprobación | Etiquetas |
 | --- | --- | --- |
 | MOB-01 D1/D2 | Una y dos unidades de Backpack: nombre, cantidad, precio unitario y total | smoke, regression, cart |
-| MOB-02 | Contraseña incorrecta: rechazo visible y ausencia de sesión válida | regression, login |
-| MOB-03 | Volver con Android Back hasta el catálogo y comprobar que el carrito conserva sus datos | regression, navigation |
+| MOB-02 | Contraseña incorrecta: rechazo visible y ausencia de sesión válida | regression, negative, login, known-issue |
+| MOB-03 | Volver con Android Back hasta el catálogo y comprobar que el carrito conserva sus datos | smoke, regression, native, back, navigation |
 | MOB-04 | Eliminar el único producto y comprobar estado vacío | regression, cart |
 | MOB-05, dos productos | Abrir Bike Light y Backpack (green) debe mostrar el detalle sin cerrar la app | regression, known-issue |
-| MOB-06 | Usuario vacío: validación visible y ausencia de sesión válida | regression, login |
+| MOB-06 | Usuario vacío: validación visible y ausencia de sesión válida | smoke, regression, negative, login |
+| MOB-07 | Scroll nativo hacia Bike Light, regreso a Backpack y carrito sin cambios | regression, native, scroll |
 | API-01 a API-08 | Crear, consultar, listar, filtrar, PUT, PATCH, DELETE, autorización y aislamiento | smoke, regression, crud, authorization, isolation, characterization |
 
 MOB-01 fija antes de ejecutar USD 29,99 por unidad, cantidades 1/2 y totales USD 29,99/59,98. Los productos que provocaron cierres permanecen en MOB-05: cambiar los datos del caso positivo no eliminó su comprobación ni sus fallos.
@@ -19,6 +20,14 @@ MOB-01 fija antes de ejecutar USD 29,99 por unidad, cantidades 1/2 y totales USD
 MOB-06 comprueba un rechazo definido por el formulario. MOB-02 conserva una expectativa de contraseña incorrecta frente al criterio del reto; la demo tiene un login permisivo, por lo que se distingue esa limitación de un contrato de autenticación formal inexistente.
 
 La API es independiente de la demo. La documentación de Booker exige firstname, pero no especifica su código de rechazo. API-02 caracteriza el HTTP 500 implementado y comprueba ausencia de reserva; recomendar 4xx queda como observación de diseño no bloqueante.
+
+## Lectura de escenarios y selecciones
+
+Hay 17 ejecuciones con el dispositivo primario: ocho API y nueve Android. Smoke selecciona cinco: API-01, MOB-01 D1/D2, MOB-03 y MOB-06. Regresión incluye todos, también los tres hallazgos conocidos; la etiqueta known-issue no los omite. API-02 y API-07 llevan negative; API-03 a API-06 llevan crud. La tabla no sustituye las etiquetas ejecutables del código.
+
+Los pasos Dado/Cuando/Entonces/Y describen precondiciones, acciones y resultados observables en español mediante Playwright test.step. El fixture step agrega diagnóstico sin cambiar la expectativa ni ocultar errores. Una aserción suave permite recoger varias discrepancias de login y mantiene el test fallido. Los helpers técnicos no se copian en el wording del reporte.
+
+Scroll usa mobile:scrollGesture de UiAutomator2, hacia abajo y arriba; exige al menos un gesto real y visibilidad del producto. No abre Bike Light, porque su cierre se comprueba por separado. Back usa el comando nativo del driver, vuelve por detalle/catálogo y verifica de nuevo el contenido completo del carrito. Estas comprobaciones no sustituyen una campaña de gestos del sistema o ciclo de vida.
 
 ## Datos, aislamiento y revisión
 

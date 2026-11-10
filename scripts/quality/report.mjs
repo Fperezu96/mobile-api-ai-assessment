@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {spawn} from 'node:child_process';
+const group=process.argv[2] || 'combined';
+if(!['api','combined'].includes(group))throw new Error('Grupo de reporte inválido.');
+const latest=JSON.parse(fs.readFileSync(path.join('reports',group,'latest.json'),'utf8'));
+const runId=process.argv[3] || latest.runId;
+if(!/^[0-9TZ-]+$/.test(runId))throw new Error('Identificador inválido.');
+const report=path.resolve('reports',group,runId,'html');
+if(!fs.existsSync(report))throw new Error('Todavía no existe el HTML de la ejecución.');
+const child=spawn(process.execPath,['node_modules/@playwright/test/cli.js','show-report',report,'--host','127.0.0.1'],{stdio:'inherit'});
+child.on('error',error=>{console.error(error);process.exitCode=1});
+child.on('exit',code=>{process.exitCode=code ?? 1});

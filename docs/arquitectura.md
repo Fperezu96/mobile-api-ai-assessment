@@ -51,7 +51,7 @@ Java, SDK y rutas pueden configurarse por variables del proceso. La instalación
 
 Un solo dispositivo utiliza un worker. Aumentar workers sobre emulator-5554 generaría interferencia de estado. Para dos emuladores en un mismo host, usar UDID/puerto de emulador y systemPort distintos. Esta implementación comparte un servidor Appium entre sesiones; si se optara por dos servidores, sus puertos Appium también deberían ser distintos.
 
-El workflow manual .github/workflows/mobile.yml define jobs aislados en Ubuntu para API 30 y 33, max-parallel=2 y fail-fast=false. Cada job instala versiones, prepara su emulador y ejecuta test:mobile:ci. Los puertos pueden coincidir entre jobs porque no comparten máquina. Siempre se suben logs y reportes. No hay ejecución de esa matriz en GitHub todavía; validar minutos disponibles antes de lanzarla.
+El workflow manual .github/workflows/mobile.yml define jobs aislados en Ubuntu para API 30 y 33, max-parallel=2 y fail-fast=false. Cada job instala versiones, prepara su emulador y ejecuta el target all o mobile mediante test:mobile:ci. El target all necesita los secrets BOOKER_USERNAME y BOOKER_PASSWORD; el orquestador selecciona la configuración conjunta. Los puertos pueden coincidir entre jobs porque no comparten máquina. Siempre se suben logs y reportes. No hay ejecución de esa matriz en GitHub todavía; validar minutos disponibles antes de lanzarla.
 
 test:mobile:ci inicia su propio Appium, espera /status, ejecuta la selección y conserva el código de salida. Finalmente cierra únicamente los procesos que creó. El cierre contempla el árbol de procesos en Windows y señales en Linux. El comando manual test:mobile también espera readiness y falla claramente si no encuentra servidor.
 
@@ -75,3 +75,16 @@ La configuración admite tantos workers globales como perfiles seleccionados, co
 Se comparte Appium en el puerto 4723; no es obligatorio levantar un servidor por emulador. El puerto ADB del host también puede compartirse porque cada comando identifica su UDID. Se rechazan nombres repetidos, UDID duplicados y colisiones de puertos internos antes de crear sesiones. Los puertos MJPEG quedan separados para evitar conflictos si se incorporan streams; esto no significa que ya haya video implementado.
 
 Los proyectos incluyen su nombre en la evidencia generada por Playwright. El fixture adjunta el perfil, el nombre de proyecto, las capabilities resueltas y el session ID. El segundo AVD deberá crearse y arrancarse antes de una ejecución paralela real. [Guía UiAutomator2](https://appium.github.io/appium-uiautomator2-driver/latest/guides/parallel-tests/) y [límite por proyecto](https://playwright.dev/docs/api/class-testproject#test-project-workers).
+
+
+## Pasos observables y ejecución conjunta
+
+tests/support/observed-step.ts proporciona un step tipado, con box=true para señalar la llamada del escenario. Conserva el error de la aserción y captura evidencia también cuando se agregan errores suaves. Los fallos de captura se registran sin reemplazar la causa original.
+
+El fixture API registra método, ruta, datos sintéticos, respuesta, estado y duración. Cada paso adjunta sus intercambios y el fixture adjunta el historial final, incluida limpieza. No registra cabeceras, cookies ni la petición /auth; la respuesta se limita a 12000 caracteres. El fixture Android adjunta captura, árbol UI y contexto de sesión al paso fallido, además de la evidencia final. No se usa trace de navegador para representar acciones Appium.
+
+config/combined/playwright.config.ts crea un proyecto API y los proyectos Android seleccionados. API tiene un worker; cada dispositivo tiene uno. Así pueden correr API y Android al mismo tiempo, sin compartir el estado de un emulador entre tests. Se usan las mismas fuentes de escenarios y fixtures; no se duplican suites para el reporte.
+
+scripts/quality/ci.mjs reutiliza la orquestación Appium existente. scripts/quality/run.mjs ejecuta una sola invocación Playwright con reporteros HTML/JSON/JUnit y directorio propio por runId. No se fusionan reportes HTML independientes ni se sobrescriben evidencias anteriores. summarize.mjs agrega execution-summary.json con proyecto, etiquetas, estado, errores y rutas de pasos fallidos. Los runners independientes generan la misma estructura de resumen.
+
+Los controles nativos se exponen dentro del viewport antes de pulsar. NativeUi.tap espera varias muestras consecutivas de posición y tamaño estables y usa clickGesture por ID de elemento. No introduce pausas fijas ni reintentos del test; las esperas siguen exigiendo la cantidad exacta. Los errores de sincronización se clasifican por separado de los cierres conocidos de la app.
