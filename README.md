@@ -24,8 +24,8 @@ Los ejemplos usan PowerShell en Windows. En otras terminales usar npm en lugar d
 2. Clonar y entrar al repositorio:
 
 ~~~powershell
-git clone --branch docs/separate-product-strategies-and-native-performance https://github.com/Fperezu96/mobile-api-ai-assessment.git
-cd mobile-api-ai-assessment
+git clone --branch docs/separate-product-strategies-and-native-performance https://github.com/Fperezu96/mobile-api-ai-assessment.gi
+cd mobile-api-ai-assessmen
 npm.cmd ci
 npm.cmd run typecheck
 if (!(Test-Path .env)) { Copy-Item .env.example .env }
@@ -50,9 +50,7 @@ La ejecución genera el reporte; report:api abre el HTML local. Detener el visor
 | --- | --- |
 | Smoke | npm.cmd run test:api:smoke |
 | Regresión | npm.cmd run test:api:regression |
-| CRUD | npm.cmd run test:api:crud |
 | Negativos | npm.cmd run test:api:negative |
-| Un caso sin ejecutarlo | npm.cmd run test:api -- --list --grep "API-04" |
 | Un caso concreto | npm.cmd run test:api -- --grep "API-04" |
 
 ## 3. Preparar Android y Appium
@@ -76,7 +74,7 @@ Las rutas predeterminadas corresponden al PC de preparación. android:local:crea
 
 ~~~powershell
 npm.cmd run android:local:create
-npm.cmd run android:local:start
+npm.cmd run android:local:star
 adb -s emulator-5554 wait-for-device
 adb -s emulator-5554 shell getprop sys.boot_completed
 ~~~
@@ -100,7 +98,7 @@ La sesión instala/inicia la APK mediante appium:app. No se “instalan disposit
 Los escenarios están en tests/mobile/specs. En una terminal, iniciar el servidor y dejarla abierta:
 
 ~~~powershell
-npm.cmd run appium:start
+npm.cmd run appium:star
 ~~~
 
 Appium escucha en 127.0.0.1:4723. En otra terminal, desde el repositorio y con las mismas variables Android, ejecutar primero smoke:
@@ -114,7 +112,7 @@ El [fixture nativo](tests/mobile/fixtures/native.fixture.ts) crea la sesión Web
 
 | Selección | Comando |
 | --- | --- |
-| Regresión determinista | npm.cmd run test:mobile:regression |
+| Regresión | npm.cmd run test:mobile:regression |
 | Negativos | npm.cmd run test:mobile:negative |
 | Back y scroll | npm.cmd run test:mobile:native |
 | Todos los productos del catálogo | npm.cmd run test:mobile:catalog |
@@ -151,15 +149,6 @@ Cada ejecución genera HTML, JSON, JUnit y execution-summary.json en reports/api
 
 Abrir un intento anterior con npm.cmd run report:api -- <runId>, report:mobile o report:all. Los comandos de ejecución devuelven código distinto de cero ante fallos; los resultados conocidos están en docs/resultados.md.
 
-Para diagnóstico nativo, con QA_API33 a 1080x1920 disponible y Appium cerrado:
-
-~~~powershell
-npm.cmd run perf:android
-npm.cmd run report:performance
-~~~
-
-El visor imprime su URL local. Método, mediciones y límites están en [resultados](docs/resultados.md#4-no-funcionales-qué-se-midió-y-qué-puede-concluirse).
-
 ## 7. Añadir un caso con el skill
 
 En Codex, abrir el repositorio y pedir “Usa $mobile-native-tests para…” seguido del comportamiento y resultado esperado. Para preparar un prompt portable:
@@ -181,6 +170,4 @@ npm.cmd run test:all:smoke
 npm.cmd run report:all
 ~~~
 
-Para toda la regresión usar test:all:regression o test:all; para descubrir casos usar test:all:list. test:all:catalog y test:all:random seleccionan únicamente catálogo o muestra móvil dentro del reporte conjunto. Estos comandos gestionan Appium local. El reporte conjunto mantiene cada producto separado por proyecto.
-
-No se entrega un workflow activo ni se ejecuta pipeline para este ejercicio. La futura integración con BrowserStack, variables y paralelismo se describe en [resultados](docs/resultados.md); no es necesaria para ejecutar las suites locales.
+Para toda la regresión usar test:all:regression o test:all; para descubrir casos usar test:all:list. test:all:catalog y test:all:random seleccionan únicamente catálogo o muestra móvil dentro del reporte conjunto. Estos comandos gestionan Appium local. El reporte conjunto mantiene cada producto separado por proyecto.\n

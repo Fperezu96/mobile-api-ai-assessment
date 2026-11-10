@@ -123,7 +123,7 @@ En React Native puede existir código compartido y aun así diferir el árbol de
 | Inspector | 2026.9.2 | Inspección de resource-id/accessibility id reales |
 | PNGJS / tipos | 7.0.0 / 6.0.5 | Comparar píxeles de recortes de elementos, no PNG comprimido ni pantalla completa |
 
-Appium y el driver están en package.json/lockfile. El launcher retira APPIUM_HOME del proceso hijo para cargar el driver del proyecto por npm; no duplica una instalación global. El SDK local está en C:\dev\.tools\android-sdk.
+Appium y el driver están en package.json/lockfile. El launcher retira APPIUM_HOME del proceso hijo para cargar el driver del proyecto por npm; no duplica una instalación global.
 
 La APK es [My Demo App 2.3.0 build 27](https://github.com/saucelabs/my-demo-app-android/releases/download/2.3.0/mda-2.3.0-27.apk). El manifiesto apps/android-manifest.json fija URL y SHA256; capabilities comprueba el hash antes de crear la sesión. Es una build debug: no se presenta como artefacto release.
 
@@ -150,17 +150,8 @@ Android adjunta perfil, capabilities, versión, session ID, captura y árbol UI 
 
 Cada ejecución tiene HTML, JSON, JUnit y execution-summary.json con ruta del paso fallido. No se mezclan intentos para aparentar que la regresión completa pasó tras una comprobación focalizada. Los datos sintéticos tienen semilla y expectativas fijadas antes de interactuar.
 
-El diagnóstico de rendimiento usa datos nativos y un reporte propio. TTID inicial, muestras de frames y tiempos ADB tienen límites distintos, explicados en [alcance](alcance-y-estrategia.md) y [resultados](resultados.md).
-
 ## 9. ¿Qué falta para iOS y BrowserStack?
 
 Instalador iOS compatible, proveedor/permisos/cuota, localizadores observados, driver XCUITest y sesiones reales. No basta con cambiar platformName o reutilizar IDs Android. Primero validar un smoke de equivalencia y luego decidir qué implementación compartir.
 
-BrowserStack autenticó, pero rechazó la carga Android con 422 antes de crear sesión; no se ha confirmado la causa particular. Su valor sería acceso a dispositivos reales/iOS y evidencia de sesiones; se evaluará después de la revisión final, sin compra ni consumo adicional ahora. AWS personal y cuota gratuita siguen sin verificar; no se toca la cuenta del banco.
-
-
-### Verificación de los diagramas
-
-Los diagramas de negocio y ejecución nativa aprobaron validación, generación y comprobación del HTML. La comprobación integrada de Chrome quedó bloqueada por su conexión de depuración en Windows elevado; no se declara aprobada la finalización completa de Archify. La revisión independiente en Chrome con sandbox habilitado pasó sin errores JavaScript ni desbordamiento y se inspeccionaron ambas capturas.
-
-Los recibos revision-independiente.json se conservan junto a cada HTML en .archify/workflow-negocio-20261110-173325 y .archify/architecture-ejecucion-nativa-20261110-190000. La leyenda técnica identifica componentes de automatización y dispositivo, sin presentar WebdriverIO como emulador.
+BrowserStack autenticó, pero rechazó la carga Android con 422 antes de crear sesión; no se ha confirmado la causa particular. Su valor sería acceso a dispositivos reales/iOS y evidencia de sesiones; se evaluará después de la revisión final, sin compra ni consumo adicional ahora. AWS personal y cuota gratuita siguen sin verificar; no se toca la cuenta del banco.\n

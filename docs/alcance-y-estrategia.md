@@ -1,10 +1,9 @@
 # Alcance y estrategia de pruebas
 
-**Autor:** Felipe Pérez Upegui · **Fecha de revisión:** 10 de noviembre de 2026.
 
-## 1. ¿Qué se entrega y por qué se separan los productos?
+## 1. ¿Qué se debe probar y cómo se considera?
 
-**Respuesta.** Se entregan dos proyectos de automatización funcional independientes dentro de un repositorio TypeScript. Compartir dependencias, convenciones y un ejecutor no convierte Restful Booker en el backend de la APK.
+**Respuesta.** El ejercicio se aborda como dos productos independientes, cada uno con sus propios recorridos y criterios de prueba. Se entregan dos proyectos de automatización dentro de un repositorio TypeScript para compartir dependencias y convenciones, y centralizar la revisión.
 
 | Producto | Objetivo | Herramientas | Entradas y evidencia |
 | --- | --- | --- | --- |
@@ -13,19 +12,17 @@
 
 La API puede ejecutarse sin Android/Appium; Android no necesita credenciales de Booker. Las carpetas src/api y tests/api se separan de src/mobile y tests/mobile. El reporte conjunto es una agregación operativa, no una prueba de integración entre productos.
 
-**Fuente del alcance:** Prueba_Tecnica_Automatizacion_Mobile_IA.docx, sección «Alcance mínimo»: las APIs son un ejercicio independiente de la demo. El enunciado permite Android local; BrowserStack e iOS son opcionales.
-
 ## 2. ¿Cómo se priorizan las pruebas?
 
-**Respuesta.** Se prioriza por impacto del fallo en el recorrido y riesgo de pérdida/inconsistencia de datos. P1 se ejecuta primero; P2 amplía cobertura de riesgos relevantes; P3 caracteriza comportamientos de menor impacto. Estas son prioridades de pruebas, no severidades de defectos.
+**Respuesta.** Se prioriza por impacto del fallo en el recorrido y riesgo de pérdida/inconsistencia de datos. También se consideran la pirámide de pruebas y el tiempo y los recursos de ejecución. P1 se ejecuta primero; P2 amplía cobertura de riesgos relevantes; P3 caracteriza comportamientos de menor impacto.
 
 El resultado esperado tiene una fuente explícita:
 
 - **E:** requisito del ejercicio.
-- **D:** expectativa derivada del recorrido; se declara la inferencia.
+- **D:** expectativa derivada del recorrido y de la exploración de la APK; requiere confirmación cuando el enunciado no fija una regla.
 - **C:** caracterización de la implementación pública 2.3.0, sin presentarla como requisito del evaluador.
 
-Las condiciones no especificadas se registran como preguntas. Un test automatizado no equivale a una prueba aprobada: los resultados observados están en [resultados](resultados.md).
+Las condiciones no especificadas se registran como preguntas. Los resultados observados están en [resultados](resultados.md).
 
 ## 3. Producto A: API Restful Booker
 
@@ -46,17 +43,15 @@ Las condiciones no especificadas se registran como preguntas. Un test automatiza
 
 **Datos y aislamiento.** UUID completos para nombres/apellidos; búsqueda previa, creación y comprobación posterior. La limpieza verifica propiedad antes de eliminar. Se comprueba consistencia observable; no durabilidad después de reiniciar el servicio ni unicidad global.
 
-**Límite del contrato.** Que firstname sea obligatorio no implica que la documentación prometa 400/422. API-02 conserva el 500 observado y documenta la diferencia entre contrato y caracterización. Recomendar una respuesta 4xx es una observación de diseño, no un defecto contractual demostrado.
-
 ### 3.2 ¿Qué queda fuera de la API?
 
-Carga, capacidad, seguridad ofensiva, recuperación del servidor y mediciones de latencia con SLO. Las duraciones HTTP adjuntas son diagnóstico funcional y no una campaña de rendimiento. No hay relación funcional comprobada entre Booker y la tienda móvil.
+Carga, capacidad, seguridad ofensiva, recuperación del servidor y mediciones de latencia con SLO. Las duraciones HTTP adjuntas son diagnóstico funcional y no una campaña de rendimiento.
 
 ## 4. Producto B: APK My Demo App
 
 ### 4.1 ¿Cuál es el alcance funcional móvil?
 
-**Respuesta.** Android nativo local, con 39 ejecuciones deterministas por dispositivo y una muestra exploratoria predeterminada de tres compras por semilla. CART-03 es una demostración adicional seleccionada por @interview; no altera las 39 combinaciones de regresión. Android e iOS no se consideran aprobados por ejecutar el mismo código: iOS aún no se ha ejecutado.
+**Respuesta.** La regresión Android contiene 39 combinaciones seleccionadas y reproducibles por dispositivo, más una muestra exploratoria opcional de tres compras por semilla. “Reproducible” describe los datos y la selección, no una cobertura exhaustiva de la aplicación. El barrido de las 24 referencias se añadió para caracterizar los cierres encontrados; no cubre todas las cantidades, variantes, estados ni versiones de Android. iOS queda fuera de la ejecución comprobada.
 
 | Código | Escenario y riesgo que justifica su selección | Resultado esperado | Prioridad | Impacto del fallo |
 | --- | --- | --- | --- | --- |
@@ -66,27 +61,22 @@ Carga, capacidad, seguridad ofensiva, recuperación del servidor y mediciones de
 | MOB-04 | Eliminar el único producto; evitar pedido o total residual | Carrito vacío y sin total anterior, mediante espera por condición (D) | P1 | Alto: compra no deseada |
 | MOB-06 | Usuario vacío; verificar validación del formulario | Error visible y ausencia de sesión válida (D/C) | P1 | Alto: validación de acceso inconsistente |
 | MOB-07 | Scroll abajo/arriba; comprobar acceso a productos sin efectos laterales | Localizar Bike Light, regresar a Backpack y mantener carrito vacío (E/D) | P2 | Medio: catálogo no navegable |
-| CAT-01 × 24 productos | Abrir todo el catálogo; evitar limitar cobertura a productos que funcionan | La app permanece abierta y muestra nombre/precio de referencia del producto seleccionado (D) | P1 | Alto: bloqueo del recorrido antes de comprar |
+| CAT-01 × 24 productos | Revisar las 24 referencias observadas para delimitar el fallo de apertura | La app permanece abierta y muestra nombre/precio de referencia del producto seleccionado (D) | P1 | Alto: bloqueo del recorrido antes de comprar |
 | CART-01 | Aumentar a 3 y reducir a 1; detectar errores de recálculo | Cantidad y total equivalen a unidades por precio original, sin cambiar producto (D) | P1 | Alto: importe incorrecto |
 | CART-02 | Disminuir la última unidad; comprobar el límite inferior del carrito | Se retira el producto y aparece carrito vacío sin total anterior (C) | P2 | Medio: estado inconsistente en el límite |
 | DETAIL-01 | Cantidad cero; impedir agregar y verificar recuperación | Agregar queda deshabilitado con cero y se habilita con una unidad; carrito sigue vacío (C) | P1 | Alto: pedido con cantidad inválida |
 | COLOR-01 Blue/Green | Transferir variante del detalle al carrito | Indicador conserva el color seleccionado, con el mismo producto, cantidad y precio (D) | P2 | Alto: variante distinta de la elegida |
 | COLOR-02 | Pulsar indicador de color dentro del carrito | No cambia la compra: el control se caracteriza como información de solo lectura (C) | P3 | Bajo: comportamiento visual ambiguo |
 | REVIEW-01 con 1/5 estrellas | Valorar y continuar; detectar modal que bloquee el recorrido | Confirmación visible, cierre del modal y regreso al producto sin agregarlo al carrito (C) | P2 | Medio: interrupción del recorrido |
-| CART-03, demostración @interview | Vaciar y volver a agregar con otra cantidad; detectar estado residual | Una unidad inicial, carrito vacío/sin total y después dos unidades por USD 59,98, sin sumar la compra anterior (D) | P2 | Alto: cantidad o importe residual tras eliminar |
 | GEN-01, muestra por semilla | Comprar productos reales con cantidades generadas; ampliar combinaciones | Detalle y carrito coinciden con producto, cantidad y precio de referencia elegidos antes de actuar (D) | P2 | Medio: cobertura restringida a un ejemplo favorable |
-
-**Demostración de recuperación:** [cart-recovery.spec.ts](../tests/mobile/specs/cart-recovery.spec.ts), ejecutada aparte para comprobar el uso del skill.
 
 **Implementación por funcionalidad:** [carrito](../tests/mobile/specs/cart.spec.ts), [cantidades y colores](../tests/mobile/specs/cart-interactions.spec.ts), [login](../tests/mobile/specs/login.spec.ts), [navegación](../tests/mobile/specs/navigation.spec.ts), [catálogo](../tests/mobile/specs/catalog.spec.ts), [reseñas](../tests/mobile/specs/review.spec.ts) y [compras generadas](../tests/mobile/specs/generated-cart.spec.ts).
 
 **Datos.** El [catálogo de referencia](../tests/mobile/data/catalog-products.ts) fija 24 productos/precios desde la versión 2.3.0. La [fábrica](../tests/mobile/data/product-case.factory.ts) selecciona sin reemplazo y genera cantidades 1..3. La semilla y los datos se adjuntan. No se inventan productos ni se descartan los que fallan. Los límites técnicos de los helpers no son límites de negocio confirmados.
 
-**Trazabilidad histórica.** Las dos reproducciones antes llamadas MOB-05 están incluidas en CAT-01. No se cuentan dos veces. El barrido mantiene el orden inicial: los cierres dependen de posiciones del catálogo, no de reglas particulares de cada SKU.
+### 4.2 ¿Qué otros tres escenarios priorizamos?
 
-### 4.2 ¿Cuáles son los otros tres escenarios priorizados que pide el enunciado?
-
-**Respuesta.** Se documentaron y además se automatizaron estos tres; la justificación no se sustituye por tener código.
+**Respuesta.** Se documentaron y además se automatizaron estos tres.
 
 | Extensión priorizada | Por qué se automatizó | Prioridad e impacto | Ejemplo verificable |
 | --- | --- | --- | --- |
@@ -98,28 +88,6 @@ Las reseñas, eliminación de última unidad, barrido de catálogo y muestra por
 
 ### 4.3 ¿Qué reglas móviles requieren confirmación?
 
-Cambiar la fotografía al elegir un color no está exigido por el enunciado: se adjuntan imágenes y se registra la ambigüedad. No se afirma persistencia de reseñas en backend. El catálogo admite invitado; login no es una precondición universal. El checkout se describe como capacidad de la demo, pero no se presenta como compra completa ejecutada.
-
-## 5. ¿Qué pruebas no funcionales se incluyen?
-
-**Respuesta.** Un diagnóstico local separado, aplicado solo a la APK Android. Web Vitals (LCP/INP/CLS) corresponde a páginas web; no mide estas pantallas nativas ni explica sus excepciones Java.
-
-| Código | Medición y riesgo | Método | Interpretación y límite |
-| --- | --- | --- | --- |
-| NF-01 | Arranque de proceso frío | Cinco muestras con am start -S -W, después de un calentamiento descartado | TotalTime de primera actividad/Splash; no TTFD del catálogo ni percentil de usuarios |
-| NF-02 | Fluidez del catálogo | Doce gestos controlados; dumpsys gfxinfo/framestats tras reiniciar contadores | Jank nativo y muestra CSV; presupuesto de referencia ≈16,67 ms a 60 Hz |
-| NF-03 | Respuesta al eliminar | Medición aislada de la acción, estado vacío y frames | ADB incluye sobrecarga; un frame >700 ms es señal de congelamiento, no prueba automática de ANR |
-| NF-04 | Cierre al abrir un producto | UI fresca, PID y logcat correlacionados | Excepción y pérdida de proceso se informan como estabilidad; no como LCP o frame lento |
-| NF-05 | Uso de memoria | dumpsys meminfo tras navegar | PSS descriptivo, sin límite de memoria contractual ni diagnóstico de fuga |
-
-La APK es debug y el entorno un emulador API 33; los resultados no se generalizan a producción, iOS o dispositivos físicos. No se aplica un gate de rendimiento sin una línea base y un SLO acordado. Perfetto/Macrobenchmark y una build release en dispositivo físico son la siguiente fase de diagnóstico, no mediciones ya ejecutadas.
-
-**Fuentes:** [Web Vitals](https://web.dev/articles/vitals), [arranque Android](https://developer.android.com/topic/performance/issues/launch-time), [renderizado Android](https://developer.android.com/topic/performance/issues/render), [medición de frames](https://developer.android.com/topic/performance/appstartup/analysis-optimization).
-
-## 6. ¿Cómo se ejecuta y cuándo se acepta la evidencia?
-
-**Respuesta.** API, APK y diagnóstico tienen entradas y reportes propios. Smoke selecciona API-01 y cuatro ejecuciones móviles; regresión agrega todos los escenarios deterministas. Exploración por semilla se solicita aparte.
-
-La instalación y los comandos se mantienen en el README para evitar duplicarlos. Los comandos móviles requieren el emulador listo; el launcher local gestionado controla su propio Appium. El diagnóstico ADB requiere que no haya servidor/sesión Appium sobre el dispositivo. Una sesión nueva por test, un worker por UDID, esperas por condición y evidencia por ejecución evitan compartir estado. Las pruebas fallidas permanecen visibles; no hay reintentos o skips para aparentar aprobación.
-
-La aceptación exige comprobar cada resultado contra su expectativa y fuente. Las brechas, fallos conocidos, resultados reales y respuestas de entrega/IA se presentan en [resultados](resultados.md); diseño y reutilización entre plataformas en [arquitectura](arquitectura.md).
+1. Cambiar la fotografía al elegir un color no está exigido por el enunciado: se adjuntan imágenes y se registra la ambigüedad.
+2. El catálogo admite invitado; login no es una precondición universal.
+3. El checkout se describe como capacidad de la demo, pero no se presenta como compra completa ejecutada.\n
