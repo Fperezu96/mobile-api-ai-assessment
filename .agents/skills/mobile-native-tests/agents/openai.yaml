@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pruebas móviles nativas"
+  short_description: "Crear casos Android con capas, oráculos y evidencia"
+  default_prompt: "Usa $mobile-native-tests para ampliar un escenario Android con aserciones, ejecución focalizada y evidencia."
