@@ -117,14 +117,6 @@ La APK es debug y el entorno un emulador API 33; los resultados no se generaliza
 
 **Respuesta.** API, APK y diagnóstico tienen entradas y reportes propios. Smoke selecciona API-01 y cuatro ejecuciones móviles; regresión agrega todos los escenarios deterministas. Exploración por semilla se solicita aparte.
 
-~~~powershell
-npm.cmd run test:api
-npm.cmd run test:mobile:ci
-npm.cmd run test:all:regression
-npm.cmd run test:all:random
-npm.cmd run perf:android
-~~~
-
-Los comandos móviles requieren el emulador listo; CI controla su propio Appium. El diagnóstico ADB requiere que no haya servidor/sesión Appium sobre el dispositivo. Una sesión nueva por test, un worker por UDID, esperas por condición y evidencia por ejecución evitan compartir estado. Las pruebas fallidas permanecen visibles; no hay reintentos o skips para aparentar aprobación.
+La instalación y los comandos se mantienen en el README para evitar duplicarlos. Los comandos móviles requieren el emulador listo; el launcher local gestionado controla su propio Appium. El diagnóstico ADB requiere que no haya servidor/sesión Appium sobre el dispositivo. Una sesión nueva por test, un worker por UDID, esperas por condición y evidencia por ejecución evitan compartir estado. Las pruebas fallidas permanecen visibles; no hay reintentos o skips para aparentar aprobación.
 
 La aceptación exige comprobar cada resultado contra su expectativa y fuente. Las brechas, fallos conocidos, resultados reales y respuestas de entrega/IA se presentan en [resultados](resultados.md); diseño y reutilización entre plataformas en [arquitectura](arquitectura.md).

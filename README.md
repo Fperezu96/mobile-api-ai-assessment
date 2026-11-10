@@ -1,119 +1,186 @@
-# Automatización móvil nativa y API
+# Pruebas de API y Android nativo
 
-Proyecto de Felipe Pérez Upegui. Playwright Test ejecuta y reporta las dos suites en TypeScript. Las APIs usan APIRequestContext; Android usa WebdriverIO como cliente de Appium y UiAutomator2. Las pruebas móviles no crean un navegador.
+Evaluación técnica de Felipe Pérez Upegui. Este repositorio reúne **dos proyectos independientes**: reservas en Restful Booker y recorridos de compra en la APK My Demo App. Comparten TypeScript, ejecución y reportes; la API de reservas no es el backend de la tienda.
 
-## Última ejecución comprobada
+Playwright Test organiza ambos proyectos. Para API utiliza peticiones HTTP; para Android, WebdriverIO actúa como cliente de Appium y UiAutomator2 ejecuta las acciones nativas. WebdriverIO no es un emulador y no usamos un navegador para controlar la APK.
 
-Regresión ampliada 2026-11-10T21-40-59-483Z: 8/8 API y 18/39 Android aprobadas en ese intento; catálogo 5/24. Los cierres y el login permisivo se conservan. La espera de eliminación se corrigió y el caso aprobó en 2026-11-10T21-59-19-091Z, junto con una muestra de compras por semilla. Consultar [resultados](docs/resultados.md) para diferenciar hallazgos de la app y correcciones de automatización. No se suman intentos como casos nuevos ni se ocultan fallos.
+## Qué contiene
 
-## Preparación
+| Ruta | Contenido |
+| --- | --- |
+| tests/api y src/api | Escenarios, fixtures, modelos y cliente de reservas |
+| tests/mobile y src/mobile | Escenarios, datos, contratos, acciones, pantallas y componentes Android |
+| config | Configuración de proyectos, dispositivos y capabilities |
+| scripts | Arranque local, ejecución y apertura de reportes |
+| .agents/skills/mobile-native-tests | Skill y guía para ampliar las pruebas móviles |
 
-Node 22.18.0 y npm 10.9.3. Para Android se requieren Java, SDK, Emulator y Build Tools 35. Appium 3.9.0 y UiAutomator2 6.0.0 quedan fijados en package-lock.json; no se requiere instalación global.
+Consultar [alcance y prioridades](docs/alcance-y-estrategia.md), [arquitectura y versiones](docs/arquitectura.md) y [resultados y respuestas del ejercicio](docs/resultados.md). Allí se concentran las decisiones y conclusiones.
 
-```powershell
+## 1. Instalar dependencias
+
+Los ejemplos usan PowerShell en Windows. En otras terminales usar npm en lugar de npm.cmd; los scripts del emulador son específicos de Windows.
+
+1. Instalar Git y [Node.js 22.18.x](https://nodejs.org/dist/v22.18.0/) con npm. El proyecto admite Node 22 desde 22.18.0; verificar node --version y npm.cmd --version.
+2. Clonar y entrar al repositorio:
+
+~~~powershell
+git clone https://github.com/Fperezu96/mobile-api-ai-assessment.git
+cd mobile-api-ai-assessment
 npm.cmd ci
 npm.cmd run typecheck
-npm.cmd run app:download
+Copy-Item .env.example .env
+~~~
+
+Si ya existe .env, conservarlo. Completar localmente BOOKER_USERNAME y BOOKER_PASSWORD con las credenciales del servicio de práctica; BOOKER_BASE_URL ya apunta a Restful Booker.
+
+npm ci instala las versiones fijadas de Playwright Test, TypeScript, WebdriverIO, Appium y su driver UiAutomator2. No instalar versiones globales adicionales. Para estas pruebas API/nativas no hace falta descargar navegadores con playwright install.
+
+## 2. Ejecutar primero las pruebas de API
+
+Son las más breves y no requieren Android ni Appium. Se encuentran en [bookings.spec.ts](tests/api/specs/bookings.spec.ts).
+
+~~~powershell
+npm.cmd run test:api
+npm.cmd run report:api
+~~~
+
+La ejecución genera el reporte; report:api abre el HTML local. Detener el visor con Ctrl+C antes de abrir otro reporte.
+
+| Selección | Comando |
+| --- | --- |
+| Smoke | npm.cmd run test:api:smoke |
+| Regresión | npm.cmd run test:api:regression |
+| CRUD | npm.cmd run test:api:crud |
+| Negativos | npm.cmd run test:api:negative |
+| Un caso sin ejecutarlo | npm.cmd run test:api -- --list --grep "API-04" |
+| Un caso concreto | npm.cmd run test:api -- --grep "API-04" |
+
+## 3. Preparar Android y Appium
+
+### Instalar herramientas Android
+
+Instalar [Android Studio](https://developer.android.com/studio). En SDK Manager instalar Android SDK Platform-Tools, Emulator, Command-line Tools, Build-Tools 35.0.0 y la imagen Android 13/API 33 AOSP x86_64. Activar virtualización/aceleración compatible con el emulador.
+
+Configurar las rutas del proceso. Cambiar estos ejemplos si el SDK o Java están en otra ubicación:
+
+~~~powershell
+$env:ANDROID_HOME="C:\dev\.tools\android-sdk"
+$env:ANDROID_SDK_ROOT=$env:ANDROID_HOME
+$env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"
+$env:Path="$env:JAVA_HOME\bin;$env:ANDROID_HOME\platform-tools;$env:Path"
+java -version
+adb devices
+~~~
+
+Las rutas predeterminadas corresponden al PC de preparación. android:local:create espera ese SDK y escribe el AVD en C:\dev\.tools\android-avd; ejecutarlo solo la primera vez y después de instalar la imagen:
+
+~~~powershell
+npm.cmd run android:local:create
 npm.cmd run android:local:start
+adb -s emulator-5554 wait-for-device
+adb -s emulator-5554 shell getprop sys.boot_completed
+~~~
+
+Esperar que sys.boot_completed devuelva 1. Si se usa otro AVD, pasar -SdkRoot, -AvdHome y -AvdName a android:local:start y ajustar [devices.json](config/mobile/devices.json) al UDID mostrado por adb devices. Para un dispositivo físico, habilitar depuración USB, autorizar el PC y usar su UDID; no necesita crear un AVD.
+
+### Preparar la APK y comprobar Appium
+
+~~~powershell
+npm.cmd run app:download
+npm.cmd run appium:setup
 npm.cmd run appium:doctor
-```
+~~~
 
-Crear `.env` desde `.env.example` y configurar BOOKER_USERNAME/BOOKER_PASSWORD con las credenciales del servicio de práctica. No subir secretos. En este PC: SDK `C:\dev\.tools\android-sdk`, AVD `C:\dev\.tools\android-avd`, emulador QA_API33/Android 13. Las rutas se configuran por variables del proceso; no se cambian herramientas globales.
+app:download obtiene la APK definida en apps/android-manifest.json y verifica su SHA256. appium:setup lista los drivers instalados; no descarga Android. appium:doctor ejecuta el doctor del driver UiAutomator2: resolver sus requisitos obligatorios antes de continuar. No requiere instalar el antiguo paquete Appium Doctor por separado.
 
-## Ejecutar y consultar resultados
+La sesión instala/inicia la APK mediante appium:app. No se “instalan dispositivos” dentro de WebdriverIO: el dispositivo debe estar disponible previamente. Inspector es opcional para localizar elementos; usar [capabilities locales](config/mobile/inspector.android-local.json) y cerrar su sesión antes de probar el mismo UDID.
 
-Con el emulador listo y el puerto Appium libre, los comandos conjuntos inician Appium, esperan `/status`, ejecutan ambas suites y cierran únicamente el servidor que crearon. Propagan un código distinto de cero ante fallos.
+## 4. Ejecutar las pruebas móviles
 
-| Comando | Selección y requisito |
+Los escenarios están en tests/mobile/specs. En una terminal, iniciar el servidor y dejarla abierta:
+
+~~~powershell
+npm.cmd run appium:start
+~~~
+
+Appium escucha en 127.0.0.1:4723. En otra terminal, desde el repositorio y con las mismas variables Android, ejecutar primero smoke:
+
+~~~powershell
+npm.cmd run test:mobile:smoke
+npm.cmd run report:mobile
+~~~
+
+El [fixture nativo](tests/mobile/fixtures/native.fixture.ts) crea la sesión WebdriverIO, inyecta pantallas/acciones, recoge evidencia y cierra la sesión. El recorrido de comandos se explica en el [diagrama cliente-servidor](docs/arquitectura.md#flujo-local-de-una-prueba-nativa).
+
+| Selección | Comando |
 | --- | --- |
-| `npm.cmd run test:all:smoke` | 5 casos: API de reserva, carrito con 1/2 unidades, Back y usuario vacío |
-| `npm.cmd run test:all:regression` | 47 casos: 8 API y 39 Android, incluidos los hallazgos conocidos |
-| `npm.cmd run test:all` | Equivale a la regresión conjunta |
-| `npm.cmd run test:all:list` | Descubrimiento; no ejecuta pruebas ni crea sesiones |
-| `npm.cmd run report:all` | Abre el último reporte conjunto |
-| `npm.cmd run test:api` | Los 8 casos API; no requiere Appium |
-| `npm.cmd run test:api:smoke` / `test:api:regression` | Selección API por etiqueta |
-| `npm.cmd run test:api:negative` / `test:api:crud` | Rechazos API o ciclo de reservas |
-| `npm.cmd run report:api` | Abre el último reporte API independiente |
-| `npm.cmd run test:mobile:ci` | Regresión Android con servidor gestionado; MOBILE_SUITE admite smoke/regression/catalog/exploratory |
-| `npm.cmd run test:mobile:smoke` / `test:mobile:regression` | Android con Appium ya iniciado manualmente |
-| `npm.cmd run test:mobile:negative` / `test:mobile:native` | Negativos o gestos nativos; Appium manual |
-| `npm.cmd run report:mobile` | Abre el último reporte móvil independiente |
+| Regresión determinista | npm.cmd run test:mobile:regression |
+| Negativos | npm.cmd run test:mobile:negative |
+| Back y scroll | npm.cmd run test:mobile:native |
+| Todos los productos del catálogo | npm.cmd run test:mobile:catalog |
+| Muestra por semilla | npm.cmd run test:mobile:random |
+| Descubrir sin crear sesiones | npm.cmd run test:mobile -- --list |
+| Un caso concreto | npm.cmd run test:mobile -- --grep "CART-01" |
 
-Para los comandos móviles manuales, dejar `npm.cmd run appium:start` en otra terminal. No ejecutar dos suites ni Inspector sobre el mismo UDID. `report:all`, `report:api` y `report:mobile` admiten `-- <runId>` para consultar un intento anterior. Una selección smoke aprobada no convierte en aprobados los negativos fallidos de regresión.
+test:mobile sin filtro incluye también exploración por semilla y demostraciones adicionales; para una selección repetible usar regression. Para muestreo reproducible configurar MOBILE_DATA_SEED y MOBILE_SAMPLE_SIZE antes de ejecutar.
 
-## Etiquetas y documentación viva
+Como alternativa a las dos terminales, con el emulador listo y el puerto libre, test:mobile:ci gestiona Appium local y lo cierra al terminar. Aunque conserva el nombre ci, no lanza GitHub Actions ni BrowserStack.
 
-Las etiquetas son metadatos reales de Playwright, combinables con `--grep`: `@api`, `@mobile`, `@smoke`, `@regression`, `@negative`, `@crud`, `@authorization`, `@isolation`, `@characterization`, `@native`, `@back`, `@scroll`, `@cart`, `@login` y `@known-issue`. Esta última identifica un hallazgo y no omite ni altera su resultado.
+## 5. Filtrar por tags
 
-Cada escenario expresa comportamiento observable con pasos Dado/Cuando/Entonces/Y. Se usa `test.step` mediante un fixture que adjunta diagnóstico y conserva el error original; no hay una segunda definición en Cucumber. Ejemplo de lectura del reporte:
+Los tags están en metadatos de los tests; --grep admite expresiones regulares.
 
-- Dado que el carrito contiene el producto y los importes esperados.
-- Cuando uso Back de Android para volver al detalle y después al catálogo.
-- Entonces puedo reabrir el carrito sin perder su contenido.
-
-Los helpers técnicos quedan en Screen Objects y acciones; las aserciones describen nombres, cantidades, importes o estados verificables. Los comentarios de código explican decisiones en español. Las expectativas y los datos sintéticos se fijan antes de comprobar resultados.
-
-## Formato del reporte y evidencias
-
-Cada ejecución conserva su propio directorio: `reports/combined/<runId>` para ambas suites, `reports/api/<runId>` y `reports/mobile/<runId>` para ejecuciones independientes. `latest.json` solo apunta al intento más reciente de cada modalidad; no se borran intentos anteriores.
-
-| Salida | Qué permite revisar |
+| Grupo | Tags disponibles |
 | --- | --- |
-| `html/index.html` | Proyecto, caso, etiquetas, duración, pasos, aserciones y adjuntos |
-| `results.json` / `junit.xml` | Consumo estructurado y publicación en CI |
-| `execution-summary.json` | Resultado de cada caso, ruta de pasos fallidos, error original y referencias a evidencia |
-| Evidencia API | Método, ruta, datos sintéticos, estado, respuesta y duración por paso; sin cabeceras de autenticación ni llamada `/auth` |
-| Evidencia Android | Perfil, sesión, servidor Appium, captura y árbol UI del paso fallido, además de evidencia final y buffer de cierres |
+| Selección | @api, @mobile, @smoke, @regression, @exploratory, @random |
+| API | @crud, @authorization, @isolation |
+| Móvil | @cart, @quantity, @boundary, @color, @catalog, @login, @native, @back, @scroll, @navigation, @review |
+| Clasificación | @negative, @characterization, @known-issue |
 
-Una aserción fallida conserva su diferencia esperado/obtenido y su stack. Los errores de captura se registran aparte sin sustituir la causa del fallo. Las duraciones HTTP son diagnóstico, no una campaña de rendimiento. Los reportes contienen datos de pruebas y permanecen fuera de Git. Logs Appium: `artifacts/android-local`.
+~~~powershell
+npm.cmd run test:api -- --grep "@authorization"
+npm.cmd run test:mobile -- --grep "@back|@scroll"
+npm.cmd run test:mobile -- --grep "(?=.*@cart)(?=.*@quantity)"
+~~~
 
-## Varios emuladores y CI
+@known-issue no omite un caso ni cambia su resultado. Consultar el descubrimiento con --list al combinar filtros.
 
-`config/mobile/devices.json` define primary (emulator-5554, systemPort 8200, MJPEG 9100) y secondary (emulator-5556, 8201, 9101). Solo primary está creado y verificado. Cada proyecto tiene un worker y sesiones independientes; un servidor Appium compartido escucha en localhost:4723.
+## 6. Reportes y diagnóstico
 
-Con ambos AVD ya creados y arrancados:
+Cada ejecución genera HTML, JSON, JUnit y execution-summary.json en reports/api/<runId>, reports/mobile/<runId> o reports/combined/<runId>. El HTML contiene pasos, esperado/obtenido y adjuntos. Las evidencias y secretos están excluidos de Git.
 
-```powershell
-$env:MOBILE_DEVICES="android-local-primary,android-local-secondary"
-npm.cmd run test:all:regression
-Remove-Item Env:MOBILE_DEVICES
-```
+Abrir un intento anterior con npm.cmd run report:api -- <runId>, report:mobile o report:all. Los comandos de ejecución devuelven código distinto de cero ante fallos; los resultados conocidos están en docs/resultados.md.
 
-El segundo perfil aún no acredita paralelismo real. Los nombres, UDID y puertos internos duplicados se rechazan antes de crear sesiones. No aumentar workers sobre un mismo dispositivo.
+Para diagnóstico nativo, con QA_API33 a 1080x1920 disponible y Appium cerrado:
 
-El [workflow manual](.github/workflows/mobile.yml) permite target all/mobile y smoke/regression/catalog/exploratory en una matriz Android API 30/33, con subida de reportes y logs incluso ante fallos. Para target all, configurar BOOKER_USERNAME y BOOKER_PASSWORD en GitHub Secrets. No se ha ejecutado la matriz en GitHub; verificar minutos disponibles antes de lanzarla.
+~~~powershell
+npm.cmd run perf:android
+npm.cmd run report:performance
+~~~
 
-## Documentación y estado comprobado
+El visor imprime su URL local. Método, mediciones y límites están en [resultados](docs/resultados.md#4-no-funcionales-qué-se-midió-y-qué-puede-concluirse).
 
-- [Alcance, cobertura y siguientes riesgos](docs/alcance-y-estrategia.md).
-- [Arquitectura, versiones y decisiones](docs/arquitectura.md).
-- [Ejecuciones, hallazgos y pendientes](docs/resultados.md): fuente de los resultados por runId, incluidos intentos fallidos.
+## 7. Añadir un caso con el skill
 
-Inspector 2026.9.2 está en `C:\dev\.tools\appium-inspector-2026.9.2`, con acceso directo y [capabilities locales](config/mobile/inspector.android-local.json). Finalizar su sesión antes de probar el mismo dispositivo.
+En Codex, abrir el repositorio y pedir “Usa $mobile-native-tests para…” seguido del comportamiento y resultado esperado. Para preparar un prompt portable:
 
-iOS, AWS personal, BrowserStack, visual Archify actualizada y revisión humana siguen pendientes. No se accede a la cuenta del banco. Las [instrucciones móviles del agente](.agents/skills/mobile-native-tests/SKILL.md) quedaron en el commit 4d786db antes del primer código nativo. El modelo exacto y el tiempo humano no se inventan.
+~~~powershell
+npm.cmd run skill:prompt -- --id CART-03 --scenario "Agregar una unidad, eliminarla y volver a agregar dos; validar que no queda el estado anterior"
+~~~
 
-## Estructura y productos reproducibles
+Copiar la salida al agente. Este comando prepara instrucciones; no genera código ni ejecuta IA por sí solo. Otro agente puede leer directamente [.agents/skills/mobile-native-tests/SKILL.md](.agents/skills/mobile-native-tests/SKILL.md). Ejemplos y criterios están en sus referencias; el MCP utilizado depende de las herramientas disponibles.
 
-models contiene datos; contracts, interfaces de comportamiento; screens, una pantalla por archivo; components, cabecera y modal compartidos. El patrón es Screen Objects con acciones inyectadas. Los specs se separan por funcionalidad.
+Pedir datos y expectativas concretos: “60 unidades de Backpack” es distinto de “60 productos diferentes”. Después de generar el caso, revisar typecheck, descubrimiento por ID y ejecución focalizada antes de incorporarlo a una suite.
 
-Con el emulador listo y el puerto Appium libre:
+## 8. Ejecutar API y móvil en una misma entrega
 
-```powershell
-npm.cmd run test:all:catalog
-$env:MOBILE_DATA_SEED="felipe-20261110"
-$env:MOBILE_SAMPLE_SIZE="3"
-npm.cmd run test:all:random
+Con el emulador listo y Appium manual cerrado:
+
+~~~powershell
+npm.cmd run test:all:smoke
 npm.cmd run report:all
-Remove-Item Env:MOBILE_DATA_SEED
-Remove-Item Env:MOBILE_SAMPLE_SIZE
-```
+~~~
 
-catalog ejecuta los 24 productos. random elige productos reales sin reemplazo y cantidades 1..3; no descarta los que fallan. La misma semilla/tamaño reproduce la selección. Sin semilla explícita se registra el runId. Ambos comandos seleccionan Android dentro del reporte conjunto; para incluir API y toda la cobertura determinista usar test:all:regression.
+Para toda la regresión usar test:all:regression o test:all; para descubrir casos usar test:all:list. Estos comandos gestionan Appium local. El reporte conjunto mantiene cada producto separado por proyecto.
 
-test:mobile:catalog y test:mobile:random necesitan Appium iniciado manualmente. Los reportes adjuntan semilla y expectativas. La reseña confirma UI, no persistencia remota; las imágenes de color se adjuntan sin inventar un requisito visual.
-
-## Diagnóstico Android local
-
-Con el emulador listo y Appium cerrado: npm.cmd run perf:android. Requiere QA_API33 a 1080x1920; recoge arranque, scroll, eliminación, memoria y cierre. Abrir el informe con npm.cmd run report:performance y la URL local impresa. No usa Web Vitals; límites y resultados están en los tres documentos. El diagnóstico deja el catálogo restaurado.
+No se entrega un workflow activo ni se ejecuta pipeline para este ejercicio. La futura integración con BrowserStack, variables y paralelismo se describe en [resultados](docs/resultados.md); no es necesaria para ejecutar las suites locales.

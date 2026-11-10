@@ -120,7 +120,7 @@ npm.cmd run report:performance
 
 El HTML funcional conserva proyectos, tags, pasos descriptivos, diff esperado/obtenido y adjuntos. El diagnóstico nativo tiene su propio HTML/JSON y archivos crudos. La revisión visual del reporte funcional ampliado pasó sin errores JavaScript; capturas en artifacts/report-review/2026-11-10T21-40-59-483Z.
 
-Se revisaron TypeScript estricto, imports/parámetros sin uso, sintaxis de scripts y YAML. El descubrimiento de dos perfiles produjo 86 combinaciones; solo el primario fue ejecutado. El workflow manual está configurado, pero no se ejecutó en GitHub.
+Se revisaron TypeScript estricto, imports/parámetros sin uso y sintaxis de scripts. El descubrimiento histórico de dos perfiles produjo 86 combinaciones; solo el primario fue ejecutado. El workflow manual anterior nunca se ejecutó y se retiró en la revisión final.
 
 ## 7. ¿Cómo se utilizó IA y qué revisión se hizo?
 
@@ -131,6 +131,16 @@ Invocación operacional: implementar carrito nativo con Screen Objects, acciones
 **Herramienta:** Codex en ChatGPT Work sobre el PC autorizado. **Modelo exacto:** no expuesto verificablemente en esta interfaz. No se inventa un identificador.
 
 Felipe revisó manualmente los cierres y pidió separar modelos/contratos/pantallas, ampliar datos y formalizar documentación. La revisión del agente contrastó código, reportes y logs; no sustituye aprobación humana final. Invocaciones/correcciones en artifacts/ai/native-skill-invocation.json y domain-refactor-invocation.json. Captura de elementos y espera de eliminación son correcciones de automatización; los defectos de la demo permanecen visibles.
+
+### ¿Cómo ampliar un caso durante la entrevista?
+
+El skill vigente incorpora las capas separadas, datos reales/semilla, precios en centavos, oráculos previos, tags, espera de eliminación y distinción entre cierre, timeout y evidencia antigua. Sus referencias contienen un contrato de revisión y una guía del agente; agents/openai.yaml aporta nombre e invocación sugerida para herramientas compatibles. No crea un subagente ni instala MCPs.
+
+Desde el README, skill:prompt prepara una solicitud portable. El agente debe leer el skill, revisar escenarios existentes, proponer el dato/esperado, implementar por capas, descubrir el ID y ejecutar solo ese caso. Un MCP facilita acceso a código/terminal o UI, pero no interpreta por sí mismo las instrucciones del skill.
+
+Una demostración útil es agregar una unidad, eliminarla y agregar dos nuevamente: comprueba recuperación sin cantidad/total anterior y aporta más que duplicar MOB-04. Otra opción es 60 unidades de Backpack con total USD 1799,40: requiere revisar tiempo de pulsaciones y alcance, no asumir 60 referencias distintas. El rango del helper no es un máximo de negocio acreditado.
+
+La aceptación exige código revisado, aserciones significativas y evidencia de sesión real. Sin dispositivo se informa implementación/descubrimiento pendiente de ejecución. No se promete que cualquier agente o MCP pueda hacerlo sin las capacidades necesarias.
 
 ## 8. ¿Qué otras tres skills se proponen y cuál se construiría primero?
 
@@ -144,7 +154,45 @@ Se construiría primero triage: ya hay cierres, un login permisivo y problemas d
 
 Checksum, detección de puertos, extracción de estadísticas y validación de esquemas se resuelven con scripts deterministas; no necesitan otra skill o una inferencia de IA.
 
-## 9. ¿Qué queda pendiente antes de entregar o ampliar a iOS?
+## 9. ¿Por qué se omite pipeline y cómo se conectaría BrowserStack?
+
+**Decisión de entrega.** No se ejecuta pipeline ni nube. Se retiró .github/workflows/mobile.yml. No se mantiene una conexión App Automate operativa y no se adquiere capacidad de pago para este ejercicio. El intento previo devolvió 422 al cargar la APK, sin sesión; no se afirma que su causa sea una cuota o el coste. API y Android siguen ejecutándose localmente. Un pipeline con emulador local sería técnicamente posible sin BrowserStack, pero queda fuera del alcance acordado.
+
+**Punto de extensión, no implementación validada.** Hoy native.fixture.ts fija localhost, Android, ADB y las screens Android. scripts/browserstack/android-connection.mjs es una comprobación independiente de carga/conexión; no conecta la regresión ni cubre iOS. La futura integración debe separar endpoints/capabilities en config/mobile, crear una factoría de sesión en src/mobile/session y seleccionar/adaptar pantallas y diagnóstico desde el fixture.
+
+| Ubicación | Ajuste futuro |
+| --- | --- |
+| .env / secretos del ejecutor | BROWSERSTACK_USERNAME y BROWSERSTACK_ACCESS_KEY; app_url por plataforma |
+| config/mobile | Perfil cloud con dispositivo y versión realmente disponibles |
+| src/mobile/session | Crear/cerrar remote; separar local/cloud sin filtrar credenciales en adjuntos |
+| tests/mobile/fixtures/native.fixture.ts | Inyectar sesión y pantallas; reemplazar diagnóstico ADB local en cloud |
+| config/mobile/playwright.config.ts | Un proyecto por perfil, un worker por dispositivo y límite total según cuota |
+
+Variables del ejemplo .env.example: BROWSERSTACK_ANDROID_APP y BROWSERSTACK_IOS_APP contendrían bs://… tras una carga válida. No se usa un “client ID”: App Automate autentica con username/access key. Mantenerlos fuera de Git y de logs. La clave no debe adjuntarse dentro de capabilities ni de resúmenes.
+
+~~~typescript
+// Esquema de conexión futura: no es una opción activa del fixture actual.
+const session = await remote({
+  protocol: 'https', hostname: 'hub-cloud.browserstack.com', port: 443, path: '/wd/hub',
+  user: process.env.BROWSERSTACK_USERNAME, key: process.env.BROWSERSTACK_ACCESS_KEY,
+  logLevel: 'silent', connectionRetryCount: 0,
+  capabilities: {
+    platformName: 'Android', 'appium:automationName': 'UiAutomator2',
+    'appium:deviceName': device.name, 'appium:platformVersion': device.osVersion,
+    'appium:app': process.env.BROWSERSTACK_ANDROID_APP,
+    'bstack:options': { projectName: 'Mobile API AI Assessment', buildName: runId, sessionName: testId },
+  },
+});
+// Recoger evidencia y cerrar siempre mediante try/finally + deleteSession.
+~~~
+
+BrowserStack administra servidor Appium y dispositivos remotos; no arrancar appium:start para ese endpoint ni enviar UDID/systemPort de emuladores locales. Para iOS hacen falta un instalador compatible y firmado, XCUITest y adaptadores/locators observados; una APK no se ejecuta en iOS.
+
+**Paralelismo propuesto.** Cada proyecto crea su sesión y datos aislados. El máximo concurrente debe respetar los paralelos disponibles del plan; multiplicar jobs de una matriz por workers puede excederlo. Limitar ambos niveles, cerrar sesiones aun al fallar y recuperar session ID, URL, capturas y logs sanitizados. El perfil local secundario tampoco se considera ejecutado por estar en JSON.
+
+Fuente: [WebdriverIO en App Automate](https://www.browserstack.com/docs/app-automate/appium/getting-started/nodejs/webdriverio) y [sesiones/paralelos](https://www.browserstack.com/docs/browserstack-mcp-server/tools/app-automate). No se publican precios no comprobados ni se consumió una sesión cloud en esta revisión.
+
+## 10. ¿Qué queda pendiente antes de entregar o ampliar a iOS?
 
 Revisión final del README por Felipe, acceso del evaluador al repositorio privado, tiempo humano efectivamente invertido, y revisión humana de conclusiones. Los tiempos automáticos de la tabla no equivalen a horas humanas; no se afirma haber cumplido una dedicación específica.
 

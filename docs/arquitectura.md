@@ -57,6 +57,22 @@ config/combined/playwright.config.ts agrega resultados de ambos como proyectos P
 
 Playwright no abre un navegador para controlar la APK. Un contexto web no sustituye una sesión nativa.
 
+### Flujo local de una prueba nativa
+
+1. npm ci instala Appium, WebdriverIO y appium-uiautomator2-driver en el proyecto. El driver carga su servidor Android auxiliar cuando crea una sesión; no se instalan capas de negocio dentro de Appium.
+2. El emulador o dispositivo físico arranca fuera de WebdriverIO. ADB confirma su UDID; el SDK y Java permiten al driver comunicarse con Android.
+3. appium:start inicia un servidor HTTP local en 127.0.0.1:4723. Playwright Test descubre el spec y ejecuta native.fixture.ts.
+4. El fixture comprueba /status, construye capabilities y llama remote de WebdriverIO para solicitar una sesión W3C. Appium selecciona UiAutomator2 por automationName y el dispositivo por UDID.
+5. UiAutomator2 prepara su instrumentación en Android e instala/inicia la APK indicada por appium:app. El fixture compone pantallas/componentes y acciones para el escenario.
+6. El spec llama acciones/pantallas; estas usan el cliente WebdriverIO para enviar comandos HTTP W3C a Appium. El driver los traduce a operaciones nativas sobre la APK. La respuesta vuelve por el mismo recorrido y Playwright comprueba el resultado.
+7. El fixture recoge evidencia y ejecuta deleteSession; el launcher gestionado también detiene su Appium. El servidor manual se cierra con Ctrl+C. El emulador tiene un ciclo de vida independiente.
+
+El flujo no va de Appium hacia WebdriverIO para interpretar acciones: WebdriverIO es quien solicita y recibe respuestas. El emulador es Android Emulator; UiAutomator2 es el driver y Playwright Test es el runner.
+
+**Visual técnico:** [cliente, servidor y dispositivo](../.archify/architecture-ejecucion-nativa-20261110-190000/ejecucion-nativa.html). El gráfico describe el camino local implementado; BrowserStack/iOS quedan fuera de ese flujo.
+
+Referencias: [Appium y driver Android](https://appium.io/docs/en/latest/quickstart/uiauto2-driver/), [cliente WebdriverIO](https://webdriver.io/docs/api/modules/#remoteoptions-modifier).
+
 ## 4. ¿Cómo se separan responsabilidades y se aplican SOLID?
 
 | Capa | Responsabilidad | Ejemplo |
@@ -103,7 +119,7 @@ En React Native puede existir código compartido y aun así diferir el árbol de
 | Servidor UiAutomator2 Android | 9.0.1 | Dependencia del driver; no se instala como una herramienta global adicional |
 | Android | 13 / API 33, AOSP x86_64 rev. 2 | AVD QA_API33 reproducido localmente; no acredita otras versiones |
 | Emulator / Build Tools | 37.2.13.0 / 35.0.0 | Build Tools aporta apksigner.jar requerido en la conexión real |
-| Java | JBR 25.0.3 local; JDK 21 configurado en CI | Entornos distintos documentados; matriz remota aún no ejecutada |
+| Java | JBR 25.0.3 local | Entorno comprobado en este PC; no se entrega una matriz remota |
 | Inspector | 2026.9.2 | Inspección de resource-id/accessibility id reales |
 | PNGJS / tipos | 7.0.0 / 6.0.5 | Comparar píxeles de recortes de elementos, no PNG comprimido ni pantalla completa |
 
@@ -111,7 +127,7 @@ Appium y el driver están en package.json/lockfile. El launcher retira APPIUM_HO
 
 La APK es [My Demo App 2.3.0 build 27](https://github.com/saucelabs/my-demo-app-android/releases/download/2.3.0/mda-2.3.0-27.apk). El manifiesto apps/android-manifest.json fija URL y SHA256; capabilities comprueba el hash antes de crear la sesión. Es una build debug: no se presenta como artefacto release.
 
-## 7. ¿Cómo se ejecuta en paralelo y se lleva a CI?
+## 7. ¿Cómo se ejecuta en paralelo localmente?
 
 Un proyecto API tiene un worker; cada proyecto de dispositivo tiene un worker y sesión nueva por test. Los perfiles se seleccionan por nombre y no por workerIndex. Se rechazan UDID o puertos internos duplicados.
 
@@ -122,7 +138,7 @@ Un proyecto API tiene un worker; cada proyecto de dispositivo tiene un worker y 
 
 Un Appium compartido admite sesiones independientes; no se incrementan workers sobre el mismo UDID. El descubrimiento con dos perfiles produjo 86 combinaciones de regresión; no demuestra paralelismo real.
 
-El workflow manual .github/workflows/mobile.yml prepara jobs aislados para API 30/33, con máximo dos jobs, sin cancelar el otro por un fallo y presupuesto de 40 minutos. Permite all/mobile y smoke/regression/catalog/exploratory, con semilla y tamaño de muestra. CI necesita secrets de Booker si incluye API. Siempre conserva logs/reportes; no se ha ejecutado en GitHub.
+El workflow de GitHub Actions se retiró por decisión de alcance: esta entrega se verifica localmente. La ausencia de BrowserStack no impide técnicamente un pipeline con emulador, pero tampoco se implementa ni se acredita esa alternativa en la entrega actual. Una futura ejecución cloud y su paralelismo se explican en resultados.
 
 Los runners esperan /status, conservan el código de salida y cierran solo sus procesos. Smoke mantiene señal rápida; catálogo completo y exploración tienen coste diferente. Compartir repositorio no elimina el consumo del emulador/Appium.
 
