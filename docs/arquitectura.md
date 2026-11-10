@@ -45,7 +45,7 @@ El cliente WebdriverIO no implica tener Appium local instalado. La suite móvil 
 
 Se conserva del prototipo el dinero en centavos, expectativas previas e independencia. Deben resolverse sus dependencias Android, falta de perfil iOS, ausencia de pasos de negocio en reportes, mezcla de responsabilidades en hooks y pérdida de historial al reemplazar resultados.
 
-En la API actual se revisaron tipos, inyección, datos únicos y aserciones. Se eliminó una dependencia innecesaria del fixture de datos y el negativo verifica también ausencia de bookingid aunque falle el estado HTTP. Quedan limpieza autenticada, histórico de reportes y controles de estilo.
+En la API actual se revisaron tipos, inyección, datos únicos y aserciones. Se eliminó una dependencia innecesaria del fixture de datos y el negativo verifica también ausencia de bookingid aunque falle el estado HTTP. La limpieza autenticada verifica propiedad y ausencia posterior; quedan histórico de reportes y controles de estilo.
 
 Los comentarios del código van en español y explican decisiones. Los nombres oficiales de APIs y librerías se conservan. La revisión del agente no sustituye la revisión humana.
 
@@ -56,3 +56,9 @@ Los comentarios del código van en español y explican decisiones. Los nombres o
 El HTML distingue API implementada de móvil previsto. Pasaron esquema, entrega y comprobación del artefacto; browser-check falló por Chrome DevTools pipe cerrado desde ejecución elevada. Un segundo intento continuó elevado. No se desactivó el sandbox ni se modificó Archify.
 
 Para completar esa comprobación, ejecutar el finalize desde PowerShell abierto sin administrador, usando el candidato existente, --repo-root . y un --out-dir nuevo. Los recibos conservan el detalle. La visual es consultable, pero no se afirma validación completa o revisión visual certificada.
+
+## CRUD y autenticación
+
+El cliente incorpora listado, filtros, PUT, PATCH y DELETE. Cada escenario usa datos UUID completos y comprueba el estado previo y posterior. Los fixtures verifican ausencia antes de crear y limpian solo registros propios. La lectura posterior comprueba consistencia observable, no durabilidad tras reinicios.
+
+La autenticación usa credenciales locales sin adjuntar tokens. Las trazas API están desactivadas para evitar publicar cookies. El negativo de campo obligatorio lleva @quality-policy: 400/422 es un criterio de calidad explícito, no un código prometido por la documentación.

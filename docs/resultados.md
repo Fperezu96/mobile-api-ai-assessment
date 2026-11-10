@@ -1,38 +1,54 @@
 # Resultados y pendientes
 
-Última revisión: 10 de noviembre de 2026. Resultados del repositorio actual en el PC; no se mezclan con el prototipo anterior.
+Revisión del 10 de noviembre de 2026. Resultados del repositorio actual en Windows.
 
-## Ejecuciones
+## Cobertura API ejecutada
 
-| Comprobación | Resultado observado | Evidencia |
+Ocho escenarios: siete aprobados y uno fallido frente a una política de calidad explícita.
+
+| ID | Comprobación | Resultado |
 | --- | --- | --- |
-| Compilación TypeScript | Aprobada, salida 0 | npm run typecheck |
-| API-01 Crear y consultar | Aprobada | Reporte Playwright con datos y respuestas |
-| API-02 Nombre obligatorio ausente | Fallida; HTTP 500 | Reporte, JSON, JUnit y traza |
-| Acceso a App Automate | HTTP 200 | artifacts/browserstack/connection.json |
-| Consulta de dispositivos | Respondió y anunció Google Pixel 7 Android 13 | Resultado de comprobación de conexión |
-| Carga del APK desde archivo | HTTP 422, error interno BrowserStack | Directorios por intento en artifacts/browserstack |
-| Carga desde URL oficial | Mismo HTTP 422 | Intento registrado por separado |
-| Sesión Android | No creada por fallo de carga | No hay session ID ni captura nativa |
-| iOS | No ejecutado | Falta IPA y configuración |
-| Archify | HTML generado; comprobación Chrome bloqueada | Recibos junto al HTML |
+| API-01 | Crear y consultar una reserva conserva sus datos | Aprobado |
+| API-02 | Omitir firstname obtiene un rechazo controlado | Fallido: HTTP 500 |
+| API-03 | Listado y búsqueda por huésped encuentran el registro | Aprobado |
+| API-04 | PUT guarda los nuevos datos y GET los recupera | Aprobado |
+| API-05 | PATCH cambia una preferencia y conserva los demás campos | Aprobado |
+| API-06 | DELETE elimina un registro existente; GET devuelve 404 y la búsqueda queda vacía | Aprobado |
+| API-07 | PUT sin autorización devuelve 403 y no modifica el registro | Aprobado |
+| API-08 | Dos fixtures distintos generan registros e IDs separados y filtros precisos | Aprobado |
 
-## Hallazgo API
+Typecheck aprobado. Los resultados incluyen limpieza autenticada de reservas propias y verificación de que dejan de estar disponibles. Solo se eliminan IDs creados por la prueba cuya identidad de huésped sigue coincidiendo; si el servicio reutilizó el ID, la limpieza se omite y se anota.
 
-Al enviar una reserva sin firstname, el servicio devuelve 500 con Internal Server Error. Esperamos rechazo controlado 400 o 422 y ausencia de reserva creada. El campo es obligatorio en la documentación; el estado de error no está definido allí. Se conserva el caso fallido.
+## Explicación del HTTP 500
 
-Las reservas positivas usan datos sintéticos y su ID aparece en anotaciones. No hay limpieza autenticada implementada y pueden permanecer hasta el reinicio del servicio.
+El código público de Restful Booker, revisión 619d03162c050baae7d22fdcf983a22f9da6faed, valida la presencia de firstname. En POST /booking, si el validador devuelve errores, la ruta responde explícitamente con res.sendStatus(500). No hace falta una excepción del servidor para producir el resultado observado.
 
-## Bloqueo BrowserStack
+[Implementación consultada](https://github.com/mwinteringham/restful-booker/blob/619d03162c050baae7d22fdcf983a22f9da6faed/routes/index.js#L300-L321) y [reglas de validación](https://github.com/mwinteringham/restful-booker/blob/619d03162c050baae7d22fdcf983a22f9da6faed/helpers/validationrules.js).
 
-El APK oficial My Demo App 2.3.0 build 27 se descargó y su SHA256 coincide con el manifiesto. BrowserStack respondió BROWSERSTACK_UNPROCESSABLE_ENTITY por razones internas al intentar cargarlo tanto desde archivo como por URL pública. Autenticación correcta no equivale a instalador aceptado ni sesión creada.
+La documentación declara el campo obligatorio, pero no promete 400 ni 422 para su ausencia. Nuestra petición negativa está construida correctamente. El fallo se clasifica como manejo inadecuado de errores frente al criterio de calidad declarado, no como incumplimiento de un código de error documentado. El código público explica el comportamiento, pero no prueba cuál revisión exacta está desplegada.
 
-El siguiente paso es contrastar la carga manual del mismo APK en App Automate o resolver el rechazo del proveedor. No se cambió de app para ocultar el bloqueo y no se contactó soporte. No hay evidencia móvil que pueda declararse aprobada.
+## Qué demuestra la persistencia
 
-## Pendientes de aceptación
+Cada actualización y eliminación empieza creando y consultando su propia reserva. Después se realiza la operación y se comprueba el estado mediante otra consulta HTTP. No se depende de la respuesta de PUT o DELETE ni de la ejecución de otro test.
 
-Resolver la carga Android y crear una sesión; fijar configuración Appium y dispositivo; implementar y revisar el primer flujo mediante skill guardada previamente. Después completar negativos y navegación, obtener IPA para iOS y validar ambas plataformas.
+Los fixtures usan UUID completos y consultan por firstname y lastname antes de crear. Después se verifica el ID esperado y la ausencia de registros adicionales para ese huésped. Esto comprueba aislamiento de los datos de la prueba; no garantiza unicidad global ante todas las peticiones concurrentes del servicio público.
 
-Completar revisión humana, etiqueta exacta de modelo, evidencia de IA, propuestas de skills, pipeline y sustentación. El repositorio privado existe; el acceso del evaluador todavía no se ha concedido.
+Las comprobaciones demuestran consistencia observable por API, no durabilidad de almacenamiento tras reiniciar el servidor.
 
-El presupuesto del enunciado es de 4 a 6 horas. El tiempo total de dedicación humana no está medido y no se inventa a partir del tiempo de los comandos.
+## BrowserStack
+
+App Automate devolvió HTTP 200 al autenticar y listar dispositivos. El plan consultado figura Free, con cero sesiones activas y hasta cinco en paralelo. Esa respuesta no indica los minutos gratuitos restantes.
+
+El APK My Demo App 2.3.0 build 27 coincide con el SHA256 fijado. La carga desde archivo y desde URL oficial devolvió HTTP 422 con BROWSERSTACK_UNPROCESSABLE_ENTITY. La respuesta es de BrowserStack, antes de crear una sesión; no es una respuesta de la app ni de Appium.
+
+[La guía oficial para ese error](https://www.browserstack.com/support/faq/app-automate/common-errors/browserstack_unprocessable_entity-error-during-app-upload) enumera minutos gratuitos agotados para la app o una marca de su sistema de detección de abuso. No se ha confirmado cuál aplica a esta cuenta.
+
+Siguiente paso: revisar consumo y disponibilidad de App Automate en el panel. Si los minutos se agotaron, resolver el acceso con el evaluador o decidir un plan. Si existe cuota, solicitar a soporte que revise la restricción usando código, hora del intento, versión y SHA256 del APK, sin enviar credenciales. No se compró un plan ni se contactó soporte. No insistir con cargas idénticas ni modificar el APK para eludir la restricción.
+
+Aún no existe session ID ni ejecución móvil aprobada. iOS sigue pendiente de IPA y configuración. Android local puede permitir continuar el mínimo del reto mientras se resuelve la nube, sin dar por completado BrowserStack.
+
+## Otros pendientes
+
+Archify generó el HTML y pasó controles de estructura; browser-check sigue bloqueado por la conexión Chrome desde un proceso elevado. La limitación permanece en los recibos y en arquitectura.
+
+Faltan implementación móvil con skill previa, revisión humana, identificación exacta del modelo, propuestas de skills, pipeline y sustentación. El acceso del evaluador al repositorio privado no se ha concedido. No se inventa tiempo de dedicación humana a partir de la duración de comandos.

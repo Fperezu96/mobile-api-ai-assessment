@@ -4,7 +4,7 @@ Proyecto de Felipe Pérez Upegui para validar una aplicación móvil nativa y un
 
 ## Estado actual
 
-La base API está implementada y se ejecutó en Windows. Crear y consultar una reserva aprobó; omitir el nombre del huésped devolvió HTTP 500 y mantiene el caso negativo fallido. BrowserStack reconoce la cuenta y permite consultar dispositivos, pero rechazó la carga del APK con HTTP 422 tanto desde archivo como desde su URL oficial. Todavía no hay sesión móvil ni pruebas Android o iOS ejecutadas.
+La API cubre creación, listado, filtros, PUT, PATCH, eliminación, autorización e independencia de fixtures. Se ejecutaron ocho casos: siete aprobaron y el negativo de calidad conserva el fallo HTTP 500. BrowserStack reconoce la cuenta y permite consultar dispositivos, pero rechazó la carga del APK con HTTP 422 tanto desde archivo como desde su URL oficial. Todavía no hay sesión móvil ni pruebas Android o iOS ejecutadas.
 
 La estructura móvil está preparada para WebdriverIO y Appium. Los contratos, acciones y Screen Objects se implementarán después de resolver la carga del instalador y revisar el primer flujo. El prototipo anterior sirve de referencia, no de evidencia de esta base.
 
@@ -17,11 +17,12 @@ Set-Location C:\dev\mobile-api-ai-assessment
 npm.cmd ci
 npm.cmd run typecheck
 npm.cmd run test:api:smoke
+npm.cmd run test:api:crud
 npm.cmd run test:api
 npm.cmd run report:api
 ```
 
-Smoke ejecuta el escenario positivo. La suite completa agrega el negativo y termina con salida 1 si reproduce el HTTP 500 documentado. El reporte muestra los pasos de negocio, datos y respuestas.
+Smoke ejecuta el escenario positivo; test:api:crud cubre listado, filtros, PUT, PATCH y eliminación. La suite completa agrega el negativo y termina con salida 1 si reproduce el HTTP 500 documentado. El reporte muestra los pasos de negocio, datos y respuestas.
 
 ## Conectar BrowserStack
 
@@ -56,3 +57,5 @@ Estos documentos se actualizan con las conclusiones vigentes. Las decisiones ant
 [GitHub privado](https://github.com/Fperezu96/mobile-api-ai-assessment). Carpeta local: C:\dev\mobile-api-ai-assessment. Trabajar en ramas pequeñas, revisar código y reporte antes de integrar y mantener comentarios en español que expliquen motivos.
 
 Los secretos, instaladores y resultados generados están excluidos de Git. Para la sustentación, la skill deberá guardarse antes de usarla en el primer escenario móvil y se conservarán invocación, cambios y revisión humana.
+
+Las mutaciones requieren BOOKER_USERNAME y BOOKER_PASSWORD en .env local, con las credenciales de práctica de Restful Booker. Los fixtures limpian únicamente sus reservas. Se desactivaron las trazas API para no publicar tokens; se conservan pasos y respuestas de negocio sin autenticación.

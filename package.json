@@ -8,12 +8,13 @@
                 },
     "scripts":  {
                     "typecheck":  "tsc --noEmit",
-                    "test:api":  "playwright test -c config/api/playwright.config.ts",
-                    "test:api:smoke":  "playwright test -c config/api/playwright.config.ts --grep @smoke",
+                    "test:api":  "node --env-file-if-exists=.env node_modules/@playwright/test/cli.js test -c config/api/playwright.config.ts",
+                    "test:api:smoke":  "node --env-file-if-exists=.env node_modules/@playwright/test/cli.js test -c config/api/playwright.config.ts --grep @smoke",
                     "report:api":  "playwright show-report reports/api/html",
                     "browserstack:check":  "node --env-file-if-exists=.env scripts/browserstack/check.mjs",
                     "app:download":  "node scripts/browserstack/download-android.mjs",
-                    "browserstack:android:connect":  "node --env-file-if-exists=.env scripts/browserstack/android-connection.mjs"
+                    "browserstack:android:connect":  "node --env-file-if-exists=.env scripts/browserstack/android-connection.mjs",
+                    "test:api:crud":  "node --env-file-if-exists=.env node_modules/@playwright/test/cli.js test -c config/api/playwright.config.ts --grep @crud"
                 },
     "devDependencies":  {
                             "@playwright/test":  "1.65.0",

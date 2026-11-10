@@ -9,8 +9,11 @@ async function evidence(info: TestInfo, name: string, response: APIResponse) {
   });
 }
 
-test('API-01 | Consultar una reserva recién creada devuelve los datos registrados', { tag: ['@smoke', '@regression'] }, async ({ bookings, bookingData }, info) => {
+test('API-01 | Consultar una reserva recién creada devuelve los datos registrados', { tag: ['@smoke', '@regression'] }, async ({ bookings, bookingData, createdBookings }, info) => {
   await test.step('Definir los datos de la reserva', async () => {
+    const before = await bookings.list({ firstname: bookingData.firstname, lastname: bookingData.lastname });
+    expect(before.status()).toBe(200);
+    expect(await before.json()).toEqual([]);
     await info.attach('Datos de la reserva', { body: JSON.stringify(bookingData), contentType: 'application/json' });
   });
   const created = await test.step('Registrar la reserva y conservar su identificador', async () => {
@@ -20,8 +23,8 @@ test('API-01 | Consultar una reserva recién creada devuelve los datos registrad
     const result = await response.json() as CreatedBooking;
     expect(Number.isInteger(result.bookingid)).toBe(true);
     expect(result.bookingid).toBeGreaterThan(0);
+    createdBookings.set(result.bookingid, { firstname: bookingData.firstname, lastname: bookingData.lastname });
     expect(result.booking).toEqual(bookingData);
-    info.annotations.push({ type: 'cleanup-pending', description: 'Reserva sintética creada: ' + result.bookingid + '. Limpieza autenticada pendiente.' });
     return result;
   });
   await test.step('Consultar la reserva y comparar la información registrada', async () => {
@@ -32,7 +35,7 @@ test('API-01 | Consultar una reserva recién creada devuelve los datos registrad
   });
 });
 
-test('API-02 | No se permite crear una reserva sin el nombre del huésped', { tag: ['@regression'] }, async ({ bookings, bookingData }, info) => {
+test('API-02 | No se permite crear una reserva sin el nombre del huésped', { tag: ['@regression', '@quality-policy'] }, async ({ bookings, bookingData, createdBookings }, info) => {
   const invalid = { ...bookingData } as Partial<typeof bookingData>;
   delete invalid.firstname;
   await test.step('Preparar los datos de la reserva sin el nombre del huésped', async () => {

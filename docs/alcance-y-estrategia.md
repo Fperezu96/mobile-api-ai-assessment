@@ -33,3 +33,7 @@ Definir expectativas antes de ejecutar y conservar datos, resultado y evidencia 
 La skill debe incluir entradas, procedimiento, convenciones, verificación y manejo de errores. Guardarla en un commit anterior a su uso y registrar agente, modelo, invocación, cambios, ejecución observada y correcciones humanas reales.
 
 La entrega debe incluir código y versiones, README reproducible, reportes, riesgos, tiempo invertido y tres propuestas de skills justificadas. Estas obligaciones siguen pendientes donde todavía no haya implementación o evidencia.
+
+## Cobertura API ampliada
+
+API-03 lista y filtra por huésped; API-04 verifica PUT mediante GET previo y posterior; API-05 verifica PATCH sin alterar otros campos; API-06 comprueba DELETE con GET 404 y búsqueda vacía; API-07 comprueba 403 y ausencia de cambios sin autorización; API-08 separa dos fixtures y sus búsquedas. Cada prueba prepara y limpia sus registros. Los UUID completos reducen colisiones y se consulta su ausencia previa; no se promete unicidad global.
