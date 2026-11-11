@@ -196,3 +196,7 @@ Descargar `reporte-final-android-…`, conservar juntas las carpetas HTML y sus 
 `scripts/mobile/download-android.mjs` descarga o verifica la APK fijada en el manifiesto mediante `npm run app:download`. La descarga es independiente de BrowserStack. Se retiraron los scripts experimentales de autenticación/carga cloud y sus comandos npm; la propuesta de ampliación permanece en `docs/resultados.md`.
 
 Se conservan los launchers local/CI, reportes API/móvil/conjunto, diagnóstico de rendimiento y ayuda para invocar la skill porque están conectados a comandos documentados o a otros scripts activos. No son dependencias de BrowserStack.
+
+### Tiempo invertido y pendientes
+
+Dedicación estimada por el autor: **aproximadamente 8 horas en varias sesiones, con pausas**. No se calculó como diferencia entre commits. El contexto, las ampliaciones sobre el mínimo y los pendientes están en [resultados](docs/resultados.md#7-tiempo-invertido-y-pendientes-de-entrega).

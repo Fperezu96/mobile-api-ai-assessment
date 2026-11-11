@@ -176,3 +176,13 @@ La verificación incluyó cuatro pruebas de instrumentación y revisión visual 
 Esta validación no reejecuta ni convierte en aprobada la regresión ampliada. MOB-02 continúa siendo el negativo requerido de credenciales inválidas y su defecto APP-01 permanece documentado. MOB-06 en smoke es una validación adicional de usuario vacío, no un reemplazo de MOB-02.
 
 Los artefactos de Actions tienen retención de tres días. El evaluador debe descargarlos dentro de ese plazo o reproducir el workflow; la disponibilidad permanente del código no implica conservación permanente de capturas y videos históricos.
+
+## 7. Tiempo invertido y pendientes de entrega
+
+**Dedicación estimada por el autor:** aproximadamente 8 horas, distribuidas en varias sesiones y con pausas; no corresponde a ocho horas continuas ni a una medición automática. Incluye implementación, revisión, ajustes y preparación de la entrega.
+
+Como trazabilidad, Git registra la inicialización en 49de125 el 10 de noviembre de 2026 a las 12:59 (Bogotá), la integración de evidencia visual en 8e75cea a las 20:13 y la depuración de scripts en 697cab2 a las 20:26. Las marcas de commits respaldan la secuencia y muestran tareas preliminares; no permiten sumar horas efectivas ni medir las pausas. La cifra de ocho horas es la estimación declarada, no una deducción de ese intervalo.
+
+La dedicación supera la referencia de 4–6 horas del enunciado. Se amplió el mínimo con CRUD y aislamiento API, caracterización de catálogo, diagnóstico nativo de rendimiento, CI por producto y evidencia visual por interacción. En una entrega estrictamente acotada al tiempo, esas ampliaciones se priorizarían después de los cinco escenarios mínimos y de la evidencia de uso/revisión de la skill.
+
+**Pendientes:** sustentación con variación solicitada por el evaluador; validación iOS y nube de dispositivos (opcionales); conservación de artefactos históricos fuera de su retención; reejecución de la regresión ampliada con la nueva instrumentación. Los defectos de la app documentados no se consideran corregidos por el smoke verde.
