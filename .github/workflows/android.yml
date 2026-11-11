@@ -102,7 +102,8 @@ jobs:
           arch: x86_64
           profile: pixel_2
           avd-name: qa_ci
-          emulator-boot-timeout: 600
+          disk-size: 2048M
+          emulator-boot-timeout: 300
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -memory 2048
           disable-animations: true
           script: |
