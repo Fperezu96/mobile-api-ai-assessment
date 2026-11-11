@@ -65,8 +65,8 @@ export const test = base.extend<MobileOptions & {app: NativeApp; step: ObservedS
     const evidence = new NativeEvidence(info);
     const driver = await remote({
       protocol: 'http', hostname: '127.0.0.1', port: Number(process.env.APPIUM_PORT || 4723), path: '/',
-      beforeCommand: (name, args) => evidence.beforeCommand(name, args),
-      afterCommand: (name, args, _result, error) => evidence.afterCommand(name, args, error),
+      beforeCommand: [(name, args) => evidence.beforeCommand(name, args)],
+      afterCommand: [(name, args, _result, error) => evidence.afterCommand(name, args, error)],
       logLevel: 'error', connectionRetryCount: 0, connectionRetryTimeout: 90000, capabilities,
     });
     evidence.driver = driver;

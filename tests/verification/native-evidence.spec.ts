@@ -32,3 +32,39 @@ test('Filtra lecturas y captura gestos y desplazamientos implícitos', () => {
   expect(interactionName('executeScript',['mobile: scrollGesture'])).toBeDefined();
   expect(interactionName('findElement',['-android uiautomator','new UiScrollable().scrollIntoView(...)'])).toBeDefined();
 });
+
+test('WebdriverIO invoca los hooks para click, gesto y Back sin capturas recursivas', async () => {
+  const {createServer}=await import('node:http');
+  const {remote}=await import('webdriverio');
+  const attachments: string[]=[];
+  const image=Buffer.from('89504e470d0a1a0a','hex').toString('base64');
+  // Servidor W3C simulado: prueba la integración del cliente, no sustituye Android real.
+  const server=createServer((request,response)=>{
+    response.setHeader('Content-Type','application/json');
+    if(request.url==='/session' && request.method==='POST')response.end(JSON.stringify({value:{sessionId:'verification',capabilities:{platformName:'Android'}}}));
+    else response.end(JSON.stringify({value:request.url?.endsWith('/screenshot')?image:null}));
+  });
+  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const address=server.address();
+  if(!address || typeof address==='string')throw Error('Servidor de verificación no disponible');
+  const evidence=new NativeEvidence({attach:async(name:string)=>{attachments.push(name);}} as unknown as TestInfo);
+  let driver: Browser | undefined;
+  try {
+    driver=await remote({hostname:'127.0.0.1',port:address.port,capabilities:{platformName:'Android'},logLevel:'silent',
+      beforeCommand:[(name,args)=>evidence.beforeCommand(name,args)],
+      afterCommand:[(name,args,_result,error)=>evidence.afterCommand(name,args,error)]});
+    evidence.driver=driver;
+    evidence.current={attach:async(name:string)=>{attachments.push(name);}} as unknown as TestStepInfo;
+    await driver.elementClick('target');
+    await driver.execute('mobile: clickGesture',{elementId:'target'});
+    await driver.back();
+    expect(attachments).toHaveLength(9);
+    expect(attachments.filter(name=>name.includes('Antes'))).toHaveLength(3);
+    expect(attachments.filter(name=>name.includes('Después'))).toHaveLength(3);
+  } finally {
+    evidence.current=undefined;
+    if(driver)await driver.deleteSession();
+    server.closeAllConnections();
+    await new Promise<void>(resolve=>server.close(()=>resolve()));
+  }
+});
