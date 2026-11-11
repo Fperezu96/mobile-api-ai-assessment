@@ -106,7 +106,7 @@ Invocación operacional: implementar carrito nativo con Screen Objects, acciones
 
 **Herramienta:** Codex en ChatGPT Work. **Modelo consignado en el registro de trabajo:** GPT 6.1 Sol.
 
-**Revisión humana.** Felipe Pérez Upegui confirma que revisó todos los cambios de los commits antes de subirlos al repositorio. Esta declaración deja constancia de su revisión y aceptación; los diffs permiten consultar los cambios, aunque Git por sí solo no registra el contenido de cada revisión ni la conversación completa con la IA. Las correcciones técnicas descritas abajo fueron implementadas por el agente y revisadas por el autor antes de publicarse.
+**Revisión humana.** Se hizo revisión de todos los cambios de los commits antes de subirlos al repositorio. 
 
 | Incremento asistido por IA | Commits de referencia | Resultado y revisión |
 | --- | --- | --- |
@@ -116,8 +116,6 @@ Invocación operacional: implementar carrito nativo con Screen Objects, acciones
 | Preparación del emulador en CI | [df25bc6](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/df25bc6) → [7840715](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/7840715) | Ajustes de SDK, KVM y espacio; ejecución 42930466640 con ocho casos API y cuatro combinaciones Android aprobados. |
 | Evidencia por interacción y etapas por producto | [9e9612d](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/9e9612d) → [111a0be](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/111a0be) | Solicitud del autor; correcciones de hooks, capturas duplicadas y FFmpeg; cuatro pruebas de instrumentación y ejecución 42935976926 aprobadas, con capturas y videos. |
 | Depuración de la entrega | [697cab2](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/697cab2) | Solicitud del autor: retirar scripts cloud exploratorios y conservar el descargador Android activo; comprobación de tipos, descubrimiento de casos y referencias. |
-
-La revisión humana declarada aplica a todos estos incrementos. La tabla resume la secuencia y enlaza cambios verificables; no pretende transcribir cada interacción con el agente. Para la sustentación se propone mostrar una variación, revisar su diff y ejecutar el caso, conservando el reporte resultante.
 
 ## 4. ¿Qué otras tres skills se proponen y cuál se construiría primero?
 
@@ -133,7 +131,7 @@ Checksum, detección de puertos, extracción de estadísticas y validación de e
 
 ## 5. ¿Cómo se conectaría BrowserStack en una ampliación?
 
-La ampliación a BrowserStack se mantiene como propuesta de diseño, independiente del pipeline Android con emulador. Los scripts exploratorios de conexión/carga y sus variables de ejemplo fueron retirados de la entrega; su historial permanece en Git. No se adquiere capacidad App Automate para esta entrega.
+La ampliación a BrowserStack se mantiene como propuesta de diseño, independiente del pipeline Android con emulador. 
 
 | Ubicación | Ajuste futuro |
 | --- | --- |
@@ -143,7 +141,7 @@ La ampliación a BrowserStack se mantiene como propuesta de diseño, independien
 | tests/mobile/fixtures/native.fixture.ts | Inyectar sesión y pantallas; reemplazar diagnóstico ADB local en cloud |
 | config/mobile/playwright.config.ts | Un proyecto por perfil, un worker por dispositivo y límite total según cuota |
 
-En una ampliación futura se añadirían BROWSERSTACK_ANDROID_APP y BROWSERSTACK_IOS_APP; contendrían bs://… tras una carga válida. No se usa un “client ID”: App Automate autentica con username/access key. Mantenerlos fuera de Git y de logs. La clave no debe adjuntarse dentro de capabilities ni de resúmenes.
+En una ampliación futura se añadirían BROWSERSTACK_ANDROID_APP y BROWSERSTACK_IOS_APP. App Automate autentica con username/access key. 
 
 ~~~typescript
 // Esquema de conexión futura: no es una opción activa del fixture actual.
