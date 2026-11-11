@@ -190,3 +190,13 @@ Cada paso conserva capturas al inicio y al final. Las pulsaciones, escritura (si
 Cada caso incluye **Video del caso Android** (MP4), grabado por Appium desde que el catálogo está listo hasta terminar el caso, también cuando falla. El límite de grabación es 180 segundos, superior al timeout actual de 120 segundos por caso. No es el video web de Playwright. El pipeline comprueba con ffprobe que exista un stream reproducible y comprueba las capturas de pasos/interacciones. Un error de evidencia queda adjunto y hace fallar un caso que habría aprobado; no reemplaza una aserción fallida.
 
 Descargar `reporte-final-android-…`, conservar juntas las carpetas HTML y sus adjuntos y abrir el reporte con Playwright. Expandir los pasos para ver la secuencia de imágenes; abrir el adjunto MP4 para reproducir la interacción. Los logs técnicos de SDK, emulador y Appium permanecen en el mismo artefacto. La API conserva su historial HTTP y no genera capturas ni video.
+
+### Scripts incluidos en la entrega
+
+`scripts/mobile/download-android.mjs` descarga o verifica la APK fijada en el manifiesto mediante `npm run app:download`. La descarga es independiente de BrowserStack. Se retiraron los scripts experimentales de autenticación/carga cloud y sus comandos npm; la propuesta de ampliación permanece en `docs/resultados.md`.
+
+Se conservan los launchers local/CI, reportes API/móvil/conjunto, diagnóstico de rendimiento y ayuda para invocar la skill porque están conectados a comandos documentados o a otros scripts activos. No son dependencias de BrowserStack.
+
+### Tiempo invertido y pendientes
+
+Dedicación estimada por el autor: **aproximadamente 8 horas en varias sesiones, con pausas**. No se calculó como diferencia entre commits. El contexto, las ampliaciones sobre el mínimo y los pendientes están en [resultados](docs/resultados.md#7-tiempo-invertido-y-pendientes-de-entrega).

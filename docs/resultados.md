@@ -104,7 +104,20 @@ En el catálogo abren Backpack base, naranja, roja, violeta y amarilla. La verde
 
 Invocación operacional: implementar carrito nativo con Screen Objects, acciones inyectadas, datos/expectativas previas, sesiones independientes y evidencia; ejecutar, revisar fallos y corregir automatización sin debilitar aserciones.
 
-**Herramienta:** Codex en ChatGPT Work. **Modelo exacto:** GPT 6.1 Sol
+**Herramienta:** Codex en ChatGPT Work. **Modelo consignado en el registro de trabajo:** GPT 6.1 Sol.
+
+**Revisión humana.** Felipe Pérez Upegui confirma que revisó todos los cambios de los commits antes de subirlos al repositorio. Esta declaración deja constancia de su revisión y aceptación; los diffs permiten consultar los cambios, aunque Git por sí solo no registra el contenido de cada revisión ni la conversación completa con la IA. Las correcciones técnicas descritas abajo fueron implementadas por el agente y revisadas por el autor antes de publicarse.
+
+| Incremento asistido por IA | Commits de referencia | Resultado y revisión |
+| --- | --- | --- |
+| Contratos, CRUD y aislamiento API | [7e12def](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/7e12def) → [1c8b0a8](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/1c8b0a8) | Datos propios, limpieza y comprobación de no persistencia; ocho escenarios API aprobados en las ejecuciones documentadas. |
+| Skill antes de su uso e implementación nativa | [4d786db](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/4d786db) → [19c7073](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/19c7073) | Skill versionada antes de implementar el carrito parametrizado con Appium, pantallas y evidencia. |
+| Ampliación y variación de la skill | [64f59b6](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/64f59b6) → [b889940](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/b889940) | Modelos, cobertura y recuperación del carrito; los resultados históricos y defectos se distinguen de la validación smoke posterior. |
+| Preparación del emulador en CI | [df25bc6](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/df25bc6) → [7840715](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/7840715) | Ajustes de SDK, KVM y espacio; ejecución 42930466640 con ocho casos API y cuatro combinaciones Android aprobados. |
+| Evidencia por interacción y etapas por producto | [9e9612d](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/9e9612d) → [111a0be](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/111a0be) | Solicitud del autor; correcciones de hooks, capturas duplicadas y FFmpeg; cuatro pruebas de instrumentación y ejecución 42935976926 aprobadas, con capturas y videos. |
+| Depuración de la entrega | [697cab2](https://github.com/Fperezu96/mobile-api-ai-assessment/commit/697cab2) | Solicitud del autor: retirar scripts cloud exploratorios y conservar el descargador Android activo; comprobación de tipos, descubrimiento de casos y referencias. |
+
+La revisión humana declarada aplica a todos estos incrementos. La tabla resume la secuencia y enlaza cambios verificables; no pretende transcribir cada interacción con el agente. Para la sustentación se propone mostrar una variación, revisar su diff y ejecutar el caso, conservando el reporte resultante.
 
 ## 4. ¿Qué otras tres skills se proponen y cuál se construiría primero?
 
@@ -120,7 +133,7 @@ Checksum, detección de puertos, extracción de estadísticas y validación de e
 
 ## 5. ¿Cómo se conectaría BrowserStack en una ampliación?
 
-La ampliación a BrowserStack se mantiene independiente del pipeline Android con emulador. No se adquiere capacidad App Automate para esta entrega.
+La ampliación a BrowserStack se mantiene como propuesta de diseño, independiente del pipeline Android con emulador. Los scripts exploratorios de conexión/carga y sus variables de ejemplo fueron retirados de la entrega; su historial permanece en Git. No se adquiere capacidad App Automate para esta entrega.
 
 | Ubicación | Ajuste futuro |
 | --- | --- |
@@ -130,7 +143,7 @@ La ampliación a BrowserStack se mantiene independiente del pipeline Android con
 | tests/mobile/fixtures/native.fixture.ts | Inyectar sesión y pantallas; reemplazar diagnóstico ADB local en cloud |
 | config/mobile/playwright.config.ts | Un proyecto por perfil, un worker por dispositivo y límite total según cuota |
 
-Variables del ejemplo .env.example: BROWSERSTACK_ANDROID_APP y BROWSERSTACK_IOS_APP contendrían bs://… tras una carga válida. No se usa un “client ID”: App Automate autentica con username/access key. Mantenerlos fuera de Git y de logs. La clave no debe adjuntarse dentro de capabilities ni de resúmenes.
+En una ampliación futura se añadirían BROWSERSTACK_ANDROID_APP y BROWSERSTACK_IOS_APP; contendrían bs://… tras una carga válida. No se usa un “client ID”: App Automate autentica con username/access key. Mantenerlos fuera de Git y de logs. La clave no debe adjuntarse dentro de capabilities ni de resúmenes.
 
 ~~~typescript
 // Esquema de conexión futura: no es una opción activa del fixture actual.
@@ -166,3 +179,38 @@ Los jobs utilizan máquinas virtuales Ubuntu 24.04 independientes. Android emple
 Los artefactos de esa ejecución conservan HTML, JSON, JUnit, evidencia y logs. Resúmenes verificados: API 2026-11-11T00-20-06-104Z y Android 2026-11-11T00-22-47-896Z. Los logs se ven durante la ejecución y el HTML se consulta al terminar.
 
 Este smoke de CI no sustituye la regresión Android de 39 combinaciones ni cambia los defectos documentados. La selección completa y el catálogo siguen disponibles en el workflow. El procedimiento de repetición y descarga está en README.
+
+### Actualización: evidencia por paso y pipeline por producto
+
+La [ejecución 42935976926](https://github.com/Fperezu96/mobile-api-ai-assessment/actions/runs/42935976926), sobre el commit 111a0becaf9c1679c4714ea96ffa85369534f5ec, aprobó los ocho jobs: preparación, build/validación, ejecución y reporte final, separados por producto. API: 8/8; Android smoke: 4/4. Se verificaron 80 capturas, 26 interacciones y cuatro MP4 de 720×1280 mediante FFmpeg. Los videos duran 21,0; 21,8; 11,4 y 46,0 segundos. La integración en main también aprobó en la [ejecución 42937380263](https://github.com/Fperezu96/mobile-api-ai-assessment/actions/runs/42937380263).
+
+La verificación incluyó cuatro pruebas de instrumentación y revisión visual de una captura real. Durante el ajuste se corrigieron el formato de hooks de WebdriverIO, la duplicación por hooks anidados y la ausencia de FFmpeg en el runner. Se conservaron los intentos fallidos; no se modificaron las aserciones de negocio. Estos ajustes técnicos fueron realizados por el agente a partir de la solicitud de Felipe de ampliar la evidencia. Felipe confirma haber revisado los cambios antes de subirlos, como se declara en la sección 3.
+
+Esta validación no reejecuta ni convierte en aprobada la regresión ampliada. MOB-02 continúa siendo el negativo requerido de credenciales inválidas y su defecto APP-01 permanece documentado. MOB-06 en smoke es una validación adicional de usuario vacío, no un reemplazo de MOB-02.
+
+Los artefactos de Actions tienen retención de tres días. El evaluador debe descargarlos dentro de ese plazo o reproducir el workflow; la disponibilidad permanente del código no implica conservación permanente de capturas y videos históricos.
+
+## 7. Tiempo invertido y pendientes de entrega
+
+**Dedicación estimada por el autor:** aproximadamente 8 horas, distribuidas en varias sesiones y con pausas; no corresponde a ocho horas continuas ni a una medición automática. Incluye implementación, revisión, ajustes y preparación de la entrega.
+
+Como trazabilidad, Git registra la inicialización en 49de125 el 10 de noviembre de 2026 a las 12:59 (Bogotá), la integración de evidencia visual en 8e75cea a las 20:13 y la depuración de scripts en 697cab2 a las 20:26. Las marcas de commits respaldan la secuencia y muestran tareas preliminares; no permiten sumar horas efectivas ni medir las pausas. La cifra de ocho horas es la estimación declarada, no una deducción de ese intervalo.
+
+### Hitos observables en Git
+
+Todas las horas corresponden al 10 de noviembre de 2026 en Bogotá (UTC−5). Los rangos son marcas del primer y último commit seleccionado por hito, **no duración efectiva de trabajo**; no se asignan horas por actividad porque no hubo cronometraje.
+
+| Hito | Horas registradas | Commits de referencia |
+| --- | --- | --- |
+| Inicio, alcance y arquitectura | 12:59–13:07 | `49de125` → `d682748` |
+| Escenarios y aislamiento API | 13:17–13:51 | `87b6bd1` → `1c8b0a8` |
+| Emulador, skill y casos nativos | 14:35–15:26 | `53c19d0` → `5eeba6c` |
+| Cobertura, diagnóstico y variación de la skill | 16:08–18:13 | `8c56126` → `ec12f66` |
+| Reproducción de defectos y estabilización de CI | 18:44–19:37 | `47c874f` → `9b43a37` |
+| Capturas, videos e integración del pipeline | 19:49–20:13 | `9e9612d` → `8e75cea` |
+| Depuración y estimación de esfuerzo | 20:26–20:27 | `697cab2` → `c0fe483` |
+| **Esfuerzo total declarado por el autor** | **Aproximadamente 8 horas, con pausas** | **Estimación; no suma de los intervalos anteriores** |
+
+La dedicación supera la referencia de 4–6 horas del enunciado. Se amplió el mínimo con CRUD y aislamiento API, caracterización de catálogo, diagnóstico nativo de rendimiento, CI por producto y evidencia visual por interacción. En una entrega estrictamente acotada al tiempo, esas ampliaciones se priorizarían después de los cinco escenarios mínimos y de la evidencia de uso/revisión de la skill.
+
+**Pendientes:** sustentación con variación solicitada por el evaluador; validación iOS y nube de dispositivos (opcionales); conservación de artefactos históricos fuera de su retención; reejecución de la regresión ampliada con la nueva instrumentación. Los defectos de la app documentados no se consideran corregidos por el smoke verde.
