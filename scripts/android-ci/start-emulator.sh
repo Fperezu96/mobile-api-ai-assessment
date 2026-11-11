@@ -27,6 +27,7 @@ for (( attempt=1; attempt<=90; attempt++ )); do
     adb -s emulator-5554 shell settings put global window_animation_scale 0
     adb -s emulator-5554 shell settings put global transition_animation_scale 0
     adb -s emulator-5554 shell settings put global animator_duration_scale 0
+    adb -s emulator-5554 shell settings put system show_touches 1
     adb devices
     echo "Android listo para instalar la APK."
     exit 0

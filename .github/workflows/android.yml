@@ -1,76 +1,217 @@
 name: QA API y Android
 run-name: API + Android ${{ inputs.suite || 'smoke' }} · ${{ github.ref_name }}
-
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       suite:
         description: Selección móvil
         type: choice
         default: smoke
-        options: [smoke, regression, catalog, exploratory]
-
+        options:
+          - smoke
+          - regression
+          - catalog
+          - exploratory
 permissions:
   contents: read
-
 concurrency:
   group: qa-${{ github.ref }}
   cancel-in-progress: false
-
 jobs:
-  api:
-    name: API · reservas
+  preparar-api:
+    name: 1. Preparación · API · reservas
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      # 1. Preparación
-      - name: "1. Preparación | código"
+      - name: código
         id: etapa_1_preparacion_codigo
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - name: "1. Preparación | Node"
+      - name: Node
         id: etapa_1_preparacion_node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: 22.18.0
           cache: npm
-      - name: "1. Preparación | dependencias"
+      - name: dependencias
         id: etapa_1_preparacion_dependencias
         run: npm ci
-      # 2. Build y validación del proyecto de pruebas
-      - name: "2. Build/validación | TypeScript"
-        id: etapa_2_build_validacion_typescript
+      - name: Comprobar configuración y archivos del producto
+        run: node scripts/quality/check-product.mjs api
+  build-api:
+    name: 2. Build / validación · API · reservas
+    needs:
+      - preparar-api
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: código
+        id: etapa_1_preparacion_codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Node
+        id: etapa_1_preparacion_node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 22.18.0
+          cache: npm
+      - name: dependencias
+        id: etapa_1_preparacion_dependencias
+        run: npm ci
+      - name: Validar TypeScript
         run: npm run typecheck
-      # 3. Ejecución
-      - name: "3. Pruebas | reservas API"
+      - name: Descubrir escenarios del producto
+        run: npm run test:api -- --list
+  ejecutar-api:
+    name: 3. Ejecución · API · reservas
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: código
+        id: etapa_1_preparacion_codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Node
+        id: etapa_1_preparacion_node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 22.18.0
+          cache: npm
+      - name: dependencias
+        id: etapa_1_preparacion_dependencias
+        run: npm ci
+      - name: reservas API
         id: etapa_3_pruebas_reservas_api
         env:
           BOOKER_USERNAME: ${{ secrets.BOOKER_USERNAME }}
           BOOKER_PASSWORD: ${{ secrets.BOOKER_PASSWORD }}
         run: npm run test:api
-      # 4. Reportes, incluso cuando una prueba falla
-      - name: "4. Reporte | HTML, JSON y JUnit"
+      - name: HTML, JSON y JUnit
         id: etapa_4_reporte_html_json_y_junit
         if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: qa-api-${{ github.run_id }}-${{ github.run_attempt }}
           path: reports/api/
           if-no-files-found: warn
           retention-days: 3
-      - name: "4. Reporte | resumen API"
+      - name: resumen API
         if: always()
         env:
           QA_STEPS: ${{ toJSON(steps) }}
         run: node scripts/quality/github-summary.mjs api
-
-  android:
-    name: Android 13 · ${{ inputs.suite || 'smoke' }}
+    needs:
+      - build-api
+  reporte-api:
+    name: 4. Reporte final · API · reservas
+    needs:
+      - preparar-api
+      - build-api
+      - ejecutar-api
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: código
+        id: etapa_1_preparacion_codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Node
+        id: etapa_1_preparacion_node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 22.18.0
+          cache: npm
+      - name: Recuperar resultados y evidencia
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          pattern: qa-api-*
+          path: evidence
+          merge-multiple: true
+      - name: Consolidar etapas y resultados
+        if: always()
+        env:
+          QA_JOBS: ${{ toJSON(needs) }}
+        run: node scripts/quality/pipeline-report.mjs api
+      - name: Publicar reporte final y evidencia
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: reporte-final-api-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |-
+            evidence/
+            reports/ci/
+          if-no-files-found: error
+          retention-days: 3
+    if: ${{ always() }}
+  preparar-android:
+    name: 1. Preparación · Android 13
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: código
+        id: etapa_1_preparacion_codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Node
+        id: etapa_1_preparacion_node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 22.18.0
+          cache: npm
+      - name: dependencias
+        id: etapa_1_preparacion_dependencias
+        run: npm ci
+      - name: Comprobar configuración y archivos del producto
+        run: node scripts/quality/check-product.mjs android
+  build-android:
+    name: 2. Build / validación · Android 13
+    needs:
+      - preparar-android
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: código
+        id: etapa_1_preparacion_codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Node
+        id: etapa_1_preparacion_node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 22.18.0
+          cache: npm
+      - name: dependencias
+        id: etapa_1_preparacion_dependencias
+        run: npm ci
+      - name: Validar TypeScript
+        run: npm run typecheck
+      - name: Verificar instrumentación de evidencia
+        run: node node_modules/@playwright/test/cli.js test tests/verification/native-evidence.spec.ts --reporter=list
+      - name: Descubrir escenarios del producto
+        run: npm run test:mobile -- --list
+      - name: Descargar y verificar SHA256 de la APK
+        run: npm run app:download
+      - name: Conservar APK verificada para ejecución
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: apk-verificada
+          path: apps/downloads/*.apk
+          if-no-files-found: error
+          retention-days: 1
+  ejecutar-android:
+    name: 3. Ejecución · Android 13 · ${{ inputs.suite || 'smoke' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -78,45 +219,50 @@ jobs:
       ANDROID_DEVICE_NAME: GitHub_API33
       MOBILE_SUITE: ${{ inputs.suite || 'smoke' }}
       MOBILE_DATA_SEED: github-${{ github.run_id }}
-      MOBILE_SAMPLE_SIZE: '3'
+      MOBILE_SAMPLE_SIZE: "3"
     steps:
-      # 1. Preparación de herramientas y capacidad de la VM
-      - name: "1. Preparación | código"
+      - name: código
         id: etapa_1_preparacion_codigo
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - name: "1. Preparación | Node"
+      - name: Node
         id: etapa_1_preparacion_node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: 22.18.0
           cache: npm
-      - name: "1. Preparación | Java"
+      - name: Java
         id: etapa_1_preparacion_java
-        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78
         with:
           distribution: temurin
-          java-version: '21'
-      - name: "1. Preparación | espacio y almacenamiento"
+          java-version: "21"
+      - name: espacio y almacenamiento
         id: etapa_1_preparacion_espacio_y_almacenamiento
         run: bash scripts/android-ci/prepare-space.sh
-      - name: "1. Preparación | SDK e imagen Android"
+      - name: Preparar verificación de video (FFmpeg)
+        id: preparar_video
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          ffprobe -version
+      - name: SDK e imagen Android
         id: etapa_1_preparacion_sdk_e_imagen_android
-        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd
         with:
           packages: platform-tools emulator platforms;android-33 system-images;android-33;default;x86_64 build-tools;35.0.0
           log-accepted-android-sdk-licenses: false
-      - name: "1. Preparación | dependencias"
+      - name: dependencias
         id: etapa_1_preparacion_dependencias
         run: npm ci
-      - name: "1. Preparación | driver Appium"
+      - name: driver Appium
         id: etapa_1_preparacion_driver_appium
         run: npm run appium:setup
-      - name: "1. Preparación | diagnóstico Appium"
+      - name: diagnóstico Appium
         id: etapa_1_preparacion_diagnostico_appium
         run: timeout 60s npm run appium:doctor
-      - name: "1. Preparación | aceleración KVM"
+      - name: aceleración KVM
         id: etapa_1_preparacion_aceleracion_kvm
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -125,38 +271,40 @@ jobs:
           sudo udevadm settle
           sudo chmod a+rw /dev/kvm
           "$ANDROID_HOME/emulator/emulator" -accel-check
-      # 2. La APK es suministrada: se verifica, no se compila su aplicación
-      - name: "2. Build/validación | TypeScript"
-        id: etapa_2_build_validacion_typescript
-        run: npm run typecheck
-      - name: "2. Build/validación | APK y SHA256"
-        id: etapa_2_build_validacion_apk_y_sha256
-        run: npm run app:download
-      # 3. Cada precondición es visible y detiene las siguientes si falla
-      - name: "3.1 Ejecución | crear y arrancar emulador"
+      - name: Recuperar APK verificada del build
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: apk-verificada
+          path: apps/downloads
+      - name: Verificar integridad de la APK recuperada
+        run: npm run app:download -- --verify-only
+      - name: crear y arrancar emulador
         id: etapa_3_1_ejecucion_crear_y_arrancar_emulador
         timeout-minutes: 4
         run: bash scripts/android-ci/start-emulator.sh
-      - name: "3.2 Ejecución | instalar APK y verificar paquete"
+      - name: instalar APK y verificar paquete
         id: etapa_3_2_ejecucion_instalar_apk_y_verificar_paquete
         timeout-minutes: 2
         run: bash scripts/android-ci/install-apk.sh
-      - name: "3.3 Ejecución | iniciar Appium y comprobar status"
+      - name: iniciar Appium y comprobar status
         id: etapa_3_3_ejecucion_iniciar_appium_y_comprobar_status
         timeout-minutes: 2
         run: bash scripts/android-ci/start-appium.sh
-      - name: "3.4 Pruebas | escenarios Android"
+      - name: escenarios Android
         id: etapa_3_4_pruebas_escenarios_android
         run: npm run test:mobile:selected
-      # 4. Diagnóstico y cierre antes de conservar los artefactos
-      - name: "4. Reporte | diagnóstico y cierre"
+      - name: Verificar capturas e integridad de los videos
+        id: evidencia_nativa
+        if: ${{ !cancelled() && (steps.etapa_3_4_pruebas_escenarios_android.outcome == 'success' || steps.etapa_3_4_pruebas_escenarios_android.outcome == 'failure') }}
+        run: node scripts/quality/verify-native-evidence.mjs
+      - name: diagnóstico y cierre
         id: etapa_4_reporte_diagnostico_y_cierre
         if: always()
         run: bash scripts/android-ci/finish.sh
-      - name: "4. Reporte | HTML, JSON, JUnit y logs"
+      - name: HTML, JSON, JUnit y logs
         id: etapa_4_reporte_html_json_junit_y_logs
         if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: qa-android-api33-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -164,8 +312,52 @@ jobs:
             artifacts/android-local/
           if-no-files-found: warn
           retention-days: 3
-      - name: "4. Reporte | resumen Android"
+      - name: resumen Android
         if: always()
         env:
           QA_STEPS: ${{ toJSON(steps) }}
         run: node scripts/quality/github-summary.mjs mobile
+    needs:
+      - build-android
+  reporte-android:
+    name: 4. Reporte final · Android 13
+    needs:
+      - preparar-android
+      - build-android
+      - ejecutar-android
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: código
+        id: etapa_1_preparacion_codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Node
+        id: etapa_1_preparacion_node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 22.18.0
+          cache: npm
+      - name: Recuperar resultados y evidencia
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          pattern: qa-android-*
+          path: evidence
+          merge-multiple: true
+      - name: Consolidar etapas y resultados
+        if: always()
+        env:
+          QA_JOBS: ${{ toJSON(needs) }}
+        run: node scripts/quality/pipeline-report.mjs android
+      - name: Publicar reporte final y evidencia
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: reporte-final-android-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |-
+            evidence/
+            reports/ci/
+          if-no-files-found: error
+          retention-days: 3
+    if: ${{ always() }}
