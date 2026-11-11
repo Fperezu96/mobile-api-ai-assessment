@@ -25,24 +25,32 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # 1. Preparación
+      - name: "1. Preparación | código"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - name: "1. Preparación | Node"
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22.18.0
           cache: npm
-      - name: Instalar y comprobar TypeScript
-        run: npm ci && npm run typecheck
-      - name: Ejecutar los ocho escenarios API
+      - name: "1. Preparación | dependencias"
+        run: npm ci
+      # 2. Build y validación del proyecto de pruebas
+      - name: "2. Build/validación | TypeScript"
+        run: npm run typecheck
+      # 3. Ejecución
+      - name: "3. Pruebas | reservas API"
         env:
           BOOKER_USERNAME: ${{ secrets.BOOKER_USERNAME }}
           BOOKER_PASSWORD: ${{ secrets.BOOKER_PASSWORD }}
         run: npm run test:api
-      - name: Resumir resultados API
+      # 4. Reportes, incluso cuando una prueba falla
+      - name: "4. Reporte | resumen API"
         if: always()
         run: node scripts/quality/github-summary.mjs api
-      - name: Conservar reporte API
+      - name: "4. Reporte | HTML, JSON y JUnit"
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -54,7 +62,7 @@ jobs:
   android:
     name: Android 13 · ${{ inputs.suite || 'smoke' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 20
     env:
       ANDROID_UDID: emulator-5554
       ANDROID_DEVICE_NAME: GitHub_API33
@@ -62,58 +70,66 @@ jobs:
       MOBILE_DATA_SEED: github-${{ github.run_id }}
       MOBILE_SAMPLE_SIZE: '3'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # 1. Preparación de herramientas y capacidad de la VM
+      - name: "1. Preparación | código"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - name: "1. Preparación | Node"
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22.18.0
           cache: npm
-      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+      - name: "1. Preparación | Java"
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: '21'
-      - name: Preparar Android SDK
+      - name: "1. Preparación | espacio y almacenamiento"
+        run: bash scripts/android-ci/prepare-space.sh
+      - name: "1. Preparación | SDK e imagen Android"
         uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
-          packages: platform-tools emulator
+          packages: platform-tools emulator platforms;android-33 system-images;android-33;default;x86_64 build-tools;35.0.0
           log-accepted-android-sdk-licenses: false
-      - name: Instalar dependencias y APK verificada
+      - name: "1. Preparación | dependencias y driver Appium"
         run: |
           npm ci
-          npm run typecheck
-          npm run app:download
-          sdkmanager "build-tools;35.0.0"
-      - name: Habilitar KVM
+          npm run appium:setup
+          timeout 60s npm run appium:doctor
+      - name: "1. Preparación | aceleración KVM"
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
           sudo udevadm settle
-          ls -l /dev/kvm
           sudo chmod a+rw /dev/kvm
-          test -r /dev/kvm && test -w /dev/kvm
           "$ANDROID_HOME/emulator/emulator" -accel-check
-      - name: Arrancar Android y ejecutar Appium
-        uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
-        with:
-          api-level: 33
-          target: default
-          arch: x86_64
-          profile: pixel_2
-          avd-name: qa_ci
-          disk-size: 2048M
-          emulator-boot-timeout: 300
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -memory 2048
-          disable-animations: true
-          script: |
-            adb devices
-            npm run appium:doctor
-            npm run test:mobile:ci
-      - name: Resumir resultados Android
+      # 2. La APK es suministrada: se verifica, no se compila su aplicación
+      - name: "2. Build/validación | TypeScript"
+        run: npm run typecheck
+      - name: "2. Build/validación | APK y SHA256"
+        run: npm run app:download
+      # 3. Cada precondición es visible y detiene las siguientes si falla
+      - name: "3.1 Ejecución | crear y arrancar emulador"
+        timeout-minutes: 4
+        run: bash scripts/android-ci/start-emulator.sh
+      - name: "3.2 Ejecución | instalar APK y verificar paquete"
+        timeout-minutes: 2
+        run: bash scripts/android-ci/install-apk.sh
+      - name: "3.3 Ejecución | iniciar Appium y comprobar status"
+        timeout-minutes: 2
+        run: bash scripts/android-ci/start-appium.sh
+      - name: "3.4 Pruebas | escenarios Android"
+        run: npm run test:mobile:selected
+      # 4. Diagnóstico y cierre antes de conservar los artefactos
+      - name: "4. Reporte | diagnóstico y cierre"
+        if: always()
+        run: bash scripts/android-ci/finish.sh
+      - name: "4. Reporte | resumen Android"
         if: always()
         run: node scripts/quality/github-summary.mjs mobile
-      - name: Conservar reporte y logs Android
+      - name: "4. Reporte | HTML, JSON, JUnit y logs"
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

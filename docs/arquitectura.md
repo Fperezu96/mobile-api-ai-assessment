@@ -138,7 +138,7 @@ Un proyecto API tiene un worker; cada proyecto de dispositivo tiene un worker y 
 
 Un Appium compartido admite sesiones independientes; no se incrementan workers sobre el mismo UDID. El descubrimiento con dos perfiles produjo 86 combinaciones de regresión; no demuestra paralelismo real.
 
-El workflow .github/workflows/android.yml utiliza dos máquinas virtuales Ubuntu 24.04: un job API y otro Android. El job Android instala Node, Java 21 y SDK, habilita KVM, arranca un emulador API 33 y ejecuta el mismo Appium/UiAutomator2 del proyecto. No requiere contenedor propio, Kubernetes ni BrowserStack. La preparación del emulador se realiza con android-emulator-runner; los scripts PowerShell del PC no se usan en Linux.
+El workflow .github/workflows/android.yml utiliza dos máquinas virtuales Ubuntu 24.04: un job API y otro Android. El job Android instala Node, Java 21 y SDK, habilita KVM, arranca un emulador API 33 y ejecuta el mismo Appium/UiAutomator2 del proyecto. No requiere contenedor propio, Kubernetes ni BrowserStack. Los scripts de scripts/android-ci preparan espacio, crean el AVD, comprueban su proceso y arranque, instalan la APK y levantan Appium en pasos separados. Los scripts PowerShell del PC no se usan en Linux.
 
 La primera selección móvil es smoke; regresión, catálogo y exploración son opciones separadas. Se conserva un worker por emulador, sin matriz multidispositivo en esta primera comprobación. HTML/JSON/JUnit y logs se guardan aunque fallen las pruebas. Los resultados comprobados están en resultados.md; el procedimiento está en README.
 
