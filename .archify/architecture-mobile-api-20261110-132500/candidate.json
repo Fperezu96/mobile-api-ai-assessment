@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Arquitectura móvil y API por etapas",
+    "locale": "es",
+    "output": ".archify/architecture-mobile-api-20261110-132500/arquitectura.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Fperezu96/mobile-api-ai-assessment.git",
+      "revision": "87b6bd113f267daf05aba7c350d56c27477d5355"
+    }
+  },
+  "components": [
+    {
+      "id": "qa",
+      "type": "external",
+      "label": "QA y desarrollo",
+      "sublabel": "Comandos del proyecto",
+      "pos": [
+        40,
+        220
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "README.md"
+        }
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "Playwright API",
+      "sublabel": "Steps y cliente Booking",
+      "tag": "IMPLEMENTADO",
+      "pos": [
+        330,
+        70
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "tests/api/specs/bookings.spec.ts"
+        },
+        {
+          "path": "src/api/clients/booking.client.ts"
+        }
+      ]
+    },
+    {
+      "id": "booker",
+      "type": "external",
+      "label": "Restful Booker",
+      "sublabel": "Reservas por HTTP",
+      "pos": [
+        710,
+        70
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "sources": [
+        {
+          "path": "config/api/playwright.config.ts"
+        }
+      ]
+    },
+    {
+      "id": "mobile",
+      "type": "backend",
+      "label": "WebdriverIO móvil",
+      "sublabel": "Acciones y pantallas",
+      "tag": "PREVISTO",
+      "pos": [
+        330,
+        410
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/architecture-status.md"
+        }
+      ]
+    },
+    {
+      "id": "cloud",
+      "type": "cloud",
+      "label": "BrowserStack",
+      "sublabel": "App Automate",
+      "tag": "ACCESO PENDIENTE",
+      "pos": [
+        710,
+        410
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/architecture-status.md"
+        }
+      ]
+    },
+    {
+      "id": "devices",
+      "type": "external",
+      "label": "Android e iOS",
+      "sublabel": "APK e IPA independientes",
+      "tag": "PREVISTO",
+      "pos": [
+        1050,
+        410
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "docs/architecture-status.md"
+        }
+      ]
+    },
+    {
+      "id": "reports",
+      "type": "database",
+      "label": "Reportes y evidencia",
+      "sublabel": "API real y móvil previsto",
+      "pos": [
+        710,
+        240
+      ],
+      "size": [
+        190,
+        70
+      ],
+      "sources": [
+        {
+          "path": "config/api/playwright.config.ts"
+        },
+        {
+          "path": "docs/architecture-status.md"
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "run-api",
+      "from": "qa",
+      "to": "api",
+      "label": "API"
+    },
+    {
+      "id": "run-mobile",
+      "from": "qa",
+      "to": "mobile",
+      "label": "Móvil previsto"
+    },
+    {
+      "id": "booking-http",
+      "from": "api",
+      "to": "booker",
+      "label": "HTTP"
+    },
+    {
+      "id": "api-report",
+      "from": "api",
+      "to": "reports",
+      "label": "HTML y JUnit"
+    },
+    {
+      "id": "mobile-session",
+      "from": "mobile",
+      "to": "cloud",
+      "label": "Appium previsto"
+    },
+    {
+      "id": "cloud-device",
+      "from": "cloud",
+      "to": "devices",
+      "label": "Sesión prevista"
+    },
+    {
+      "id": "mobile-evidence",
+      "from": "mobile",
+      "to": "reports",
+      "label": "Evidencia prevista"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Base API ejecutada",
+      "items": [
+        "Cliente y fixtures separados; steps de negocio en Playwright.",
+        "Crear y consultar aprueba; el negativo conserva el fallo HTTP 500."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Móvil en preparación",
+      "items": [
+        "WebdriverIO y Appium aún no instalados en esta base.",
+        "BrowserStack requiere credenciales y sesiones reales Android e iOS.",
+        "La estructura de carpetas no equivale a implementación móvil."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "1d6fa433-025b-4dee-baea-08144ede5764",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\candidate.json",
+  "output": "C:\\dev\\mobile-api-ai-assessment\\.archify\\architecture-mobile-api-20261110-132500\\arquitectura.html",
+  "specification": {
+    "sha256": "37c042b7daa9b924f53f1918f6ac128bb10868243aaf0cdc3088840f755c5aff",
+    "bytes": 4409
+  },
+  "artifact": {
+    "sha256": "efbd847a86bd434855fcb800ada4f2324f9dbf6d593d83447b14e389c1d8941f",
+    "bytes": 845680
+  }
+}

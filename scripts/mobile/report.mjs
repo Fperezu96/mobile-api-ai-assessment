@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {spawn} from 'node:child_process';
+const latest=JSON.parse(fs.readFileSync('reports/mobile/latest.json','utf8'));
+const runId=process.argv[2] || latest.runId;
+if(!/^[0-9TZ-]+$/.test(runId))throw new Error('Identificador de ejecución inválido.');
+const report=path.resolve('reports/mobile',runId,'html');
+if(!fs.existsSync(report))throw new Error('La ejecución más reciente todavía no tiene reporte HTML.');
+const child=spawn(process.execPath,['node_modules/@playwright/test/cli.js','show-report',report,'--host','127.0.0.1'],{stdio:'inherit'});
+child.on('error',error=>{console.error(error.message);process.exitCode=1});
+child.on('exit',code=>{process.exitCode=code ?? 1});

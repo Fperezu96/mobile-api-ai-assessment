@@ -5,3 +5,6 @@
 *.pdf binary
 *.apk binary
 *.ipa binary
+
+# Conservar los bytes generados por Archify y su procedencia.
+.archify/**/*.html -whitespace

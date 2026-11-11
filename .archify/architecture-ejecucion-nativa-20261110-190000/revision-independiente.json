@@ -1,0 +1,10 @@
+{
+  "title": "Ejecución Android: runner, cliente y servidor · Diagrama",
+  "pageErrors": [],
+  "hasClient": true,
+  "hasServer": true,
+  "hasDriver": true,
+  "hasFixture": true,
+  "overflow": false,
+  "sandboxEnabled": true
+}

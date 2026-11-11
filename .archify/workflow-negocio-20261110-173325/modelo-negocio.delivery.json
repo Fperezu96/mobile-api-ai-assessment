@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "cc361c31-46ec-47a6-a4d2-9c2966833fd9",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\candidate.json",
+  "output": "C:\\dev\\mobile-api-ai-assessment\\.archify\\workflow-negocio-20261110-173325\\modelo-negocio.html",
+  "specification": {
+    "sha256": "0cd67d99360e312adf71da83c9385fb616d06ccb8dc9cacd053716c917f0aedc",
+    "bytes": 7897
+  },
+  "artifact": {
+    "sha256": "16306b598cc4ac58f3919fcd59b1b0b2265b8528e0343029221255253e846bc9",
+    "bytes": 858191
+  }
+}

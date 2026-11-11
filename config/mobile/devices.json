@@ -1,0 +1,18 @@
+[
+  {
+    "name": "android-local-primary",
+    "deviceName": "QA_API33",
+    "udid": "emulator-5554",
+    "systemPort": 8200,
+    "mjpegServerPort": 9100,
+    "availability": "verified"
+  },
+  {
+    "name": "android-local-secondary",
+    "deviceName": "QA_API33_2",
+    "udid": "emulator-5556",
+    "systemPort": 8201,
+    "mjpegServerPort": 9101,
+    "availability": "configured-not-created"
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "profile": "android-local",
+  "avdName": "QA_API33",
+  "androidApi": 33,
+  "androidVersion": "13",
+  "architecture": "x86_64",
+  "systemImage": "system-images;android-33;default;x86_64",
+  "memoryMb": 3072,
+  "cpuCores": 2,
+  "screen": {
+    "width": 1080,
+    "height": 1920,
+    "density": 420
+  },
+  "appPackage": "com.saucelabs.mydemoapp.android",
+  "appManifest": "apps/android-manifest.json",
+  "automationName": "UiAutomator2",
+  "sessionStatus": "local-appium-verified",
+  "appActivity": ".view.activities.SplashActivity",
+  "appiumVersion": "3.9.0",
+  "uiautomator2DriverVersion": "6.0.0",
+  "inspectorVersion": "2026.9.2"
+}

@@ -1,23 +1,27 @@
-# Project working agreement
+# Acuerdos de trabajo
 
-## Current stage
+## Alcance y estado
 
-Bootstrap the local and private GitHub repository first. Do not copy the previous prototype or install frameworks before reviewing the architecture and compatibility decisions with Felipe.
+TypeScript para móvil y API. Playwright Test para API y WebdriverIO con Appium para aplicaciones nativas. Android se ejecuta localmente y mediante el workflow de GitHub Actions con emulador. Android/iOS en BrowserStack quedan como extensión documentada. La API y Android local están implementados y ejecutados. La regresión móvil conserva fallos de la demo; BrowserStack sigue bloqueado en la carga y no hay ejecución iOS ni nube aprobada.
 
-## Scope
+## Diseño y revisión
 
-Use TypeScript for mobile and API. Include installed native apps, Android local and Android plus iOS on BrowserStack. API tests must use Playwright Test TypeScript.
+Aplicar SOLID, Clean Code y separación de responsabilidades con ejemplos concretos. No crear capas artificiales ni afirmar que se cumple Clean Architecture completa sin revisar las dependencias reales.
 
-## Engineering decisions
+Mantener separados escenarios, acciones de negocio, pantallas, clientes API, sesión y evidencia. No asumir que IDs o limpieza Android funcionan en iOS. Justificar versiones con el entorno del PC y el servidor de BrowserStack; evitar cambios globales innecesarios.
 
-Document concrete SOLID and Clean Code applications and the appropriate separation of test intent, business actions and infrastructure. Do not claim full Clean Architecture or choose Screenplay, Cucumber or a reporting framework without explaining the tradeoff.
+Revisar el código y el reporte de cada incremento. Los controles estáticos no sustituyen ejecución real ni revisión humana.
 
-Version selection must account for Node on the PC, runner, Appium client and server, platform drivers, reporting integrations and BrowserStack-supported server versions.
+## Lenguaje y documentación viva
 
-Keep scenario and step names readable as living documentation. Keep technical selectors out of scenario intent. Preserve platform differences behind explicit implementations rather than assuming Android resource IDs work on iOS.
+Escribir comentarios en español que expliquen motivos o decisiones, sin narrar operaciones obvias. Conservar nombres oficiales de APIs, librerías y comandos.
 
-## Evidence
+Los escenarios deben describir comportamientos con lenguaje profesional y natural de QA. Los pasos explican preparación, acción y comprobación; evitar fórmulas rígidas, títulos inflados y selectores técnicos. Guardar etiquetas como metadatos.
 
-Commit the project skill before using it with an agent. Preserve invocations, diffs, actual executions, human review and known limitations. Do not fabricate Android or iOS results, weaken assertions, or hide failures.
+Mantener el README como guía de instalación, comandos y estado. Consolidar conclusiones en docs/alcance-y-estrategia.md, docs/arquitectura.md y docs/resultados.md. Actualizar esos documentos en lugar de crear informes por cada avance. El historial vive en Git.
 
-Never commit credentials, app installers or generated reports. Avoid changes to machine-wide tools until their impact and the required project versions have been reviewed.
+## Evidencia y privacidad
+
+Guardar la skill en un commit antes de usarla con el agente. Conservar invocación, cambios, resultados, modelo y correcciones humanas reales. No inventar aprobaciones, debilitar aserciones ni ocultar errores.
+
+No versionar credenciales, instaladores ni resultados generados. Conservar el fallo original y la evidencia por ejecución. Autenticación válida o carpeta creada no significan prueba funcional aprobada.
