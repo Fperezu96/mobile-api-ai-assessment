@@ -151,3 +151,18 @@ const session = await remote({
 BrowserStack administra servidor Appium y dispositivos remotos; no arrancar appium:start para ese endpoint ni enviar UDID/systemPort de emuladores locales. Para iOS hacen falta un instalador compatible y firmado, XCUITest y adaptadores/locators observados; una APK no se ejecuta en iOS.
 
 **Paralelismo propuesto.** Cada proyecto crea su sesión y datos aislados. El máximo concurrente debe respetar los paralelos disponibles del plan; multiplicar jobs de una matriz por workers puede excederlo. Limitar ambos niveles, cerrar sesiones aun al fallar y recuperar session ID, URL, capturas y logs sanitizados. El perfil local secundario tampoco se considera ejecutado por estar en JSON.
+
+## 6. Resultado en GitHub Actions
+
+Validación del 10 de noviembre de 2026 (Bogotá), en la [ejecución 42930466640](https://github.com/Fperezu96/mobile-api-ai-assessment/actions/runs/42930466640). Commit probado: 78407153ac161bcd1e6a64d5cd12b872d7d9c339.
+
+| Proyecto | Selección | Aprobadas | Fallidas | Omitidas |
+| --- | --- | --- | --- | --- |
+| API Restful Booker | 8 escenarios | 8 | 0 | 0 |
+| Android 13/API 33 | 4 combinaciones smoke | 4 | 0 | 0 |
+
+Los jobs utilizan máquinas virtuales Ubuntu 24.04 independientes. Android emplea KVM, un AVD configurado con partición de datos de 2 GB y capacidad de disco comprobada, Java 21, Appium y UiAutomator2. La APK se descarga y comprueba por SHA256. No se utilizó BrowserStack.
+
+Los artefactos de esa ejecución conservan HTML, JSON, JUnit, evidencia y logs. Resúmenes verificados: API 2026-11-11T00-20-06-104Z y Android 2026-11-11T00-22-47-896Z. Los logs se ven durante la ejecución y el HTML se consulta al terminar.
+
+Este smoke de CI no sustituye la regresión Android de 39 combinaciones ni cambia los defectos documentados. La selección completa y el catálogo siguen disponibles en el workflow. El procedimiento de repetición y descarga está en README.

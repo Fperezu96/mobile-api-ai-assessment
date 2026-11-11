@@ -147,7 +147,7 @@ npm run test:mobile -- --grep "(?=.*@cart)(?=.*@quantity)"
 
 Cada ejecución genera HTML, JSON, JUnit y execution-summary.json en reports/api/<runId>, reports/mobile/<runId> o reports/combined/<runId>. El HTML contiene pasos, esperado/obtenido y adjuntos. Las evidencias y secretos están excluidos de Git.
 
-Abrir un intento anterior con npm run report:api -- <runId>, report:mobile o report:all. Los comandos de ejecución devuelven código distinto de cero ante fallos; los resultados conocidos están en docs/resultados.md.
+Abrir un intento anterior con `npm run report:api -- <runId>`, `report:mobile` o `report:all`. Los comandos de ejecución devuelven código distinto de cero ante fallos; los resultados conocidos están en docs/resultados.md.
 
 ## 7. Añadir un caso con el skill
 
@@ -178,7 +178,7 @@ El [workflow Android/API](.github/workflows/android.yml) ejecuta dos jobs indepe
 
 1. Abrir [Actions del repositorio](https://github.com/Fperezu96/mobile-api-ai-assessment/actions). Los pushes a la rama de entrega inician API y smoke móvil.
 2. Abrir la ejecución y cada job para seguir los pasos y resultados de los casos en los logs.
-3. Al terminar, revisar el resumen y descargar los artefactos de API y Android; contienen los reportes HTML y la evidencia. Los artefactos se conservan tres días. El HTML se genera al finalizar, no se transmite en vivo. Tras descomprimir el artefacto, abrir la carpeta html con npm exec -- playwright show-report "<ruta-al-directorio-html>".
+3. Al terminar, revisar el resumen y descargar los artefactos de API y Android; contienen los reportes HTML y la evidencia. Los artefactos se conservan tres días. El HTML se genera al finalizar, no se transmite en vivo. Tras descomprimir el artefacto, abrir la carpeta html con `npm exec -- playwright show-report "<ruta-al-directorio-html>"`.
 4. Para repetir la demostración, usar Re-run all jobs en la ejecución, con permisos de escritura. Una vez integrado el workflow en la rama principal, Run workflow permite elegir smoke, regression, catalog o exploratory.
 
 Los secretos BOOKER_USERNAME y BOOKER_PASSWORD se configuran en Settings → Secrets and variables → Actions. Los casos móviles no necesitan esas credenciales. En repositorios privados, el runner consume el cupo de Actions de la cuenta; no se garantiza uso ilimitado gratuito. La regresión conserva los fallos conocidos de la demo y puede finalizar en rojo.

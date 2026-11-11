@@ -119,7 +119,7 @@ En React Native puede existir código compartido y aun así diferir el árbol de
 | Servidor UiAutomator2 Android | 9.0.1 | Dependencia del driver; no se instala como una herramienta global adicional |
 | Android | 13 / API 33, AOSP x86_64 rev. 2 | AVD QA_API33 reproducido localmente; no acredita otras versiones |
 | Emulator / Build Tools | 37.2.13.0 / 35.0.0 | Build Tools aporta apksigner.jar requerido en la conexión real |
-| Java | JBR 25.0.3 local | Entorno comprobado en este PC; no se entrega una matriz remota |
+| Java | JBR 25.0.3 local / Temurin 21 en CI | Entornos verificados por separado; una versión Android en el primer pipeline |
 | Inspector | 2026.9.2 | Inspección de resource-id/accessibility id reales |
 | PNGJS / tipos | 7.0.0 / 6.0.5 | Comparar píxeles de recortes de elementos, no PNG comprimido ni pantalla completa |
 
