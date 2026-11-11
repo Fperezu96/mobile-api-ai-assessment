@@ -138,6 +138,7 @@ jobs:
           path: evidence
           merge-multiple: true
       - name: Consolidar etapas y resultados
+        if: always()
         env:
           QA_JOBS: ${{ toJSON(needs) }}
         run: node scripts/quality/pipeline-report.mjs api
@@ -287,6 +288,7 @@ jobs:
         id: etapa_3_4_pruebas_escenarios_android
         run: npm run test:mobile:selected
       - name: Verificar capturas e integridad de los videos
+        id: evidencia_nativa
         if: ${{ !cancelled() && (steps.etapa_3_4_pruebas_escenarios_android.outcome == 'success' || steps.etapa_3_4_pruebas_escenarios_android.outcome == 'failure') }}
         run: node scripts/quality/verify-native-evidence.mjs
       - name: diagnóstico y cierre
@@ -338,6 +340,7 @@ jobs:
           path: evidence
           merge-multiple: true
       - name: Consolidar etapas y resultados
+        if: always()
         env:
           QA_JOBS: ${{ toJSON(needs) }}
         run: node scripts/quality/pipeline-report.mjs android
