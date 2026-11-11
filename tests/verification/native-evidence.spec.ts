@@ -42,6 +42,7 @@ test('WebdriverIO invoca los hooks para click, gesto y Back sin capturas recursi
   const server=createServer((request,response)=>{
     response.setHeader('Content-Type','application/json');
     if(request.url==='/session' && request.method==='POST')response.end(JSON.stringify({value:{sessionId:'verification',capabilities:{platformName:'Android'}}}));
+    else if(request.url?.endsWith('/element') && request.method==='POST')response.end(JSON.stringify({value:{'element-6066-11e4-a52e-4f735466cecf':'target'}}));
     else response.end(JSON.stringify({value:request.url?.endsWith('/screenshot')?image:null}));
   });
   await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -55,12 +56,13 @@ test('WebdriverIO invoca los hooks para click, gesto y Back sin capturas recursi
       afterCommand:[(name,args,_result,error)=>evidence.afterCommand(name,args,error)]});
     evidence.driver=driver;
     evidence.current={attach:async(name:string)=>{attachments.push(name);}} as unknown as TestStepInfo;
+    await driver.$('id=target').click();
     await driver.elementClick('target');
     await driver.execute('mobile: clickGesture',{elementId:'target'});
     await driver.back();
-    expect(attachments).toHaveLength(9);
-    expect(attachments.filter(name=>name.includes('Antes'))).toHaveLength(3);
-    expect(attachments.filter(name=>name.includes('Después'))).toHaveLength(3);
+    expect(attachments).toHaveLength(12);
+    expect(attachments.filter(name=>name.includes('Antes'))).toHaveLength(4);
+    expect(attachments.filter(name=>name.includes('Después'))).toHaveLength(4);
   } finally {
     evidence.current=undefined;
     if(driver)await driver.deleteSession();

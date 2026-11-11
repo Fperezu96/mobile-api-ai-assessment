@@ -21,7 +21,7 @@ export class NativeEvidence {
   private videoStartedAt = 0;
   private sequence = 0;
   private recording = false;
-  private active?: {number: number; action: string; startedAt: string};
+  private active?: {number: number; action: string; startedAt: string; depth: number};
   private readonly interactions: object[] = [];
   readonly errors: string[] = [];
   constructor(private readonly info: TestInfo) {}
@@ -41,12 +41,16 @@ export class NativeEvidence {
   async beforeCommand(command: string, args: unknown[]): Promise<void> {
     const action = interactionName(command, args);
     if (!this.current || !action) return;
-    this.active = {number: ++this.sequence, action, startedAt: new Date().toISOString()};
+    // Los wrappers de elemento pueden emitir hooks anidados para una sola pulsación.
+    if (this.active) { this.active.depth++; return; }
+    this.active = {number: ++this.sequence, action, startedAt: new Date().toISOString(), depth: 1};
     await this.screenshot(`${this.sequence}. Antes · ${action}`);
   }
   async afterCommand(command: string, args: unknown[], error?: Error): Promise<void> {
     if (!this.current || !interactionName(command, args) || !this.active) return;
-    const interaction = {...this.active, step: this.currentTitle, videoOffsetMs: Date.now() - this.videoStartedAt, finishedAt: new Date().toISOString(), status: error ? 'failed' : 'passed'};
+    if (--this.active.depth > 0) return;
+    const {depth: _depth, ...active} = this.active;
+    const interaction = {...active, step: this.currentTitle, videoOffsetMs: Date.now() - this.videoStartedAt, finishedAt: new Date().toISOString(), status: error ? 'failed' : 'passed'};
     this.active = undefined;
     this.interactions.push(interaction);
     await this.attempt('Registro de interacción', () => this.current!.attach(`${interaction.number}. ${interaction.action}`, {body: JSON.stringify(interaction, null, 2), contentType: 'application/json'}));
