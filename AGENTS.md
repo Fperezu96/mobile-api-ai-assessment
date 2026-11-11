@@ -2,13 +2,13 @@
 
 ## Alcance y estado
 
-TypeScript para móvil y API. Playwright Test para API y WebdriverIO con Appium para aplicaciones nativas. Android se ejecuta localmente y mediante el workflow de GitHub Actions con emulador. Android/iOS en BrowserStack quedan como extensión documentada. La API y Android local están implementados y ejecutados. La regresión móvil conserva fallos de la demo; BrowserStack sigue bloqueado en la carga y no hay ejecución iOS ni nube aprobada.
+TypeScript para móvil y API. Playwright Test para API y WebdriverIO con Appium para aplicaciones nativas. Android se ejecuta localmente y mediante el workflow de GitHub Actions con emulador. Android/iOS en BrowserStack quedan como extensión documentada. La API y Android local están implementados y ejecutados. La regresión móvil conserva fallos de la demo; BrowserStack se conserva solo como propuesta documentada; no hay scripts cloud activos ni ejecución iOS/nube aprobada.
 
 ## Diseño y revisión
 
 Aplicar SOLID, Clean Code y separación de responsabilidades con ejemplos concretos. No crear capas artificiales ni afirmar que se cumple Clean Architecture completa sin revisar las dependencias reales.
 
-Mantener separados escenarios, acciones de negocio, pantallas, clientes API, sesión y evidencia. No asumir que IDs o limpieza Android funcionan en iOS. Justificar versiones con el entorno del PC y el servidor de BrowserStack; evitar cambios globales innecesarios.
+Mantener separados escenarios, acciones de negocio, pantallas, clientes API, sesión y evidencia. No asumir que IDs o limpieza Android funcionan en iOS. Justificar versiones con los entornos local y de CI; evitar cambios globales innecesarios.
 
 Revisar el código y el reporte de cada incremento. Los controles estáticos no sustituyen ejecución real ni revisión humana.
 

@@ -120,7 +120,7 @@ Checksum, detección de puertos, extracción de estadísticas y validación de e
 
 ## 5. ¿Cómo se conectaría BrowserStack en una ampliación?
 
-La ampliación a BrowserStack se mantiene independiente del pipeline Android con emulador. No se adquiere capacidad App Automate para esta entrega.
+La ampliación a BrowserStack se mantiene como propuesta de diseño, independiente del pipeline Android con emulador. Los scripts exploratorios de conexión/carga y sus variables de ejemplo fueron retirados de la entrega; su historial permanece en Git. No se adquiere capacidad App Automate para esta entrega.
 
 | Ubicación | Ajuste futuro |
 | --- | --- |
@@ -130,7 +130,7 @@ La ampliación a BrowserStack se mantiene independiente del pipeline Android con
 | tests/mobile/fixtures/native.fixture.ts | Inyectar sesión y pantallas; reemplazar diagnóstico ADB local en cloud |
 | config/mobile/playwright.config.ts | Un proyecto por perfil, un worker por dispositivo y límite total según cuota |
 
-Variables del ejemplo .env.example: BROWSERSTACK_ANDROID_APP y BROWSERSTACK_IOS_APP contendrían bs://… tras una carga válida. No se usa un “client ID”: App Automate autentica con username/access key. Mantenerlos fuera de Git y de logs. La clave no debe adjuntarse dentro de capabilities ni de resúmenes.
+En una ampliación futura se añadirían BROWSERSTACK_ANDROID_APP y BROWSERSTACK_IOS_APP; contendrían bs://… tras una carga válida. No se usa un “client ID”: App Automate autentica con username/access key. Mantenerlos fuera de Git y de logs. La clave no debe adjuntarse dentro de capabilities ni de resúmenes.
 
 ~~~typescript
 // Esquema de conexión futura: no es una opción activa del fixture actual.
@@ -166,3 +166,13 @@ Los jobs utilizan máquinas virtuales Ubuntu 24.04 independientes. Android emple
 Los artefactos de esa ejecución conservan HTML, JSON, JUnit, evidencia y logs. Resúmenes verificados: API 2026-11-11T00-20-06-104Z y Android 2026-11-11T00-22-47-896Z. Los logs se ven durante la ejecución y el HTML se consulta al terminar.
 
 Este smoke de CI no sustituye la regresión Android de 39 combinaciones ni cambia los defectos documentados. La selección completa y el catálogo siguen disponibles en el workflow. El procedimiento de repetición y descarga está en README.
+
+### Actualización: evidencia por paso y pipeline por producto
+
+La [ejecución 42935976926](https://github.com/Fperezu96/mobile-api-ai-assessment/actions/runs/42935976926), sobre el commit 111a0becaf9c1679c4714ea96ffa85369534f5ec, aprobó los ocho jobs: preparación, build/validación, ejecución y reporte final, separados por producto. API: 8/8; Android smoke: 4/4. Se verificaron 80 capturas, 26 interacciones y cuatro MP4 de 720×1280 mediante FFmpeg. Los videos duran 21,0; 21,8; 11,4 y 46,0 segundos. La integración en main también aprobó en la [ejecución 42937380263](https://github.com/Fperezu96/mobile-api-ai-assessment/actions/runs/42937380263).
+
+La verificación incluyó cuatro pruebas de instrumentación y revisión visual de una captura real. Durante el ajuste se corrigieron el formato de hooks de WebdriverIO, la duplicación por hooks anidados y la ausencia de FFmpeg en el runner. Se conservaron los intentos fallidos; no se modificaron las aserciones de negocio. Estos ajustes técnicos fueron realizados por el agente a partir de la solicitud de Felipe de ampliar la evidencia; no se atribuyen a una revisión humana del código que no esté registrada.
+
+Esta validación no reejecuta ni convierte en aprobada la regresión ampliada. MOB-02 continúa siendo el negativo requerido de credenciales inválidas y su defecto APP-01 permanece documentado. MOB-06 en smoke es una validación adicional de usuario vacío, no un reemplazo de MOB-02.
+
+Los artefactos de Actions tienen retención de tres días. El evaluador debe descargarlos dentro de ese plazo o reproducir el workflow; la disponibilidad permanente del código no implica conservación permanente de capturas y videos históricos.

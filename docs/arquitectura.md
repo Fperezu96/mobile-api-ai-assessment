@@ -57,6 +57,8 @@ config/combined/playwright.config.ts agrega resultados de ambos como proyectos P
 
 Playwright no abre un navegador para controlar la APK. Un contexto web no sustituye una sesión nativa.
 
+**Elección frente a Serenity BDD.** Se conserva Appium como motor nativo y se elige TypeScript para compartir lenguaje, fixtures y reporteros con la API obligatoria en Playwright. Screen Objects y pasos de negocio mantienen la legibilidad sin añadir un segundo runner, Java o Cucumber a esta entrega. El coste es mantener la integración de evidencia nativa y sus verificaciones, en lugar de aprovechar directamente la integración y convenciones de Serenity del equipo. Para adoptar la solución habría que acordar esas convenciones y validar la compatibilidad con su CI; compartir lenguaje no elimina ese trabajo.
+
 ### Flujo local de una prueba nativa
 
 1. npm ci instala Appium, WebdriverIO y appium-uiautomator2-driver en el proyecto. El driver carga su servidor Android auxiliar cuando crea una sesión; no se instalan capas de negocio dentro de Appium.
@@ -136,7 +138,7 @@ Un proyecto API tiene un worker; cada proyecto de dispositivo tiene un worker y 
 | android-local-primary | emulator-5554 | 8200 / 9100 | Ejecutado |
 | android-local-secondary | emulator-5556 | 8201 / 9101 | Configurado; AVD sin crear/ejecutar |
 
-Un Appium compartido admite sesiones independientes; no se incrementan workers sobre el mismo UDID. El descubrimiento con dos perfiles produjo 86 combinaciones de regresión; no demuestra paralelismo real.
+Un Appium compartido admite sesiones independientes; no se incrementan workers sobre el mismo UDID. El descubrimiento con dos perfiles produjo 86 casos en total, incluyendo regresión, exploración y demostración; no demuestra paralelismo real.
 
 El workflow .github/workflows/android.yml utiliza dos cadenas de jobs Ubuntu 24.04 por producto: preparación, build/validación, ejecución y reporte final. Cada job obtiene su propio runner; el build Android entrega una APK verificada como artefacto y ejecución vuelve a validar su SHA256. El emulador y Appium se crean y consumen en el mismo job de ejecución. El job Android instala Node, Java 21 y SDK, habilita KVM, arranca un emulador API 33 y ejecuta el mismo Appium/UiAutomator2 del proyecto. No requiere contenedor propio, Kubernetes ni BrowserStack. Los scripts de scripts/android-ci preparan espacio, crean el AVD, comprueban su proceso y arranque, instalan la APK y levantan Appium en pasos separados. Los scripts PowerShell del PC no se usan en Linux.
 
@@ -150,7 +152,7 @@ Los runners esperan /status, conservan el código de salida y cierran solo sus p
 
 API registra método/ruta, datos sintéticos, estado/respuesta y duración por step, sin cabeceras de autenticación ni llamada /auth. La limpieza verifica propiedad del registro.
 
-Android adjunta perfil, capabilities, versión, session ID, captura y árbol UI del paso fallido, además del estado final y logs. El wrapper de step conserva la aserción original y sus diferencias; los errores de captura no sustituyen el fallo.
+Android adjunta perfil, capabilities, versión y session ID; capturas antes/después de cada paso e interacción; registro de acciones sin valores de formularios; video MP4 por caso; árbol UI de fallos, estado final y logs. El wrapper de step conserva la aserción original y sus diferencias; los errores de captura no sustituyen el fallo.
 
 Cada ejecución tiene HTML, JSON, JUnit y execution-summary.json con ruta del paso fallido. No se mezclan intentos para aparentar que la regresión completa pasó tras una comprobación focalizada. Los datos sintéticos tienen semilla y expectativas fijadas antes de interactuar.
 
@@ -158,4 +160,4 @@ Cada ejecución tiene HTML, JSON, JUnit y execution-summary.json con ruta del pa
 
 Instalador iOS compatible, proveedor/permisos/cuota, localizadores observados, driver XCUITest y sesiones reales. No basta con cambiar platformName o reutilizar IDs Android. Primero validar un smoke de equivalencia y luego decidir qué implementación compartir.
 
-BrowserStack autenticó, pero rechazó la carga Android con 422 antes de crear sesión; no se ha confirmado la causa particular. Su valor sería acceso a dispositivos reales/iOS y evidencia de sesiones; se evaluará después de la revisión final, sin compra ni consumo adicional ahora. AWS personal y cuota gratuita siguen sin verificar; no se toca la cuenta del banco.
+En la exploración previa BrowserStack rechazó la carga Android con 422 antes de crear sesión. Los scripts de ese intento fueron retirados: no forman parte de la solución ejecutable. La propuesta de conexión futura se conserva en resultados.md, sin credenciales, compras ni ejecución cloud. Su valor sería acceso a dispositivos reales e iOS; requiere comprobar permisos, cuota y compatibilidad.
