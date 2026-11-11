@@ -174,7 +174,7 @@ Para toda la regresión usar test:all:regression o test:all; para descubrir caso
 
 ## 9. GitHub Actions
 
-El [workflow Android/API](.github/workflows/android.yml) ejecuta dos jobs independientes: las ocho pruebas API y la selección móvil sobre Android Emulator con Appium en Ubuntu. Cada job distingue preparación, build/validación, pruebas y reporte. En Android se muestran por separado el arranque del emulador, la instalación de la APK, el status de Appium y los escenarios. No requiere BrowserStack ni un dispositivo conectado a tu PC.
+El [workflow Android/API](.github/workflows/android.yml) muestra dos cadenas independientes de cuatro jobs: **1. Preparación → 2. Build/validación → 3. Ejecución → 4. Reporte final**, una para API y otra para Android. La ejecución incluye las ocho pruebas API y la selección móvil sobre Android Emulator con Appium en Ubuntu. El reporte final se ejecuta incluso si falla o se omite una etapa anterior. En Android se muestran por separado el arranque del emulador, la instalación de la APK, el status de Appium y los escenarios. No requiere BrowserStack ni un dispositivo conectado a tu PC.
 
 1. Abrir [Actions del repositorio](https://github.com/Fperezu96/mobile-api-ai-assessment/actions). Los pull requests hacia main y los pushes a main inician API y smoke móvil.
 2. Abrir la ejecución y cada job para seguir los pasos y resultados de los casos en los logs.
@@ -182,3 +182,11 @@ El [workflow Android/API](.github/workflows/android.yml) ejecuta dos jobs indepe
 4. Para repetir la demostración, usar Re-run all jobs en la ejecución, con permisos de escritura. Run workflow sobre main permite elegir smoke, regression, catalog o exploratory.
 
 Los secretos BOOKER_USERNAME y BOOKER_PASSWORD se configuran en Settings → Secrets and variables → Actions. Los casos móviles no necesitan esas credenciales. En repositorios privados, el runner consume el cupo de Actions de la cuenta; no se garantiza uso ilimitado gratuito. La regresión conserva los fallos conocidos de la demo y puede finalizar en rojo.
+
+### Evidencia visual Android
+
+Cada paso conserva capturas al inicio y al final. Las pulsaciones, escritura (sin valores en el registro), limpieza de campos, Back, teclado y gestos conservan capturas antes/después y un registro con hora, paso y resultado. Las capturas se adjuntan dentro del paso correspondiente del HTML. Los campos visibles en pantalla quedan presentes en imágenes/video: usar únicamente datos de práctica.
+
+Cada caso incluye **Video del caso Android** (MP4), grabado por Appium desde que el catálogo está listo hasta terminar el caso, también cuando falla. El límite de grabación es 180 segundos, superior al timeout actual de 120 segundos por caso. No es el video web de Playwright. El pipeline comprueba con ffprobe que exista un stream reproducible y comprueba las capturas de pasos/interacciones. Un error de evidencia queda adjunto y hace fallar un caso que habría aprobado; no reemplaza una aserción fallida.
+
+Descargar `reporte-final-android-…`, conservar juntas las carpetas HTML y sus adjuntos y abrir el reporte con Playwright. Expandir los pasos para ver la secuencia de imágenes; abrir el adjunto MP4 para reproducir la interacción. Los logs técnicos de SDK, emulador y Appium permanecen en el mismo artefacto. La API conserva su historial HTTP y no genera capturas ni video.

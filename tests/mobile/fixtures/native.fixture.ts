@@ -1,3 +1,4 @@
+import { NativeEvidence } from '../../support/native-evidence.js';
 import type { Catalog } from '../../../src/mobile/contracts/catalog.contract.js';
 import type { ProductDetail } from '../../../src/mobile/contracts/product-detail.contract.js';
 import type { Cart } from '../../../src/mobile/contracts/cart.contract.js';
@@ -31,13 +32,25 @@ type NativeApp = {
   login: Login;
   shopping: ShoppingActions;
   review: ReviewDialog;
+  evidence: NativeEvidence;
 };
 export const test = base.extend<MobileOptions & {app: NativeApp; step: ObservedStep}>({
   step: async ({app}, use, info) => {
-    await use(observedStep(info, async (current, error) => {
+    const run = observedStep(info, async (current, error) => {
       await current.attach('Error y contexto del paso', {body: JSON.stringify({error: errorDetails(error), project: info.project.name, sessionId: app.driver.sessionId, package: await app.driver.getCurrentPackage()}, null, 2), contentType: 'application/json'});
       await current.attach('Pantalla en el paso fallido', {body: Buffer.from(await app.driver.takeScreenshot(), 'base64'), contentType: 'image/png'});
       await current.attach('Árbol UI en el paso fallido', {body: await app.driver.getPageSource(), contentType: 'application/xml'});
+    });
+    await use((title, body) => run(title, async current => {
+      app.evidence.current = current;
+      app.evidence.currentTitle = title;
+      try {
+        await app.evidence.screenshot('Inicio del paso · ' + title);
+        return await body(current);
+      } finally {
+        await app.evidence.screenshot('Fin del paso · ' + title);
+        app.evidence.current = undefined;
+      }
     }));
   },
   deviceProfile: [selectedDeviceProfiles()[0], {option: true}],
@@ -49,15 +62,19 @@ export const test = base.extend<MobileOptions & {app: NativeApp; step: ObservedS
     if (!statusResponse.ok || status.value?.ready !== true) throw new Error('El servidor Appium no está listo.');
     await info.attach('Servidor Appium', {body: JSON.stringify({endpoint, status: status.value}, null, 2), contentType: 'application/json'});
     // WebdriverIO es el cliente HTTP; el servidor Appium de appium:start controla Android mediante UiAutomator2.
+    const evidence = new NativeEvidence(info);
     const driver = await remote({
       protocol: 'http', hostname: '127.0.0.1', port: Number(process.env.APPIUM_PORT || 4723), path: '/',
+      beforeCommand: (name, args) => evidence.beforeCommand(name, args),
+      afterCommand: (name, args, _result, error) => evidence.afterCommand(name, args, error),
       logLevel: 'error', connectionRetryCount: 0, connectionRetryTimeout: 90000, capabilities,
     });
+    evidence.driver = driver;
     const ui = new NativeUi(driver);
     const catalog = new CatalogScreen(ui);
     const detail = new ProductDetailScreen(ui);
     const header = new HeaderComponent(ui);
-    const app: NativeApp = {review: new ReviewDialogComponent(ui), driver, catalog, detail, header, cart: new CartScreen(ui), login: new LoginScreen(ui), shopping: new ShoppingActions(catalog, detail, header)};
+    const app: NativeApp = {evidence, review: new ReviewDialogComponent(ui), driver, catalog, detail, header, cart: new CartScreen(ui), login: new LoginScreen(ui), shopping: new ShoppingActions(catalog, detail, header)};
     const captureErrors: string[] = [];
     try {
       await driver.setTimeout({implicit: 0});
@@ -71,8 +88,11 @@ export const test = base.extend<MobileOptions & {app: NativeApp; step: ObservedS
       await driver.activateApp('com.saucelabs.mydemoapp.android');
       await info.attach('Sesión nativa', {body: JSON.stringify({project: info.project.name, workerIndex: info.workerIndex, deviceProfile, sessionId: driver.sessionId, capabilities, resolvedCapabilities: driver.capabilities}, null, 2), contentType: 'application/json'});
       await catalog.waitForLoaded();
+      await evidence.startVideo();
       await use(app);
     } finally {
+      await evidence.finish();
+      captureErrors.push(...evidence.errors);
       // Intentar ambas capturas aunque una falle; cerrar siempre la sesión.
       try {
         const screenshot = info.outputPath('pantalla-final.png');
@@ -94,7 +114,7 @@ export const test = base.extend<MobileOptions & {app: NativeApp; step: ObservedS
         await info.attach('Log Android no disponible', {body: String(error), contentType: 'text/plain'});
       }
       await driver.deleteSession();
-      if (captureErrors.length) throw new Error('No se pudo conservar toda la evidencia nativa: ' + captureErrors.join('; '));
+      if (captureErrors.length && info.status === info.expectedStatus) throw new Error('No se pudo conservar toda la evidencia nativa: ' + captureErrors.join('; '));
     }
   },
 });
