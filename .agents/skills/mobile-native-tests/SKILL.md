@@ -32,13 +32,13 @@ Leer [contrato de revisión](references/review-contract.md) al preparar datos, a
 
 Consultar scripts actuales en package.json. Descubrir con:
 ~~~powershell
-npm.cmd run typecheck
-npm.cmd run test:mobile -- --list --grep "CART-03"
+npm run typecheck
+npm run test:mobile -- --list --grep "CART-03"
 ~~~
 Con el dispositivo listo, usar una terminal para appium:start y otra para:
 ~~~powershell
-npm.cmd run test:mobile -- --grep "CART-03"
-npm.cmd run report:mobile
+npm run test:mobile -- --grep "CART-03"
+npm run report:mobile
 ~~~
 
 Agregar @mobile y un tag funcional. Agregar @regression cuando deba entrar en la regresión determinista; @smoke solo para un recorrido breve y crítico. Para una demostración adicional usar @interview y selección explícita. @known-issue documenta un defecto, no cambia el resultado. Validar que --grep selecciona únicamente lo solicitado.
@@ -49,5 +49,5 @@ Agregar @mobile y un tag funcional. Agregar @regression cuando deba entrar en la
 - La demo bloquea UI unos 5 s al eliminar. Usar espera por condición de hasta 10 s, conservar el hallazgo de rendimiento y no llamarlo ANR sin evidencia.
 - No filtrar del muestreo los productos que crashean ni convertir su cierre en aprobación.
 - Si se pide “60 productos”, distinguir 60 unidades de un producto de 60 referencias distintas: el catálogo observado tiene 24 referencias. Una cantidad alta puede requerir muchas pulsaciones y un presupuesto medido; no subir timeouts sin justificarlo.
-- No ejecutar nube ni comprar cuota para esta entrega. iOS exige instalador y adaptación real; BrowserStack no está integrado al fixture de regresión. No acceder a cuentas AWS corporativas.
+- No usar BrowserStack/AWS ni comprar cuota para esta entrega. GitHub Actions puede ejecutar Android mediante el workflow del repositorio. iOS exige instalador y adaptación real; BrowserStack no está integrado al fixture de regresión. No acceder a cuentas AWS corporativas.
 - Un MCP permite leer/editar archivos o controlar una sesión; no ejecuta automáticamente este skill. El agente debe poder leer estas instrucciones y disponer de las herramientas necesarias. No prometer compatibilidad universal.

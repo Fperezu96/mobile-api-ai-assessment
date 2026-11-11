@@ -34,7 +34,7 @@ Inspector o una herramienta de sesión nativa permite observar elementos.
 WebdriverIO es la biblioteca cliente de Appium, no un emulador o MCP.
 No asumir que una herramienta está disponible por nombrarla.
 
-El comando npm.cmd run skill:prompt -- --id CART-03 --scenario "..."
+El comando npm run skill:prompt -- --id CART-03 --scenario "..."
 imprime una petición para pegar en el agente. No llama a un modelo,
 no genera código por sí solo y no abre sesiones.
 

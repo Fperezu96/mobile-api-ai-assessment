@@ -127,7 +127,7 @@ Appium y el driver están en package.json/lockfile. El launcher retira APPIUM_HO
 
 La APK es [My Demo App 2.3.0 build 27](https://github.com/saucelabs/my-demo-app-android/releases/download/2.3.0/mda-2.3.0-27.apk). El manifiesto apps/android-manifest.json fija URL y SHA256; capabilities comprueba el hash antes de crear la sesión. Es una build debug: no se presenta como artefacto release.
 
-## 7. ¿Cómo se ejecuta en paralelo localmente?
+## 7. ¿Cómo se ejecuta en paralelo y en GitHub Actions?
 
 Un proyecto API tiene un worker; cada proyecto de dispositivo tiene un worker y sesión nueva por test. Los perfiles se seleccionan por nombre y no por workerIndex. Se rechazan UDID o puertos internos duplicados.
 
@@ -138,7 +138,11 @@ Un proyecto API tiene un worker; cada proyecto de dispositivo tiene un worker y 
 
 Un Appium compartido admite sesiones independientes; no se incrementan workers sobre el mismo UDID. El descubrimiento con dos perfiles produjo 86 combinaciones de regresión; no demuestra paralelismo real.
 
-El workflow de GitHub Actions se retiró por decisión de alcance: esta entrega se verifica localmente. La ausencia de BrowserStack no impide técnicamente un pipeline con emulador, pero tampoco se implementa ni se acredita esa alternativa en la entrega actual. Una futura ejecución cloud y su paralelismo se explican en resultados.
+El workflow .github/workflows/android.yml utiliza dos máquinas virtuales Ubuntu 24.04: un job API y otro Android. El job Android instala Node, Java 21 y SDK, habilita KVM, arranca un emulador API 33 y ejecuta el mismo Appium/UiAutomator2 del proyecto. No requiere contenedor propio, Kubernetes ni BrowserStack. La preparación del emulador se realiza con android-emulator-runner; los scripts PowerShell del PC no se usan en Linux.
+
+La primera selección móvil es smoke; regresión, catálogo y exploración son opciones separadas. Se conserva un worker por emulador, sin matriz multidispositivo en esta primera comprobación. HTML/JSON/JUnit y logs se guardan aunque fallen las pruebas. Los resultados comprobados están en resultados.md; el procedimiento está en README.
+
+Fuentes: [runners GitHub con aceleración Android](https://docs.github.com/en/actions/reference/runners/github-hosted-runners) y [android-emulator-runner](https://github.com/ReactiveCircus/android-emulator-runner).
 
 Los runners esperan /status, conservan el código de salida y cierran solo sus procesos. Smoke mantiene señal rápida; catálogo completo y exploración tienen coste diferente. Compartir repositorio no elimina el consumo del emulador/Appium.
 

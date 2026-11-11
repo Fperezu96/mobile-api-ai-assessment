@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 const args = process.argv.slice(2);
 if (args.includes('--help')) {
-  console.log('Uso: npm.cmd run skill:prompt -- --id CART-03 --scenario "Objetivo, datos y resultado esperado"');
+  console.log('Uso: npm run skill:prompt -- --id CART-03 --scenario "Objetivo, datos y resultado esperado"');
   process.exit(0);
 }
 const values = {};
